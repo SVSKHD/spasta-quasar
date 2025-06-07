@@ -449,8 +449,3 @@ onBeforeUnmount(() => {
   }
 }
 </style>
-</template>
-
-<script setup lang="ts">
-// Component logic is already included above
-</script>
