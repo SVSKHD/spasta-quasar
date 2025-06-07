@@ -1,6 +1,8 @@
 import { 
   signInWithPopup, 
   GoogleAuthProvider, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -11,7 +13,7 @@ import type { User } from '../stores/authStore'
 const googleProvider = new GoogleAuthProvider()
 
 export const authService = {
-  // Sign in with Google
+  // Sign in with Google popup
   async signInWithGoogle(): Promise<User | null> {
     try {
       const result = await signInWithPopup(auth, googleProvider)
@@ -25,6 +27,36 @@ export const authService = {
       }
     } catch (error) {
       console.error('Google sign-in error:', error)
+      throw error
+    }
+  },
+
+  // Sign in with Google redirect
+  async signInWithRedirect(): Promise<void> {
+    try {
+      await signInWithRedirect(auth, googleProvider)
+    } catch (error) {
+      console.error('Google redirect sign-in error:', error)
+      throw error
+    }
+  },
+
+  // Get redirect result
+  async getRedirectResult(): Promise<User | null> {
+    try {
+      const result = await getRedirectResult(auth)
+      if (result?.user) {
+        const user = result.user
+        return {
+          id: user.uid,
+          name: user.displayName || 'Unknown User',
+          email: user.email || '',
+          picture: user.photoURL || undefined
+        }
+      }
+      return null
+    } catch (error) {
+      console.error('Get redirect result error:', error)
       throw error
     }
   },

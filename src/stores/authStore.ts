@@ -29,6 +29,30 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const loginWithRedirect = async (): Promise<void> => {
+    try {
+      await authService.signInWithRedirect()
+    } catch (error) {
+      console.error('Redirect login error:', error)
+      throw error
+    }
+  }
+
+  const handleRedirectResult = async (): Promise<User | null> => {
+    try {
+      const userData = await authService.getRedirectResult()
+      if (userData) {
+        user.value = userData
+        isAuthenticated.value = true
+        return userData
+      }
+      return null
+    } catch (error) {
+      console.error('Handle redirect result error:', error)
+      throw error
+    }
+  }
+
   const loginAsGuest = () => {
     const guestUser: User = {
       id: 'guest',
@@ -66,6 +90,8 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     loading,
     login,
+    loginWithRedirect,
+    handleRedirectResult,
     loginAsGuest,
     logout,
     initializeAuth
