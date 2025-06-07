@@ -1,93 +1,95 @@
 <template>
   <q-layout view="lHh LpR lFf">
     <!-- Header -->
-    <q-header elevated class="spasta-card">
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          @click="drawerOpen = !drawerOpen"
-          class="q-mr-sm spasta-text"
-        />
-        
-        <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
-          <q-icon name="dashboard" class="q-mr-sm icon-md" />
-          Spasta
-          <span class="text-caption q-ml-sm">{{ currentPageTitle }}</span>
-        </q-toolbar-title>
-        
-        <q-btn
-          v-if="$route.name === 'Dashboard'"
-          flat
-          round
-          icon="add"
-          @click="showTaskDrawer = true"
-          class="q-mr-sm spasta-text"
-        >
-          <q-tooltip>Add new task</q-tooltip>
-        </q-btn>
-        
-        <q-btn
-          v-if="$route.name === 'Dashboard'"
-          flat
-          round
-          icon="category"
-          @click="showCategoryDrawer = true"
-          class="q-mr-sm spasta-text"
-        >
-          <q-tooltip>Add new board</q-tooltip>
-        </q-btn>
-        
-        <q-btn
-          flat
-          round
-          icon="refresh"
-          @click="refreshData"
-          class="q-mr-sm spasta-text"
-          :loading="isLoading"
-        >
-          <q-tooltip>Refresh</q-tooltip>
-        </q-btn>
+    <q-header class="header-container">
+      <div class="header-wrapper">
+        <q-toolbar class="spasta-header">
+          <q-btn
+            flat
+            dense
+            round
+            icon="menu"
+            @click="drawerOpen = !drawerOpen"
+            class="q-mr-sm spasta-text"
+          />
+          
+          <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
+            <q-icon name="dashboard" class="q-mr-sm icon-md" />
+            Spasta
+            <span class="text-caption q-ml-sm">{{ currentPageTitle }}</span>
+          </q-toolbar-title>
+          
+          <q-btn
+            v-if="$route.name === 'Dashboard'"
+            flat
+            round
+            icon="add"
+            @click="showTaskDrawer = true"
+            class="q-mr-sm spasta-text"
+          >
+            <q-tooltip>Add new task</q-tooltip>
+          </q-btn>
+          
+          <q-btn
+            v-if="$route.name === 'Dashboard'"
+            flat
+            round
+            icon="category"
+            @click="showCategoryDrawer = true"
+            class="q-mr-sm spasta-text"
+          >
+            <q-tooltip>Add new board</q-tooltip>
+          </q-btn>
+          
+          <q-btn
+            flat
+            round
+            icon="refresh"
+            @click="refreshData"
+            class="q-mr-sm spasta-text"
+            :loading="isLoading"
+          >
+            <q-tooltip>Refresh</q-tooltip>
+          </q-btn>
 
-        <!-- User Menu -->
-        <q-btn-dropdown
-          flat
-          round
-          class="q-ml-sm spasta-text"
-        >
-          <template v-slot:label>
-            <q-avatar size="32px">
-              <img 
-                v-if="authStore.user?.picture" 
-                :src="authStore.user.picture" 
-                :alt="authStore.user.name"
-                @error="handleUserPhotoError"
-              />
-              <div 
-                v-else 
-                class="bg-primary text-white text-weight-bold"
-                style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
-              >
-                {{ getUserInitials() }}
-              </div>
-            </q-avatar>
-          </template>
+          <!-- User Menu -->
+          <q-btn-dropdown
+            flat
+            round
+            class="q-ml-sm spasta-text"
+          >
+            <template v-slot:label>
+              <q-avatar size="32px">
+                <img 
+                  v-if="authStore.user?.picture" 
+                  :src="authStore.user.picture" 
+                  :alt="authStore.user.name"
+                  @error="handleUserPhotoError"
+                />
+                <div 
+                  v-else 
+                  class="bg-primary text-white text-weight-bold"
+                  style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+                >
+                  {{ getUserInitials() }}
+                </div>
+              </q-avatar>
+            </template>
 
-          <q-list class="spasta-card">
-            <q-item-label header class="spasta-text">{{ authStore.user?.name }}</q-item-label>
-            <q-item-label header class="text-caption spasta-text">{{ authStore.user?.email }}</q-item-label>
-            <q-separator />
-            <q-item clickable v-close-popup @click="logout" class="spasta-text">
-              <q-item-section avatar>
-                <q-icon name="logout" class="icon-sm" />
-              </q-item-section>
-              <q-item-section>Logout</q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </q-toolbar>
+            <q-list class="spasta-card">
+              <q-item-label header class="spasta-text">{{ authStore.user?.name }}</q-item-label>
+              <q-item-label header class="text-caption spasta-text">{{ authStore.user?.email }}</q-item-label>
+              <q-separator />
+              <q-item clickable v-close-popup @click="logout" class="spasta-text">
+                <q-item-section avatar>
+                  <q-icon name="logout" class="icon-sm" />
+                </q-item-section>
+                <q-item-section>Logout</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-toolbar>
+      </div>
     </q-header>
 
     <!-- Navigation Drawer -->
@@ -132,14 +134,14 @@
 
     <!-- Main Content -->
     <q-page-container>
-      <q-page class="spasta-bg">
+      <q-page class="spasta-bg main-content">
         <!-- Loading State -->
         <div v-if="authStore.loading" class="flex flex-center" style="height: 100vh;">
           <q-spinner-dots size="50px" color="white" />
         </div>
         
         <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container q-pa-md">
+        <div v-else class="greeting-container">
           <SpastaGreetingCard />
         </div>
         
@@ -400,9 +402,51 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Header Styling */
+.header-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 16px 24px 0 24px;
+}
+
+.header-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.spasta-header {
+  background: linear-gradient(135deg, rgba(114, 92, 173, 0.95) 0%, rgba(11, 29, 81, 0.95) 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 227, 169, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(114, 92, 173, 0.3);
+  transition: all 0.3s ease;
+  min-height: 64px;
+  padding: 0 24px;
+}
+
+.spasta-header:hover {
+  border-color: rgba(255, 227, 169, 0.4);
+  box-shadow: 0 12px 40px rgba(114, 92, 173, 0.4);
+}
+
+/* Main Content Spacing */
+.main-content {
+  padding-top: 100px !important; /* Space for detached header */
+}
+
+.greeting-container {
+  padding: 0 24px 24px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(11, 29, 81, 0.95) 0%, rgba(11, 29, 81, 0.98) 100%);
   border-right: 2px solid rgba(255, 227, 169, 0.1);
+  margin-top: 100px; /* Space for detached header */
 }
 
 .nav-item {
@@ -424,14 +468,79 @@ onMounted(async () => {
   margin-right: 12px;
 }
 
-.greeting-container {
-  padding-bottom: 0 !important;
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 12px 16px 0 16px;
+  }
+  
+  .spasta-header {
+    border-radius: 16px;
+    padding: 0 16px;
+    min-height: 56px;
+  }
+  
+  .main-content {
+    padding-top: 80px !important;
+  }
+  
+  .greeting-container {
+    padding: 0 16px 16px 16px;
+  }
+  
+  .spasta-drawer {
+    margin-top: 80px;
+  }
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .greeting-container {
-    padding: 16px 16px 0 16px !important;
+/* Tablet Responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .header-container {
+    padding: 14px 20px 0 20px;
   }
+  
+  .greeting-container {
+    padding: 0 20px 20px 20px;
+  }
+  
+  .main-content {
+    padding-top: 90px !important;
+  }
+  
+  .spasta-drawer {
+    margin-top: 90px;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+.spasta-header .q-btn {
+  transition: all 0.2s ease;
+}
+
+.spasta-header .q-btn:hover {
+  background: rgba(255, 227, 169, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Enhanced toolbar title styling */
+.q-toolbar-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.q-toolbar-title .text-caption {
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+/* User avatar hover effect */
+.q-btn-dropdown .q-avatar {
+  transition: all 0.2s ease;
+}
+
+.q-btn-dropdown:hover .q-avatar {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 227, 169, 0.3);
 }
 </style>
