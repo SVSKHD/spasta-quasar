@@ -856,8 +856,9 @@ onMounted(() => {
 
 <style scoped>
 .notes-view {
-  height: calc(100vh - 50px);
+  height: calc(100vh - 150px);
   width: 100%;
+  margin-top: 0;
 }
 
 .notes-layout {
@@ -961,6 +962,10 @@ onMounted(() => {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .notes-view {
+    height: calc(100vh - 200px);
+  }
+  
   .notes-layout {
     flex-direction: column;
   }
@@ -974,7 +979,7 @@ onMounted(() => {
   }
   
   .notes-editor {
-    height: calc(100vh - 350px);
+    height: calc(100vh - 500px);
   }
 }
 </style>

@@ -138,9 +138,14 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
+        <!-- Greeting Card - Show on all pages -->
+        <div v-else class="greeting-container q-pa-md">
+          <SpastaGreetingCard />
+        </div>
+        
         <!-- Router View -->
         <router-view 
-          v-else 
+          v-if="!authStore.loading"
           @add-task="handleAddTask"
           @edit-task="handleEditTask"
           @delete-task="handleDeleteTask"
@@ -417,5 +422,16 @@ onMounted(async () => {
 
 .nav-item .q-icon {
   margin-right: 12px;
+}
+
+.greeting-container {
+  padding-bottom: 0 !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .greeting-container {
+    padding: 16px 16px 0 16px !important;
+  }
 }
 </style>

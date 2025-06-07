@@ -841,7 +841,8 @@ onMounted(() => {
 
 <style scoped>
 .calendar-view {
-  height: calc(100vh - 50px);
+  height: calc(100vh - 150px);
+  margin-top: 0;
 }
 
 .spasta-calendar :deep(.q-calendar-month__head-weekday) {
