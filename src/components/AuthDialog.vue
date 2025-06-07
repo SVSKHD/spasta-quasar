@@ -32,6 +32,24 @@
           </q-btn>
         </div>
 
+        <!-- Show redirect option if popup was blocked -->
+        <div v-if="showRedirectOption" class="text-center q-mt-md">
+          <q-btn
+            size="md"
+            color="primary"
+            class="full-width q-py-sm"
+            no-caps
+            @click="handleGoogleRedirect"
+            :loading="loading"
+          >
+            <q-icon name="open_in_new" class="q-mr-sm" />
+            Try Google Login (Redirect)
+          </q-btn>
+          <div class="text-caption spasta-text opacity-70 q-mt-xs">
+            Use this if popups are blocked
+          </div>
+        </div>
+
         <q-separator class="q-my-lg" />
 
         <div class="text-center">
@@ -75,6 +93,7 @@ const emit = defineEmits<Emits>()
 const $q = useQuasar()
 const authStore = useAuthStore()
 const loading = ref(false)
+const showRedirectOption = ref(false)
 
 const dialogVisible = computed({
   get: () => props.modelValue,
@@ -101,7 +120,8 @@ const handleGoogleLogin = async () => {
     
     // Check if the error is specifically a popup-blocked error
     if (error?.code === 'auth/popup-blocked') {
-      errorMessage = 'Popup blocked by browser. Please allow popups for this site and try again. Look for a popup blocker icon in your address bar and click "Allow" for localhost:5173.'
+      showRedirectOption.value = true
+      errorMessage = 'Popup blocked by browser. Please allow popups for this site or try the redirect option below. Look for a popup blocker icon in your address bar and click "Allow".'
     }
     
     $q.notify({
@@ -116,6 +136,33 @@ const handleGoogleLogin = async () => {
           color: 'white'
         }
       ]
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleGoogleRedirect = async () => {
+  loading.value = true
+  try {
+    const user = await authStore.loginWithRedirect()
+    if (user) {
+      $q.notify({
+        type: 'positive',
+        message: `Welcome, ${user.name}!`,
+        position: 'top-right',
+        timeout: 3000
+      })
+      dialogVisible.value = false
+    }
+  } catch (error: any) {
+    console.error('Redirect login error:', error)
+    
+    $q.notify({
+      type: 'negative',
+      message: 'Login failed. Please try again.',
+      position: 'top-right',
+      timeout: 5000
     })
   } finally {
     loading.value = false
