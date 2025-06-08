@@ -394,8 +394,10 @@ const submitForm = async () => {
         })
       }
     } else {
+      console.log('Creating new category...')
       const newCategory = await categoryStore.addCategory(categoryData)
       if (newCategory) {
+        console.log('Category created successfully, emitting event:', newCategory)
         emit('category-created', newCategory)
         $q.notify({
           type: 'positive',
@@ -403,6 +405,8 @@ const submitForm = async () => {
           position: 'top-right',
           timeout: 2000
         })
+      } else {
+        throw new Error('Failed to create category')
       }
     }
     
@@ -468,3 +472,4 @@ watch(() => props.category, () => {
   border-radius: 8px;
 }
 </style>
+</template>

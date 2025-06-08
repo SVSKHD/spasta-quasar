@@ -16,7 +16,29 @@
         />
       </div>
       
-      <div class="boards-grid spacing-lg">
+      <!-- Debug Info -->
+      <div v-if="categoryStore.loading" class="text-center q-pa-lg">
+        <q-spinner-dots size="50px" color="white" />
+        <div class="text-body2 spasta-text q-mt-md">Loading categories...</div>
+      </div>
+      
+      <div v-else-if="categoryStore.categories.length === 0" class="text-center q-pa-xl">
+        <q-icon name="category" size="xl" class="spasta-text opacity-30 q-mb-lg" />
+        <div class="text-h6 spasta-text q-mb-md">No Project Boards Yet</div>
+        <div class="text-body2 spasta-text opacity-70 q-mb-lg">
+          Create your first project board to organize your tasks
+        </div>
+        <q-btn
+          color="white"
+          text-color="grey-8"
+          icon="add"
+          label="Create Your First Board"
+          @click="$emit('edit-category', undefined)"
+          class="q-px-lg"
+        />
+      </div>
+      
+      <div v-else class="boards-grid spacing-lg">
         <q-card
           v-for="category in categoryStore.categories"
           :key="category.id"
@@ -155,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
 import type { Task, Category } from '../types/task'
@@ -221,6 +243,11 @@ const handleMoveTask = (taskId: string, newStatus: string) => {
 const handleToggleSubtask = (taskId: string, subtaskId: string) => {
   emit('toggle-subtask', taskId, subtaskId)
 }
+
+onMounted(() => {
+  console.log('CategoryBoard mounted, categories:', categoryStore.categories.length)
+  console.log('Category store loading:', categoryStore.loading)
+})
 </script>
 
 <style scoped>
@@ -334,3 +361,4 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
   background: rgba(58, 107, 140, 0.8);
 }
 </style>
+</template>
