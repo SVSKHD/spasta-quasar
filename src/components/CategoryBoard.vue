@@ -361,4 +361,3 @@ onMounted(() => {
   background: rgba(58, 107, 140, 0.8);
 }
 </style>
-</template>
