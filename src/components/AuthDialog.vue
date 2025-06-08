@@ -103,7 +103,7 @@ const dialogVisible = computed({
 const handleGoogleLogin = async () => {
   loading.value = true
   try {
-    const user = await authStore.login()
+    const user = await authStore.loginWithRedirect()
     if (user) {
       $q.notify({
         type: 'positive',
