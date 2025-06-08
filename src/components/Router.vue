@@ -479,7 +479,7 @@ onMounted(async () => {
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 16px 24px 0 24px;
+  padding: 12px 24px 0 24px; /* Reduced top padding from 16px to 12px */
 }
 
 .header-wrapper {
@@ -534,11 +534,11 @@ onMounted(async () => {
 
 /* Main Content Spacing */
 .main-content {
-  padding-top: 100px !important; /* Space for detached header */
+  padding-top: 88px !important; /* Reduced from 100px to 88px */
 }
 
 .greeting-container {
-  padding: 0 24px 24px 24px;
+  padding: 0 24px 16px 24px; /* Reduced bottom padding from 24px to 16px */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -547,7 +547,7 @@ onMounted(async () => {
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 100px; /* Space for detached header */
+  margin-top: 88px; /* Reduced from 100px to 88px */
 }
 
 .nav-item {
@@ -572,7 +572,7 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 12px 16px 0 16px;
+    padding: 8px 16px 0 16px; /* Reduced top padding from 12px to 8px */
   }
   
   .spasta-header {
@@ -586,34 +586,34 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 80px !important;
+    padding-top: 72px !important; /* Reduced from 80px to 72px */
   }
   
   .greeting-container {
-    padding: 0 16px 16px 16px;
+    padding: 0 16px 12px 16px; /* Reduced bottom padding from 16px to 12px */
   }
   
   .spasta-drawer {
-    margin-top: 80px;
+    margin-top: 72px; /* Reduced from 80px to 72px */
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 14px 20px 0 20px;
+    padding: 10px 20px 0 20px; /* Reduced top padding from 14px to 10px */
   }
   
   .greeting-container {
-    padding: 0 20px 20px 20px;
+    padding: 0 20px 14px 20px; /* Reduced bottom padding from 20px to 14px */
   }
   
   .main-content {
-    padding-top: 90px !important;
+    padding-top: 80px !important; /* Reduced from 90px to 80px */
   }
   
   .spasta-drawer {
-    margin-top: 90px;
+    margin-top: 80px; /* Reduced from 90px to 80px */
   }
 }
 

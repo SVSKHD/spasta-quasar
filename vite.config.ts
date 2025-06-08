@@ -8,5 +8,8 @@ export default defineConfig({
       template: { transformAssetUrls }
     }),
     quasar()
-  ]
+  ],
+  define: {
+    __VUE_PROD_DEVTOOLS__: true
+  }
 })
