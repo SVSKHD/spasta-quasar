@@ -428,19 +428,19 @@ onMounted(async () => {
 }
 
 .spasta-header {
-  background: linear-gradient(135deg, rgba(114, 92, 173, 0.95) 0%, rgba(11, 29, 81, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(58, 107, 140, 0.95) 0%, rgba(37, 77, 112, 0.95) 100%);
   border-radius: 20px;
-  border: 2px solid rgba(255, 227, 169, 0.2);
+  border: 2px solid rgba(239, 228, 210, 0.2);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(114, 92, 173, 0.3);
+  box-shadow: 0 8px 32px rgba(58, 107, 140, 0.3);
   transition: all 0.3s ease;
   min-height: 64px;
   padding: 0 24px;
 }
 
 .spasta-header:hover {
-  border-color: rgba(255, 227, 169, 0.4);
-  box-shadow: 0 12px 40px rgba(114, 92, 173, 0.4);
+  border-color: rgba(239, 228, 210, 0.4);
+  box-shadow: 0 12px 40px rgba(58, 107, 140, 0.4);
 }
 
 /* Main Content Spacing */
@@ -456,8 +456,8 @@ onMounted(async () => {
 
 /* Drawer Styling */
 .spasta-drawer {
-  background: linear-gradient(145deg, rgba(11, 29, 81, 0.95) 0%, rgba(11, 29, 81, 0.98) 100%);
-  border-right: 2px solid rgba(255, 227, 169, 0.1);
+  background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
+  border-right: 2px solid rgba(239, 228, 210, 0.1);
   margin-top: 100px; /* Space for detached header */
 }
 
@@ -467,13 +467,13 @@ onMounted(async () => {
 }
 
 .nav-item:hover {
-  background: rgba(114, 92, 173, 0.2);
+  background: rgba(58, 107, 140, 0.3);
   transform: translateX(4px);
 }
 
 .nav-item.q-item--active {
-  background: rgba(114, 92, 173, 0.3);
-  border-left: 4px solid #FFE3A9;
+  background: rgba(58, 107, 140, 0.5);
+  border-left: 4px solid #EFE4D2;
 }
 
 .nav-item .q-icon {
@@ -530,7 +530,7 @@ onMounted(async () => {
 }
 
 .spasta-header .q-btn:hover {
-  background: rgba(255, 227, 169, 0.1);
+  background: rgba(239, 228, 210, 0.1);
   transform: translateY(-1px);
 }
 
@@ -553,6 +553,6 @@ onMounted(async () => {
 
 .q-btn-dropdown:hover .q-avatar {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(255, 227, 169, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 228, 210, 0.3);
 }
 </style>

@@ -243,26 +243,26 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
   border-radius: 20px;
   transition: all 0.3s ease;
   min-height: 220px;
-  border: 2px solid rgba(255, 227, 169, 0.2);
+  border: 2px solid rgba(239, 228, 210, 0.2);
 }
 
 .category-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(114, 92, 173, 0.3);
-  border-color: #FFE3A9;
+  box-shadow: 0 16px 40px rgba(58, 107, 140, 0.4);
+  border-color: #EFE4D2;
 }
 
 .add-category-card {
-  border: 2px dashed #725CAD;
-  background: rgba(114, 92, 173, 0.1);
+  border: 2px dashed #3A6B8C;
+  background: rgba(58, 107, 140, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .add-category-card:hover {
-  border-color: #FFE3A9;
-  background: rgba(114, 92, 173, 0.2);
+  border-color: #EFE4D2;
+  background: rgba(58, 107, 140, 0.3);
 }
 
 .category-flow {
@@ -321,16 +321,16 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
 }
 
 .task-flow::-webkit-scrollbar-track {
-  background: rgba(255, 227, 169, 0.1);
+  background: rgba(239, 228, 210, 0.1);
   border-radius: 6px;
 }
 
 .task-flow::-webkit-scrollbar-thumb {
-  background: #725CAD;
+  background: #3A6B8C;
   border-radius: 6px;
 }
 
 .task-flow::-webkit-scrollbar-thumb:hover {
-  background: rgba(114, 92, 173, 0.8);
+  background: rgba(58, 107, 140, 0.8);
 }
 </style>
