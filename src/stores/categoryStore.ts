@@ -31,8 +31,8 @@ export const useCategoryStore = defineStore('categories', () => {
         if (firestoreCategories.length === 0) {
           // Add default categories if none exist
           const defaultCategories = getDefaultCategories()
-          for (const category of defaultCategories) {
-            const newCategory = await firestoreService.addCategory(authStore.user.id, category)
+          for (const categoryData of defaultCategories) {
+            const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
             if (newCategory) {
               categories.value.push(newCategory)
             }
@@ -101,6 +101,7 @@ export const useCategoryStore = defineStore('categories', () => {
   const addCategory = async (categoryData: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!authStore.user?.id) return null
 
+    loading.value = true
     try {
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
@@ -118,21 +119,27 @@ export const useCategoryStore = defineStore('categories', () => {
         const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
         if (newCategory) {
           categories.value.push(newCategory)
+          return newCategory
         }
-        return newCategory
+        return null
       }
     } catch (error) {
       console.error('Error adding category:', error)
-      return null
+      throw error
+    } finally {
+      loading.value = false
     }
   }
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
+    if (!authStore.user?.id) return null
+
+    loading.value = true
     try {
       const index = categories.value.findIndex(category => category.id === id)
       if (index === -1) return null
 
-      if (authStore.user?.id === 'guest') {
+      if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
         categories.value[index] = {
           ...categories.value[index],
@@ -156,16 +163,21 @@ export const useCategoryStore = defineStore('categories', () => {
       }
     } catch (error) {
       console.error('Error updating category:', error)
-      return null
+      throw error
+    } finally {
+      loading.value = false
     }
   }
 
   const deleteCategory = async (id: string) => {
+    if (!authStore.user?.id) return false
+
+    loading.value = true
     try {
       const index = categories.value.findIndex(category => category.id === id)
       if (index === -1) return false
 
-      if (authStore.user?.id === 'guest') {
+      if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
         categories.value.splice(index, 1)
         saveGuestCategories()
@@ -181,6 +193,8 @@ export const useCategoryStore = defineStore('categories', () => {
     } catch (error) {
       console.error('Error deleting category:', error)
       return false
+    } finally {
+      loading.value = false
     }
   }
 

@@ -229,6 +229,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useCategoryStore } from '../stores/categoryStore'
 import type { Category, CategoryStatus } from '../types/task'
 
@@ -246,6 +247,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const $q = useQuasar()
 const categoryStore = useCategoryStore()
 const submitting = ref(false)
 
@@ -382,17 +384,35 @@ const submitForm = async () => {
       const updatedCategory = await categoryStore.updateCategory(props.category.id, categoryData)
       if (updatedCategory) {
         emit('category-updated', updatedCategory)
+        $q.notify({
+          type: 'positive',
+          message: `Board "${updatedCategory.name}" updated successfully`,
+          position: 'top-right',
+          timeout: 2000
+        })
       }
     } else {
       const newCategory = await categoryStore.addCategory(categoryData)
       if (newCategory) {
         emit('category-created', newCategory)
+        $q.notify({
+          type: 'positive',
+          message: `Board "${newCategory.name}" created successfully`,
+          position: 'top-right',
+          timeout: 2000
+        })
       }
     }
     
     close()
   } catch (error) {
     console.error('Error submitting form:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error saving board. Please try again.',
+      position: 'top-right',
+      timeout: 3000
+    })
   } finally {
     submitting.value = false
   }
