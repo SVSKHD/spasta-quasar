@@ -50,8 +50,8 @@
             <SpastaTaskCard
               :task="task"
               @edit="$emit('edit-task', task)"
-              @delete="$emit('delete-task', $event)"
-              @toggle-subtask="$emit('toggle-subtask', $event, arguments[1])"
+              @delete="handleDeleteTask"
+              @toggle-subtask="handleToggleSubtask"
             />
           </div>
         </template>
@@ -145,8 +145,19 @@ const columnColor = computed(() => columnConfig.value.color)
 const handleDragChange = (event: any) => {
   if (event.added) {
     const task = event.added.element
+    console.log('TaskColumn: Task dropped, moving to status:', props.status)
     emit('move-task', task.id, props.status)
   }
+}
+
+const handleDeleteTask = (taskId: string) => {
+  console.log('TaskColumn: Delete task requested:', taskId)
+  emit('delete-task', taskId)
+}
+
+const handleToggleSubtask = (taskId: string, subtaskId: string) => {
+  console.log('TaskColumn: Toggle subtask requested:', taskId, subtaskId)
+  emit('toggle-subtask', taskId, subtaskId)
 }
 </script>
 
@@ -156,12 +167,12 @@ const handleDragChange = (event: any) => {
   min-height: 600px;
   width: 100%;
   max-width: 400px;
-  border: 2px solid rgba(255, 227, 169, 0.2);
+  border: 2px solid rgba(239, 228, 210, 0.2);
   margin: 0 12px;
 }
 
 .column-header {
-  border-bottom: 1px solid rgba(255, 227, 169, 0.2);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.2);
   border-radius: 20px 20px 0 0;
 }
 
@@ -172,7 +183,7 @@ const handleDragChange = (event: any) => {
 
 .drag-area-empty {
   min-height: 300px;
-  border: 2px dashed rgba(255, 227, 169, 0.3);
+  border: 2px dashed rgba(239, 228, 210, 0.3);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -192,8 +203,8 @@ const handleDragChange = (event: any) => {
 /* Drag and drop styling */
 .task-ghost {
   opacity: 0.5;
-  background: rgba(255, 227, 169, 0.1);
-  border: 2px dashed #FFE3A9;
+  background: rgba(239, 228, 210, 0.1);
+  border: 2px dashed #EFE4D2;
   border-radius: 12px;
 }
 
@@ -210,13 +221,13 @@ const handleDragChange = (event: any) => {
 
 /* Enhanced drag area feedback */
 .task-list:hover {
-  background: rgba(255, 227, 169, 0.05);
+  background: rgba(239, 228, 210, 0.05);
   border-radius: 12px;
 }
 
 .drag-area-empty:hover {
-  border-color: rgba(255, 227, 169, 0.5);
-  background: rgba(255, 227, 169, 0.05);
+  border-color: rgba(239, 228, 210, 0.5);
+  background: rgba(239, 228, 210, 0.05);
 }
 
 @media (max-width: 768px) {

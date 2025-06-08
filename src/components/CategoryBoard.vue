@@ -16,27 +16,14 @@
         />
       </div>
       
-      <!-- Debug Info -->
+      <!-- Loading State -->
       <div v-if="categoryStore.loading" class="text-center q-pa-lg">
         <q-spinner-dots size="50px" color="white" />
         <div class="text-body2 spasta-text q-mt-md">Loading categories...</div>
       </div>
       
-      <!-- Debug Panel -->
-      <div class="debug-panel q-mb-lg" style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px;">
-        <div class="text-caption spasta-text">
-          Debug Info: 
-          Categories count: {{ categoryStore.categories.length }} | 
-          Loading: {{ categoryStore.loading }} | 
-          User: {{ authStore.user?.id }} | 
-          Auth: {{ authStore.isAuthenticated }}
-        </div>
-        <div v-if="categoryStore.categories.length > 0" class="text-caption spasta-text q-mt-xs">
-          Categories: {{ categoryStore.categories.map(c => c.name).join(', ') }}
-        </div>
-      </div>
-      
-      <div v-if="!categoryStore.loading && categoryStore.categories.length === 0" class="text-center q-pa-xl">
+      <!-- Empty State -->
+      <div v-else-if="categoryStore.categories.length === 0" class="text-center q-pa-xl">
         <q-icon name="category" size="xl" class="spasta-text opacity-30 q-mb-lg" />
         <div class="text-h6 spasta-text q-mb-md">No Project Boards Yet</div>
         <div class="text-body2 spasta-text opacity-70 q-mb-lg">
@@ -52,7 +39,8 @@
         />
       </div>
       
-      <div v-else-if="!categoryStore.loading" class="boards-grid spacing-lg">
+      <!-- Categories Grid -->
+      <div v-else class="boards-grid spacing-lg">
         <q-card
           v-for="category in categoryStore.categories"
           :key="category.id"
@@ -183,8 +171,7 @@
             @move-task="handleMoveTask"
             @toggle-subtask="handleToggleSubtask"
             class="flow-column"
-          >
-          </SpastaTaskColumn>
+          />
         </div>
       </div>
     </div>
@@ -249,16 +236,29 @@ const handleEditTask = (task: Task) => {
   emit('edit-task', task)
 }
 
-const handleDeleteTask = (taskId: string) => {
-  emit('delete-task', taskId)
+const handleDeleteTask = async (taskId: string) => {
+  console.log('CategoryBoard: Deleting task:', taskId)
+  const success = await taskStore.deleteTask(taskId)
+  if (success) {
+    console.log('CategoryBoard: Task deleted successfully')
+  } else {
+    console.error('CategoryBoard: Failed to delete task')
+  }
 }
 
-const handleMoveTask = (taskId: string, newStatus: string) => {
-  emit('move-task', taskId, newStatus)
+const handleMoveTask = async (taskId: string, newStatus: string) => {
+  console.log('CategoryBoard: Moving task:', taskId, 'to status:', newStatus)
+  const result = await taskStore.updateTask(taskId, { status: newStatus })
+  if (result) {
+    console.log('CategoryBoard: Task moved successfully')
+  } else {
+    console.error('CategoryBoard: Failed to move task')
+  }
 }
 
-const handleToggleSubtask = (taskId: string, subtaskId: string) => {
-  emit('toggle-subtask', taskId, subtaskId)
+const handleToggleSubtask = async (taskId: string, subtaskId: string) => {
+  console.log('CategoryBoard: Toggling subtask:', subtaskId, 'for task:', taskId)
+  await taskStore.toggleSubtask(taskId, subtaskId)
 }
 
 // Watch for auth changes and reload categories
@@ -347,11 +347,6 @@ onMounted(async () => {
 .flow-column {
   flex: 0 0 380px;
   min-width: 380px;
-}
-
-.debug-panel {
-  font-family: monospace;
-  font-size: 12px;
 }
 
 /* Mobile Responsive */

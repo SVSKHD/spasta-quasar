@@ -24,7 +24,7 @@ export const firestoreService = {
       const q = query(
         tasksRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('updatedAt', 'desc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -112,7 +112,7 @@ export const firestoreService = {
       const q = query(
         categoriesRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('updatedAt', 'desc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -289,7 +289,7 @@ export const firestoreService = {
       const q = query(
         goalsRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('updatedAt', 'desc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -374,7 +374,7 @@ export const firestoreService = {
       const q = query(
         categoriesRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('name', 'asc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -403,7 +403,7 @@ export const firestoreService = {
       const q = query(
         budgetsRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('updatedAt', 'desc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -433,7 +433,7 @@ export const firestoreService = {
       const q = query(
         tasksRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('updatedAt', 'desc')
       )
       const querySnapshot = await getDocs(q)
       
@@ -461,7 +461,8 @@ export const firestoreService = {
       const docRef = await addDoc(tasksRef, {
         ...taskData,
         userId,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       })
       
       const newTask = {
@@ -482,7 +483,10 @@ export const firestoreService = {
     try {
       console.log('Updating calendar task in Firestore:', taskId)
       const taskRef = doc(db, 'calendar_tasks', taskId)
-      await updateDoc(taskRef, updates)
+      await updateDoc(taskRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
       console.log('Calendar task updated in Firestore:', taskId)
       return true
     } catch (error) {
@@ -597,7 +601,7 @@ export const firestoreService = {
       const q = query(
         categoriesRef, 
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('name', 'asc')
       )
       const querySnapshot = await getDocs(q)
       
