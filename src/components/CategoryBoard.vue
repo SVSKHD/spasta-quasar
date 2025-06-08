@@ -22,7 +22,21 @@
         <div class="text-body2 spasta-text q-mt-md">Loading categories...</div>
       </div>
       
-      <div v-else-if="categoryStore.categories.length === 0" class="text-center q-pa-xl">
+      <!-- Debug Panel -->
+      <div class="debug-panel q-mb-lg" style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px;">
+        <div class="text-caption spasta-text">
+          Debug Info: 
+          Categories count: {{ categoryStore.categories.length }} | 
+          Loading: {{ categoryStore.loading }} | 
+          User: {{ authStore.user?.id }} | 
+          Auth: {{ authStore.isAuthenticated }}
+        </div>
+        <div v-if="categoryStore.categories.length > 0" class="text-caption spasta-text q-mt-xs">
+          Categories: {{ categoryStore.categories.map(c => c.name).join(', ') }}
+        </div>
+      </div>
+      
+      <div v-if="!categoryStore.loading && categoryStore.categories.length === 0" class="text-center q-pa-xl">
         <q-icon name="category" size="xl" class="spasta-text opacity-30 q-mb-lg" />
         <div class="text-h6 spasta-text q-mb-md">No Project Boards Yet</div>
         <div class="text-body2 spasta-text opacity-70 q-mb-lg">
@@ -38,7 +52,7 @@
         />
       </div>
       
-      <div v-else class="boards-grid spacing-lg">
+      <div v-else-if="!categoryStore.loading" class="boards-grid spacing-lg">
         <q-card
           v-for="category in categoryStore.categories"
           :key="category.id"
@@ -177,9 +191,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
+import { useAuthStore } from '../stores/authStore'
 import type { Task, Category } from '../types/task'
 
 interface Emits {
@@ -195,6 +210,7 @@ const emit = defineEmits<Emits>()
 
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
+const authStore = useAuthStore()
 
 const selectedCategory = ref<string | null>(null)
 
@@ -244,9 +260,27 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
   emit('toggle-subtask', taskId, subtaskId)
 }
 
-onMounted(() => {
-  console.log('CategoryBoard mounted, categories:', categoryStore.categories.length)
+// Watch for auth changes and reload categories
+watch(() => authStore.isAuthenticated, async (isAuth) => {
+  console.log('CategoryBoard: Auth state changed:', isAuth)
+  if (isAuth && authStore.user?.id) {
+    console.log('CategoryBoard: Loading categories for authenticated user')
+    await categoryStore.loadCategories()
+  }
+})
+
+onMounted(async () => {
+  console.log('CategoryBoard mounted')
+  console.log('Auth state:', authStore.isAuthenticated)
+  console.log('User:', authStore.user?.id)
+  console.log('Categories count:', categoryStore.categories.length)
   console.log('Category store loading:', categoryStore.loading)
+  
+  // Force load categories if user is authenticated but no categories loaded
+  if (authStore.isAuthenticated && authStore.user?.id && categoryStore.categories.length === 0 && !categoryStore.loading) {
+    console.log('CategoryBoard: Force loading categories')
+    await categoryStore.loadCategories()
+  }
 })
 </script>
 
@@ -314,6 +348,11 @@ onMounted(() => {
   min-width: 380px;
 }
 
+.debug-panel {
+  font-family: monospace;
+  font-size: 12px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .category-boards {
@@ -361,3 +400,4 @@ onMounted(() => {
   background: rgba(58, 107, 140, 0.8);
 }
 </style>
+</template>
