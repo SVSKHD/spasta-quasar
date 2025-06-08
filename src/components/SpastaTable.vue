@@ -243,15 +243,27 @@ const formatCellValue = (value: any, column: TableColumn) => {
   return String(value)
 }
 
-const formatCurrency = (value: number, column: TableColumn) => {
+const formatCurrency = (value: any, column: TableColumn) => {
+  // Ensure value is a number
+  const numValue = parseFloat(value)
+  if (isNaN(numValue)) {
+    return 'N/A'
+  }
+  
   const symbol = column.currencySymbol || '$'
   const prefix = column.currencyPrefix || ''
-  return `${prefix}${symbol}${Math.abs(value).toLocaleString()}`
+  return `${prefix}${symbol}${Math.abs(numValue).toLocaleString()}`
 }
 
-const formatPercentage = (value: number, column: TableColumn) => {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(2)}%`
+const formatPercentage = (value: any, column: TableColumn) => {
+  // Ensure value is a number
+  const numValue = parseFloat(value)
+  if (isNaN(numValue)) {
+    return 'N/A'
+  }
+  
+  const sign = numValue >= 0 ? '+' : ''
+  return `${sign}${numValue.toFixed(2)}%`
 }
 
 const formatDate = (value: string, column: TableColumn) => {
@@ -290,37 +302,52 @@ const getChipTextColor = (value: any, column: TableColumn) => {
   return 'white'
 }
 
-const getCurrencyClass = (value: number, column: TableColumn) => {
+const getCurrencyClass = (value: any, column: TableColumn) => {
   const classes = ['currency-value', 'text-weight-medium']
-  if (value >= 0) {
-    classes.push('text-positive')
-  } else {
-    classes.push('text-negative')
+  const numValue = parseFloat(value)
+  
+  if (!isNaN(numValue)) {
+    if (numValue >= 0) {
+      classes.push('text-positive')
+    } else {
+      classes.push('text-negative')
+    }
   }
+  
   return classes.join(' ')
 }
 
-const getPercentageClass = (value: number, column: TableColumn) => {
+const getPercentageClass = (value: any, column: TableColumn) => {
   const classes = ['percentage-value', 'text-weight-medium']
-  if (value >= 0) {
-    classes.push('text-positive')
-  } else {
-    classes.push('text-negative')
+  const numValue = parseFloat(value)
+  
+  if (!isNaN(numValue)) {
+    if (numValue >= 0) {
+      classes.push('text-positive')
+    } else {
+      classes.push('text-negative')
+    }
   }
+  
   return classes.join(' ')
 }
 
-const getProgressColor = (value: number, column: TableColumn) => {
+const getProgressColor = (value: any, column: TableColumn) => {
+  const numValue = parseFloat(value)
+  if (isNaN(numValue)) {
+    return 'grey'
+  }
+  
   if (column.progressColors) {
     for (const [threshold, color] of Object.entries(column.progressColors)) {
-      if (value >= parseInt(threshold)) {
+      if (numValue >= parseInt(threshold)) {
         return color
       }
     }
   }
   
-  if (value >= 80) return 'positive'
-  if (value >= 60) return 'warning'
+  if (numValue >= 80) return 'positive'
+  if (numValue >= 60) return 'warning'
   return 'negative'
 }
 
