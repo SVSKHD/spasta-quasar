@@ -183,7 +183,8 @@
             @move-task="handleMoveTask"
             @toggle-subtask="handleToggleSubtask"
             class="flow-column"
-          />
+          >
+          </SpastaTaskColumn>
         </div>
       </div>
     </div>
@@ -400,4 +401,3 @@ onMounted(async () => {
   background: rgba(58, 107, 140, 0.8);
 }
 </style>
-</template>
