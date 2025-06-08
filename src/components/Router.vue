@@ -42,6 +42,28 @@
           </q-btn>
           
           <q-btn
+            v-if="$route.name === 'Expenses'"
+            flat
+            round
+            icon="add"
+            @click="showExpenseDialog = true"
+            class="q-mr-sm spasta-text"
+          >
+            <q-tooltip>Add expense</q-tooltip>
+          </q-btn>
+          
+          <q-btn
+            v-if="$route.name === 'Goals'"
+            flat
+            round
+            icon="flag"
+            @click="showGoalDialog = true"
+            class="q-mr-sm spasta-text"
+          >
+            <q-tooltip>Add goal</q-tooltip>
+          </q-btn>
+          
+          <q-btn
             flat
             round
             icon="refresh"
@@ -188,6 +210,7 @@ import { useQuasar } from 'quasar'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
 import { useAuthStore } from '../stores/authStore'
+import { useFinanceStore } from '../stores/financeStore'
 import type { Task, Category } from '../types/task'
 
 const router = useRouter()
@@ -196,11 +219,14 @@ const $q = useQuasar()
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
 const authStore = useAuthStore()
+const financeStore = useFinanceStore()
 
 const drawerOpen = ref(true)
 const showTaskDrawer = ref(false)
 const showCategoryDrawer = ref(false)
 const showAuthDialog = ref(false)
+const showExpenseDialog = ref(false)
+const showGoalDialog = ref(false)
 const editingTask = ref<Task | undefined>()
 const editingCategory = ref<Category | undefined>()
 const selectedCategory = ref<string | null>(null)
@@ -226,6 +252,18 @@ const navigationRoutes = [
     icon: 'note'
   },
   {
+    name: 'Expenses',
+    title: 'Expenses',
+    description: 'Expense tracking & budgets',
+    icon: 'account_balance_wallet'
+  },
+  {
+    name: 'Goals',
+    title: 'Goals',
+    description: 'Financial goals & savings',
+    icon: 'flag'
+  },
+  {
     name: 'Trading',
     title: 'Trading',
     description: 'Trading dashboard',
@@ -239,7 +277,7 @@ const currentPageTitle = computed(() => {
 })
 
 const isLoading = computed(() => {
-  return taskStore.loading || categoryStore.loading
+  return taskStore.loading || categoryStore.loading || financeStore.loading
 })
 
 const getUserInitials = () => {
@@ -265,28 +303,31 @@ const navigateTo = (routeName: string) => {
 }
 
 const refreshData = async () => {
-  if (route.name === 'Dashboard') {
-    console.log('Refreshing dashboard data...')
-    try {
+  console.log('Refreshing data for route:', route.name)
+  try {
+    if (route.name === 'Dashboard') {
       await Promise.all([
         categoryStore.loadCategories(),
         taskStore.loadTasks()
       ])
-      $q.notify({
-        type: 'info',
-        message: 'Data refreshed',
-        position: 'top-right',
-        timeout: 1500
-      })
-    } catch (error) {
-      console.error('Error refreshing data:', error)
-      $q.notify({
-        type: 'negative',
-        message: 'Error refreshing data',
-        position: 'top-right',
-        timeout: 2000
-      })
+    } else if (route.name === 'Expenses' || route.name === 'Goals') {
+      await financeStore.loadFinanceData()
     }
+    
+    $q.notify({
+      type: 'info',
+      message: 'Data refreshed',
+      position: 'top-right',
+      timeout: 1500
+    })
+  } catch (error) {
+    console.error('Error refreshing data:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error refreshing data',
+      position: 'top-right',
+      timeout: 2000
+    })
   }
 }
 
@@ -395,7 +436,8 @@ const initializeData = async () => {
       console.log('Initializing data for authenticated user...')
       await Promise.all([
         categoryStore.loadCategories(),
-        taskStore.loadTasks()
+        taskStore.loadTasks(),
+        financeStore.loadFinanceData()
       ])
       console.log('Data initialization complete')
     } catch (error) {

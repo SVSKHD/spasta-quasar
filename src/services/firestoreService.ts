@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { Task, Category } from '../types/task'
+import type { Expense, Goal, ExpenseCategory, Budget } from '../types/finance'
 
 export const firestoreService = {
   // Tasks
@@ -192,6 +193,235 @@ export const firestoreService = {
     } catch (error) {
       console.error('Error deleting category:', error)
       return false
+    }
+  },
+
+  // Expenses
+  async getExpenses(userId: string): Promise<Expense[]> {
+    try {
+      console.log('Fetching expenses for userId:', userId)
+      const expensesRef = collection(db, 'expenses')
+      const q = query(
+        expensesRef, 
+        where('userId', '==', userId),
+        orderBy('date', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
+      
+      const expenses = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as Expense
+      })
+      
+      console.log('Fetched expenses from Firestore:', expenses.length)
+      return expenses
+    } catch (error) {
+      console.error('Error getting expenses:', error)
+      return []
+    }
+  },
+
+  async addExpense(userId: string, expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<Expense | null> {
+    try {
+      console.log('Adding expense to Firestore for userId:', userId)
+      const expensesRef = collection(db, 'expenses')
+      const docRef = await addDoc(expensesRef, {
+        ...expenseData,
+        userId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      })
+      
+      const newExpense = {
+        id: docRef.id,
+        ...expenseData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      
+      console.log('Expense added to Firestore:', newExpense.id)
+      return newExpense
+    } catch (error) {
+      console.error('Error adding expense:', error)
+      return null
+    }
+  },
+
+  async updateExpense(expenseId: string, updates: Partial<Expense>): Promise<boolean> {
+    try {
+      console.log('Updating expense in Firestore:', expenseId)
+      const expenseRef = doc(db, 'expenses', expenseId)
+      await updateDoc(expenseRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
+      console.log('Expense updated in Firestore:', expenseId)
+      return true
+    } catch (error) {
+      console.error('Error updating expense:', error)
+      return false
+    }
+  },
+
+  async deleteExpense(expenseId: string): Promise<boolean> {
+    try {
+      console.log('Deleting expense from Firestore:', expenseId)
+      const expenseRef = doc(db, 'expenses', expenseId)
+      await deleteDoc(expenseRef)
+      console.log('Expense deleted from Firestore:', expenseId)
+      return true
+    } catch (error) {
+      console.error('Error deleting expense:', error)
+      return false
+    }
+  },
+
+  // Goals
+  async getGoals(userId: string): Promise<Goal[]> {
+    try {
+      console.log('Fetching goals for userId:', userId)
+      const goalsRef = collection(db, 'goals')
+      const q = query(
+        goalsRef, 
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
+      
+      const goals = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as Goal
+      })
+      
+      console.log('Fetched goals from Firestore:', goals.length)
+      return goals
+    } catch (error) {
+      console.error('Error getting goals:', error)
+      return []
+    }
+  },
+
+  async addGoal(userId: string, goalData: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>): Promise<Goal | null> {
+    try {
+      console.log('Adding goal to Firestore for userId:', userId)
+      const goalsRef = collection(db, 'goals')
+      const docRef = await addDoc(goalsRef, {
+        ...goalData,
+        userId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      })
+      
+      const newGoal = {
+        id: docRef.id,
+        ...goalData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      
+      console.log('Goal added to Firestore:', newGoal.id)
+      return newGoal
+    } catch (error) {
+      console.error('Error adding goal:', error)
+      return null
+    }
+  },
+
+  async updateGoal(goalId: string, updates: Partial<Goal>): Promise<boolean> {
+    try {
+      console.log('Updating goal in Firestore:', goalId)
+      const goalRef = doc(db, 'goals', goalId)
+      await updateDoc(goalRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
+      console.log('Goal updated in Firestore:', goalId)
+      return true
+    } catch (error) {
+      console.error('Error updating goal:', error)
+      return false
+    }
+  },
+
+  async deleteGoal(goalId: string): Promise<boolean> {
+    try {
+      console.log('Deleting goal from Firestore:', goalId)
+      const goalRef = doc(db, 'goals', goalId)
+      await deleteDoc(goalRef)
+      console.log('Goal deleted from Firestore:', goalId)
+      return true
+    } catch (error) {
+      console.error('Error deleting goal:', error)
+      return false
+    }
+  },
+
+  // Expense Categories
+  async getExpenseCategories(userId: string): Promise<ExpenseCategory[]> {
+    try {
+      console.log('Fetching expense categories for userId:', userId)
+      const categoriesRef = collection(db, 'expense_categories')
+      const q = query(
+        categoriesRef, 
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
+      
+      const categories = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as ExpenseCategory
+      })
+      
+      console.log('Fetched expense categories from Firestore:', categories.length)
+      return categories
+    } catch (error) {
+      console.error('Error getting expense categories:', error)
+      return []
+    }
+  },
+
+  // Budgets
+  async getBudgets(userId: string): Promise<Budget[]> {
+    try {
+      console.log('Fetching budgets for userId:', userId)
+      const budgetsRef = collection(db, 'budgets')
+      const q = query(
+        budgetsRef, 
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
+      
+      const budgets = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        } as Budget
+      })
+      
+      console.log('Fetched budgets from Firestore:', budgets.length)
+      return budgets
+    } catch (error) {
+      console.error('Error getting budgets:', error)
+      return []
     }
   },
 

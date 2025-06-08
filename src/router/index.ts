@@ -25,6 +25,18 @@ const routes = [
     name: 'Trading',
     component: () => import('../views/TradingView.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/expenses',
+    name: 'Expenses',
+    component: () => import('../views/ExpensesView.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/goals',
+    name: 'Goals',
+    component: () => import('../views/GoalsView.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 
