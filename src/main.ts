@@ -37,14 +37,6 @@ import SpastaTable from './components/SpastaTable.vue'
 const app = createApp(App)
 const pinia = createPinia()
 
-// Enable Vue DevTools in production
-if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.__VUE_DEVTOOLS_GLOBAL_HOOK__ = window.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}
-  // @ts-ignore
-  window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app
-}
-
 // Register all components globally with Spasta prefix
 app.component('SpastaRouter', SpastaRouter)
 app.component('SpastaDashboard', SpastaDashboard)
