@@ -47,6 +47,8 @@
           >
             <q-tab name="overview" icon="dashboard" label="Overview" class="spasta-text" />
             <q-tab name="positions" icon="list" label="Positions" class="spasta-text" />
+            <q-tab name="forex" icon="currency_exchange" label="Forex" class="spasta-text" />
+            <q-tab name="fyers" icon="account_balance" label="Fyers" class="spasta-text" />
             <q-tab name="watchlist" icon="visibility" label="Watchlist" class="spasta-text" />
             <q-tab name="orders" icon="receipt" label="Orders" class="spasta-text" />
             <q-tab name="analytics" icon="analytics" label="Analytics" class="spasta-text" />
@@ -234,6 +236,292 @@
                     </q-td>
                   </template>
                 </q-table>
+              </div>
+            </q-tab-panel>
+
+            <!-- Forex Tab -->
+            <q-tab-panel name="forex">
+              <div class="forex-content">
+                <div class="row items-center justify-between q-mb-md">
+                  <div class="text-h6 spasta-text">
+                    <q-icon name="currency_exchange" class="q-mr-sm" />
+                    Forex Trading
+                  </div>
+                  <q-btn
+                    flat
+                    icon="add"
+                    label="New Forex Trade"
+                    @click="showForexDialog = true"
+                    class="spasta-text"
+                  />
+                </div>
+
+                <!-- Major Currency Pairs -->
+                <div class="row q-gutter-md q-mb-lg">
+                  <div class="col-12">
+                    <q-card class="spasta-card">
+                      <q-card-section>
+                        <div class="text-h6 spasta-text q-mb-md">Major Currency Pairs</div>
+                        <div class="row q-gutter-md">
+                          <div v-for="pair in majorCurrencyPairs" :key="pair.symbol" class="col-12 col-sm-6 col-md-4">
+                            <q-card class="spasta-card-light currency-pair-card">
+                              <q-card-section>
+                                <div class="row items-center justify-between q-mb-sm">
+                                  <div class="text-h6 spasta-text">{{ pair.symbol }}</div>
+                                  <q-chip
+                                    :color="pair.change >= 0 ? 'positive' : 'negative'"
+                                    text-color="white"
+                                    size="sm"
+                                    :label="(pair.change >= 0 ? '+' : '') + pair.change.toFixed(4)"
+                                  />
+                                </div>
+                                <div class="text-h5 spasta-text q-mb-xs">{{ pair.price.toFixed(5) }}</div>
+                                <div class="text-caption spasta-text opacity-70">
+                                  Spread: {{ pair.spread.toFixed(1) }} pips
+                                </div>
+                                <div class="row q-gutter-xs q-mt-sm">
+                                  <q-btn
+                                    size="sm"
+                                    color="positive"
+                                    label="Buy"
+                                    @click="openForexTrade(pair.symbol, 'buy')"
+                                    class="col"
+                                  />
+                                  <q-btn
+                                    size="sm"
+                                    color="negative"
+                                    label="Sell"
+                                    @click="openForexTrade(pair.symbol, 'sell')"
+                                    class="col"
+                                  />
+                                </div>
+                              </q-card-section>
+                            </q-card>
+                          </div>
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+
+                <!-- Forex Positions -->
+                <div class="row">
+                  <div class="col-12">
+                    <q-card class="spasta-card">
+                      <q-card-section>
+                        <div class="text-h6 spasta-text q-mb-md">Active Forex Positions</div>
+                        <q-table
+                          :rows="forexPositions"
+                          :columns="forexColumns"
+                          row-key="id"
+                          flat
+                          dark
+                          class="spasta-table"
+                        >
+                          <template v-slot:body-cell-side="props">
+                            <q-td :props="props">
+                              <q-chip
+                                :color="props.value === 'BUY' ? 'positive' : 'negative'"
+                                text-color="white"
+                                size="sm"
+                                :label="props.value"
+                              />
+                            </q-td>
+                          </template>
+
+                          <template v-slot:body-cell-pnl="props">
+                            <q-td :props="props">
+                              <div :class="props.value >= 0 ? 'text-positive' : 'text-negative'" class="text-weight-medium">
+                                ${{ props.value.toLocaleString() }}
+                              </div>
+                            </q-td>
+                          </template>
+
+                          <template v-slot:body-cell-actions="props">
+                            <q-td :props="props">
+                              <q-btn
+                                flat
+                                round
+                                dense
+                                icon="close"
+                                size="sm"
+                                @click="closeForexPosition(props.row.id)"
+                                class="text-negative"
+                              />
+                            </q-td>
+                          </template>
+                        </q-table>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+              </div>
+            </q-tab-panel>
+
+            <!-- Fyers Tab -->
+            <q-tab-panel name="fyers">
+              <div class="fyers-content">
+                <div class="row items-center justify-between q-mb-md">
+                  <div class="text-h6 spasta-text">
+                    <q-icon name="account_balance" class="q-mr-sm" />
+                    Fyers Integration
+                  </div>
+                  <div class="row q-gutter-sm">
+                    <q-btn
+                      flat
+                      icon="link"
+                      label="Connect Fyers"
+                      @click="connectFyers"
+                      class="spasta-text"
+                      :disable="fyersConnected"
+                    />
+                    <q-btn
+                      v-if="fyersConnected"
+                      flat
+                      icon="sync"
+                      label="Sync Data"
+                      @click="syncFyersData"
+                      class="spasta-text"
+                      :loading="fyersLoading"
+                    />
+                  </div>
+                </div>
+
+                <!-- Connection Status -->
+                <div class="row q-gutter-md q-mb-lg">
+                  <div class="col-12">
+                    <q-card class="spasta-card">
+                      <q-card-section>
+                        <div class="row items-center q-mb-md">
+                          <q-icon 
+                            :name="fyersConnected ? 'check_circle' : 'error'" 
+                            :color="fyersConnected ? 'positive' : 'negative'" 
+                            size="md" 
+                            class="q-mr-sm" 
+                          />
+                          <div class="text-h6 spasta-text">
+                            {{ fyersConnected ? 'Connected to Fyers' : 'Not Connected' }}
+                          </div>
+                        </div>
+                        <div v-if="fyersConnected" class="connection-details">
+                          <div class="text-body2 spasta-text opacity-70 q-mb-sm">Account Details:</div>
+                          <div class="row q-gutter-md">
+                            <div class="col">
+                              <div class="text-caption spasta-text opacity-70">Account ID</div>
+                              <div class="text-body1 spasta-text">{{ fyersAccount.id }}</div>
+                            </div>
+                            <div class="col">
+                              <div class="text-caption spasta-text opacity-70">Available Balance</div>
+                              <div class="text-body1 spasta-text">₹{{ fyersAccount.balance.toLocaleString() }}</div>
+                            </div>
+                            <div class="col">
+                              <div class="text-caption spasta-text opacity-70">Used Margin</div>
+                              <div class="text-body1 spasta-text">₹{{ fyersAccount.usedMargin.toLocaleString() }}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-else class="text-body2 spasta-text opacity-70">
+                          Connect your Fyers account to access real-time data, place orders, and manage your portfolio directly from Spasta.
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+
+                <!-- Fyers Holdings -->
+                <div v-if="fyersConnected" class="row q-gutter-md q-mb-lg">
+                  <div class="col-12">
+                    <q-card class="spasta-card">
+                      <q-card-section>
+                        <div class="text-h6 spasta-text q-mb-md">Holdings</div>
+                        <q-table
+                          :rows="fyersHoldings"
+                          :columns="fyersHoldingsColumns"
+                          row-key="symbol"
+                          flat
+                          dark
+                          class="spasta-table"
+                        >
+                          <template v-slot:body-cell-pnl="props">
+                            <q-td :props="props">
+                              <div :class="props.value >= 0 ? 'text-positive' : 'text-negative'" class="text-weight-medium">
+                                ₹{{ props.value.toLocaleString() }}
+                              </div>
+                            </q-td>
+                          </template>
+
+                          <template v-slot:body-cell-actions="props">
+                            <q-td :props="props">
+                              <q-btn
+                                flat
+                                round
+                                dense
+                                icon="trending_up"
+                                size="sm"
+                                @click="sellFyersHolding(props.row)"
+                                class="spasta-text"
+                              />
+                            </q-td>
+                          </template>
+                        </q-table>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+
+                <!-- Fyers Orders -->
+                <div v-if="fyersConnected" class="row">
+                  <div class="col-12">
+                    <q-card class="spasta-card">
+                      <q-card-section>
+                        <div class="row items-center justify-between q-mb-md">
+                          <div class="text-h6 spasta-text">Recent Orders</div>
+                          <q-btn
+                            flat
+                            icon="add"
+                            label="Place Order"
+                            @click="showFyersOrderDialog = true"
+                            class="spasta-text"
+                          />
+                        </div>
+                        <q-table
+                          :rows="fyersOrders"
+                          :columns="fyersOrderColumns"
+                          row-key="id"
+                          flat
+                          dark
+                          class="spasta-table"
+                        >
+                          <template v-slot:body-cell-status="props">
+                            <q-td :props="props">
+                              <q-chip
+                                :color="getFyersOrderStatusColor(props.value)"
+                                text-color="white"
+                                size="sm"
+                                :label="props.value"
+                              />
+                            </q-td>
+                          </template>
+
+                          <template v-slot:body-cell-actions="props">
+                            <q-td :props="props">
+                              <q-btn
+                                v-if="props.row.status === 'PENDING'"
+                                flat
+                                round
+                                dense
+                                icon="cancel"
+                                size="sm"
+                                @click="cancelFyersOrder(props.row.id)"
+                                class="text-negative"
+                              />
+                            </q-td>
+                          </template>
+                        </q-table>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
               </div>
             </q-tab-panel>
 
@@ -550,6 +838,180 @@
       </q-card>
     </q-dialog>
 
+    <!-- Forex Trade Dialog -->
+    <q-dialog v-model="showForexDialog">
+      <q-card class="spasta-card" style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6 spasta-text">Forex Trade</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form class="q-gutter-md">
+            <q-select
+              v-model="forexForm.pair"
+              label="Currency Pair"
+              outlined
+              :options="majorCurrencyPairs.map(p => p.symbol)"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-select
+              v-model="forexForm.side"
+              label="Side"
+              outlined
+              :options="['BUY', 'SELL']"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-model.number="forexForm.lotSize"
+              label="Lot Size"
+              outlined
+              type="number"
+              step="0.01"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-model.number="forexForm.stopLoss"
+              label="Stop Loss (optional)"
+              outlined
+              type="number"
+              step="0.00001"
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-model.number="forexForm.takeProfit"
+              label="Take Profit (optional)"
+              outlined
+              type="number"
+              step="0.00001"
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" @click="showForexDialog = false" class="spasta-text" />
+          <q-btn 
+            flat 
+            label="Execute Trade" 
+            color="white" 
+            text-color="grey-8"
+            @click="executeForexTrade"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Fyers Order Dialog -->
+    <q-dialog v-model="showFyersOrderDialog">
+      <q-card class="spasta-card" style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6 spasta-text">Place Fyers Order</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form class="q-gutter-md">
+            <q-input
+              v-model="fyersOrderForm.symbol"
+              label="Symbol"
+              outlined
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <div class="row q-gutter-md">
+              <div class="col">
+                <q-select
+                  v-model="fyersOrderForm.side"
+                  label="Side"
+                  outlined
+                  :options="['BUY', 'SELL']"
+                  required
+                  class="spasta-input"
+                  color="white"
+                  label-color="white"
+                  dark
+                />
+              </div>
+              <div class="col">
+                <q-select
+                  v-model="fyersOrderForm.type"
+                  label="Order Type"
+                  outlined
+                  :options="['MARKET', 'LIMIT', 'SL', 'SL-M']"
+                  required
+                  class="spasta-input"
+                  color="white"
+                  label-color="white"
+                  dark
+                />
+              </div>
+            </div>
+
+            <q-input
+              v-model.number="fyersOrderForm.quantity"
+              label="Quantity"
+              outlined
+              type="number"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-if="fyersOrderForm.type !== 'MARKET'"
+              v-model.number="fyersOrderForm.price"
+              label="Price"
+              outlined
+              type="number"
+              step="0.01"
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" @click="showFyersOrderDialog = false" class="spasta-text" />
+          <q-btn 
+            flat 
+            label="Place Order" 
+            color="white" 
+            text-color="grey-8"
+            @click="placeFyersOrder"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!-- Add to Watchlist Dialog -->
     <q-dialog v-model="showWatchlistDialog">
       <q-card class="spasta-card" style="min-width: 300px">
@@ -696,6 +1158,26 @@ interface Position {
   createdAt: string
 }
 
+interface ForexPosition {
+  id: string
+  pair: string
+  side: 'BUY' | 'SELL'
+  lotSize: number
+  entryPrice: number
+  currentPrice: number
+  pnl: number
+  stopLoss?: number
+  takeProfit?: number
+  createdAt: string
+}
+
+interface CurrencyPair {
+  symbol: string
+  price: number
+  change: number
+  spread: number
+}
+
 interface WatchlistItem {
   symbol: string
   name: string
@@ -727,15 +1209,48 @@ interface NewsArticle {
 const $q = useQuasar()
 const activeTab = ref('overview')
 const positions = ref<Position[]>([])
+const forexPositions = ref<ForexPosition[]>([])
 const watchlist = ref<WatchlistItem[]>([])
 const orders = ref<Order[]>([])
 const marketNews = ref<NewsArticle[]>([])
 const showPositionDialog = ref(false)
+const showForexDialog = ref(false)
+const showFyersOrderDialog = ref(false)
 const showWatchlistDialog = ref(false)
 const showOrderDialog = ref(false)
 const editingPosition = ref<Position | null>(null)
 const loading = ref(false)
 const watchlistSymbol = ref('')
+const fyersConnected = ref(false)
+const fyersLoading = ref(false)
+
+// Forex data
+const majorCurrencyPairs = ref<CurrencyPair[]>([
+  { symbol: 'EUR/USD', price: 1.08450, change: 0.0012, spread: 1.2 },
+  { symbol: 'GBP/USD', price: 1.26780, change: -0.0034, spread: 1.5 },
+  { symbol: 'USD/JPY', price: 149.850, change: 0.0890, spread: 1.1 },
+  { symbol: 'USD/CHF', price: 0.87650, change: 0.0023, spread: 1.3 },
+  { symbol: 'AUD/USD', price: 0.66420, change: -0.0018, spread: 1.4 },
+  { symbol: 'USD/CAD', price: 1.35680, change: 0.0045, spread: 1.6 }
+])
+
+// Fyers data
+const fyersAccount = ref({
+  id: 'FY12345',
+  balance: 250000,
+  usedMargin: 45000
+})
+
+const fyersHoldings = ref([
+  { symbol: 'RELIANCE', quantity: 50, avgPrice: 2450.00, ltp: 2485.50, pnl: 1775 },
+  { symbol: 'TCS', quantity: 25, avgPrice: 3650.00, ltp: 3598.75, pnl: -1281 },
+  { symbol: 'INFY', quantity: 40, avgPrice: 1520.00, ltp: 1545.25, pnl: 1010 }
+])
+
+const fyersOrders = ref([
+  { id: 'FO001', symbol: 'HDFC', side: 'BUY', quantity: 30, price: 1650.00, status: 'PENDING', time: '10:30 AM' },
+  { id: 'FO002', symbol: 'ICICIBANK', side: 'SELL', quantity: 20, price: 950.00, status: 'FILLED', time: '09:45 AM' }
+])
 
 const positionForm = ref({
   symbol: '',
@@ -743,6 +1258,22 @@ const positionForm = ref({
   quantity: 0,
   entryPrice: 0,
   currentPrice: 0
+})
+
+const forexForm = ref({
+  pair: '',
+  side: 'BUY' as 'BUY' | 'SELL',
+  lotSize: 1,
+  stopLoss: 0,
+  takeProfit: 0
+})
+
+const fyersOrderForm = ref({
+  symbol: '',
+  side: 'BUY' as 'BUY' | 'SELL',
+  type: 'MARKET' as 'MARKET' | 'LIMIT' | 'SL' | 'SL-M',
+  quantity: 0,
+  price: 0
 })
 
 const orderForm = ref({
@@ -787,6 +1318,35 @@ const positionColumns = [
   { name: 'entryPrice', label: 'Entry Price', field: 'entryPrice', align: 'right', format: (val: number) => `$${val.toFixed(2)}` },
   { name: 'currentPrice', label: 'Current Price', field: 'currentPrice', align: 'right', format: (val: number) => `$${val.toFixed(2)}` },
   { name: 'pnl', label: 'P&L', field: 'pnl', align: 'right' },
+  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+]
+
+const forexColumns = [
+  { name: 'pair', label: 'Pair', field: 'pair', align: 'left' },
+  { name: 'side', label: 'Side', field: 'side', align: 'center' },
+  { name: 'lotSize', label: 'Lot Size', field: 'lotSize', align: 'right' },
+  { name: 'entryPrice', label: 'Entry Price', field: 'entryPrice', align: 'right', format: (val: number) => val.toFixed(5) },
+  { name: 'currentPrice', label: 'Current Price', field: 'currentPrice', align: 'right', format: (val: number) => val.toFixed(5) },
+  { name: 'pnl', label: 'P&L', field: 'pnl', align: 'right' },
+  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+]
+
+const fyersHoldingsColumns = [
+  { name: 'symbol', label: 'Symbol', field: 'symbol', align: 'left' },
+  { name: 'quantity', label: 'Qty', field: 'quantity', align: 'right' },
+  { name: 'avgPrice', label: 'Avg Price', field: 'avgPrice', align: 'right', format: (val: number) => `₹${val.toFixed(2)}` },
+  { name: 'ltp', label: 'LTP', field: 'ltp', align: 'right', format: (val: number) => `₹${val.toFixed(2)}` },
+  { name: 'pnl', label: 'P&L', field: 'pnl', align: 'right' },
+  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+]
+
+const fyersOrderColumns = [
+  { name: 'symbol', label: 'Symbol', field: 'symbol', align: 'left' },
+  { name: 'side', label: 'Side', field: 'side', align: 'center' },
+  { name: 'quantity', label: 'Qty', field: 'quantity', align: 'right' },
+  { name: 'price', label: 'Price', field: 'price', align: 'right', format: (val: number) => `₹${val.toFixed(2)}` },
+  { name: 'status', label: 'Status', field: 'status', align: 'center' },
+  { name: 'time', label: 'Time', field: 'time', align: 'center' },
   { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
 ]
 
@@ -851,6 +1411,26 @@ const loadData = () => {
       }
     ]
     savePositions()
+  }
+
+  // Load forex positions
+  const storedForexPositions = localStorage.getItem('spasta_forex_positions')
+  if (storedForexPositions) {
+    forexPositions.value = JSON.parse(storedForexPositions)
+  } else {
+    forexPositions.value = [
+      {
+        id: '1',
+        pair: 'EUR/USD',
+        side: 'BUY',
+        lotSize: 1.0,
+        entryPrice: 1.08320,
+        currentPrice: 1.08450,
+        pnl: 130,
+        createdAt: new Date().toISOString()
+      }
+    ]
+    saveForexPositions()
   }
 
   // Load watchlist
@@ -927,6 +1507,10 @@ const savePositions = () => {
   localStorage.setItem('spasta_positions', JSON.stringify(positions.value))
 }
 
+const saveForexPositions = () => {
+  localStorage.setItem('spasta_forex_positions', JSON.stringify(forexPositions.value))
+}
+
 const saveWatchlist = () => {
   localStorage.setItem('spasta_watchlist', JSON.stringify(watchlist.value))
 }
@@ -965,6 +1549,173 @@ const quickAction = (action: string) => {
     case 'analyze':
       activeTab.value = 'analytics'
       break
+  }
+}
+
+// Forex functions
+const openForexTrade = (pair: string, side: 'buy' | 'sell') => {
+  forexForm.value.pair = pair
+  forexForm.value.side = side.toUpperCase() as 'BUY' | 'SELL'
+  showForexDialog.value = true
+}
+
+const executeForexTrade = () => {
+  const pair = majorCurrencyPairs.value.find(p => p.symbol === forexForm.value.pair)
+  if (!pair) return
+
+  const newPosition: ForexPosition = {
+    id: Date.now().toString(),
+    pair: forexForm.value.pair,
+    side: forexForm.value.side,
+    lotSize: forexForm.value.lotSize,
+    entryPrice: pair.price,
+    currentPrice: pair.price,
+    pnl: 0,
+    stopLoss: forexForm.value.stopLoss || undefined,
+    takeProfit: forexForm.value.takeProfit || undefined,
+    createdAt: new Date().toISOString()
+  }
+
+  forexPositions.value.push(newPosition)
+  saveForexPositions()
+  showForexDialog.value = false
+
+  $q.notify({
+    type: 'positive',
+    message: `Forex trade executed: ${forexForm.value.side} ${forexForm.value.lotSize} lots of ${forexForm.value.pair}`,
+    position: 'top-right',
+    timeout: 3000
+  })
+
+  // Reset form
+  forexForm.value = {
+    pair: '',
+    side: 'BUY',
+    lotSize: 1,
+    stopLoss: 0,
+    takeProfit: 0
+  }
+}
+
+const closeForexPosition = (positionId: string) => {
+  $q.dialog({
+    title: 'Close Forex Position',
+    message: 'Are you sure you want to close this forex position?',
+    cancel: true,
+    persistent: true,
+    class: 'spasta-card'
+  }).onOk(() => {
+    const index = forexPositions.value.findIndex(p => p.id === positionId)
+    if (index !== -1) {
+      forexPositions.value.splice(index, 1)
+      saveForexPositions()
+      
+      $q.notify({
+        type: 'positive',
+        message: 'Forex position closed',
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+  })
+}
+
+// Fyers functions
+const connectFyers = () => {
+  $q.dialog({
+    title: 'Connect to Fyers',
+    message: 'This will redirect you to Fyers for authentication. Continue?',
+    cancel: true,
+    persistent: true,
+    class: 'spasta-card'
+  }).onOk(() => {
+    // Simulate connection
+    setTimeout(() => {
+      fyersConnected.value = true
+      $q.notify({
+        type: 'positive',
+        message: 'Successfully connected to Fyers',
+        position: 'top-right',
+        timeout: 3000
+      })
+    }, 2000)
+  })
+}
+
+const syncFyersData = () => {
+  fyersLoading.value = true
+  // Simulate data sync
+  setTimeout(() => {
+    fyersLoading.value = false
+    $q.notify({
+      type: 'positive',
+      message: 'Fyers data synchronized',
+      position: 'top-right',
+      timeout: 2000
+    })
+  }, 1500)
+}
+
+const placeFyersOrder = () => {
+  const newOrder = {
+    id: `FO${Date.now()}`,
+    symbol: fyersOrderForm.value.symbol,
+    side: fyersOrderForm.value.side,
+    quantity: fyersOrderForm.value.quantity,
+    price: fyersOrderForm.value.price,
+    status: 'PENDING',
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  fyersOrders.value.unshift(newOrder)
+  showFyersOrderDialog.value = false
+
+  $q.notify({
+    type: 'positive',
+    message: 'Fyers order placed successfully',
+    position: 'top-right',
+    timeout: 2000
+  })
+
+  // Reset form
+  fyersOrderForm.value = {
+    symbol: '',
+    side: 'BUY',
+    type: 'MARKET',
+    quantity: 0,
+    price: 0
+  }
+}
+
+const cancelFyersOrder = (orderId: string) => {
+  const index = fyersOrders.value.findIndex(order => order.id === orderId)
+  if (index !== -1) {
+    fyersOrders.value[index].status = 'CANCELLED'
+    
+    $q.notify({
+      type: 'info',
+      message: 'Fyers order cancelled',
+      position: 'top-right',
+      timeout: 2000
+    })
+  }
+}
+
+const sellFyersHolding = (holding: any) => {
+  $q.notify({
+    type: 'info',
+    message: `Sell order for ${holding.symbol} feature coming soon`,
+    position: 'top-right',
+    timeout: 2000
+  })
+}
+
+const getFyersOrderStatusColor = (status: string) => {
+  switch (status) {
+    case 'PENDING': return 'warning'
+    case 'FILLED': return 'positive'
+    case 'CANCELLED': return 'negative'
+    default: return 'grey'
   }
 }
 
@@ -1173,6 +1924,24 @@ const refreshData = () => {
       position.pnl = calculatePnL(position)
     })
     
+    // Update forex prices
+    majorCurrencyPairs.value.forEach(pair => {
+      const change = (Math.random() - 0.5) * 0.01
+      pair.price = Math.max(0.01, pair.price + change)
+      pair.change = change
+    })
+    
+    // Update forex positions
+    forexPositions.value.forEach(position => {
+      const pair = majorCurrencyPairs.value.find(p => p.symbol === position.pair)
+      if (pair) {
+        position.currentPrice = pair.price
+        const pipValue = 10 // Simplified pip value
+        const pips = (position.currentPrice - position.entryPrice) * 10000
+        position.pnl = position.side === 'BUY' ? pips * pipValue * position.lotSize : -pips * pipValue * position.lotSize
+      }
+    })
+    
     // Update watchlist prices
     watchlist.value.forEach(item => {
       const change = (Math.random() - 0.5) * 20
@@ -1181,6 +1950,7 @@ const refreshData = () => {
     })
     
     savePositions()
+    saveForexPositions()
     saveWatchlist()
     loading.value = false
     
@@ -1212,16 +1982,25 @@ onMounted(() => {
   box-shadow: 0 8px 24px rgba(114, 92, 173, 0.3);
 }
 
+.currency-pair-card {
+  transition: all 0.3s ease;
+}
+
+.currency-pair-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(114, 92, 173, 0.3);
+}
+
 .spasta-tabs {
   background-color: rgba(114, 92, 173, 0.3);
 }
 
 .spasta-tabs :deep(.q-tab) {
-  color: #FFE3A9;
+  color: #EFE4D2;
 }
 
 .spasta-tabs :deep(.q-tab--active) {
-  background-color: rgba(255, 227, 169, 0.2);
+  background-color: rgba(239, 228, 210, 0.2);
 }
 
 .spasta-tab-panels {
@@ -1235,12 +2014,12 @@ onMounted(() => {
 
 .spasta-table :deep(.q-table thead th) {
   background: rgba(114, 92, 173, 0.3);
-  color: #FFE3A9;
+  color: #EFE4D2;
   font-weight: 600;
 }
 
 .spasta-table :deep(.q-table tbody td) {
-  color: #FFE3A9;
+  color: #EFE4D2;
 }
 
 .spasta-table :deep(.q-table tbody tr:hover) {
@@ -1259,29 +2038,25 @@ onMounted(() => {
 
 .metric-item {
   padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 227, 169, 0.1);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 .risk-item {
   padding: 8px 0;
 }
 
-.spasta-input :deep(.q-field__control) {
-  background-color: rgba(255, 227, 169, 0.1);
-  border-color: rgba(255, 227, 169, 0.3);
-}
-
-.spasta-input :deep(.q-field__native) {
-  color: #FFE3A9;
-}
-
-.spasta-input :deep(.q-field__label) {
-  color: #FFE3A9;
+.connection-details {
+  background: rgba(239, 228, 210, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 /* Tab content spacing */
 .overview-content,
 .positions-content,
+.forex-content,
+.fyers-content,
 .watchlist-content,
 .orders-content,
 .analytics-content,
@@ -1302,6 +2077,8 @@ onMounted(() => {
   
   .overview-content,
   .positions-content,
+  .forex-content,
+  .fyers-content,
   .watchlist-content,
   .orders-content,
   .analytics-content,
