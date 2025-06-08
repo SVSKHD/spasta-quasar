@@ -31,9 +31,8 @@ export const useTaskStore = defineStore('tasks', () => {
           tasks.value = JSON.parse(stored)
           console.log('Loaded tasks from localStorage:', tasks.value.length, 'tasks')
         } else {
-          // Create demo tasks for guest
-          console.log('Creating demo tasks for guest user')
-          await createDemoTasks()
+          console.log('No tasks found in localStorage - user can create them')
+          tasks.value = []
         }
       } else {
         // Load from Firestore for authenticated users
@@ -44,90 +43,9 @@ export const useTaskStore = defineStore('tasks', () => {
       }
     } catch (error) {
       console.error('Error loading tasks:', error)
-      // Create demo tasks on error for better user experience
-      await createDemoTasks()
+      tasks.value = []
     } finally {
       loading.value = false
-    }
-  }
-
-  // Create demo tasks
-  const createDemoTasks = async () => {
-    console.log('Creating demo tasks...')
-    const demoTasks = [
-      {
-        title: 'Design new dashboard',
-        description: 'Create wireframes and mockups for the new analytics dashboard',
-        status: 'in-progress',
-        priority: 'high' as TaskPriority,
-        category: 'Design',
-        dueDate: '2025-02-15',
-        tags: ['ui', 'wireframes', 'analytics'],
-        photoUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400',
-        assignedTo: {
-          id: 'user1',
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          photoUrl: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100'
-        },
-        subtasks: [
-          { id: 's1', title: 'Create user personas', completed: true, createdAt: new Date().toISOString() },
-          { id: 's2', title: 'Design wireframes', completed: true, createdAt: new Date().toISOString() },
-          { id: 's3', title: 'Create high-fidelity mockups', completed: false, createdAt: new Date().toISOString() },
-          { id: 's4', title: 'User testing', completed: false, createdAt: new Date().toISOString() }
-        ]
-      },
-      {
-        title: 'Implement user authentication',
-        description: 'Set up Firebase authentication with Google sign-in',
-        status: 'todo',
-        priority: 'high' as TaskPriority,
-        category: 'Development',
-        dueDate: '2025-02-20',
-        tags: ['auth', 'firebase', 'backend'],
-        photoUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=400',
-        assignedTo: {
-          id: 'user2',
-          name: 'Mike Chen',
-          email: 'mike@example.com'
-        },
-        subtasks: [
-          { id: 's5', title: 'Setup Firebase project', completed: false, createdAt: new Date().toISOString() },
-          { id: 's6', title: 'Configure Google OAuth', completed: false, createdAt: new Date().toISOString() },
-          { id: 's7', title: 'Implement login flow', completed: false, createdAt: new Date().toISOString() }
-        ]
-      },
-      {
-        title: 'Launch marketing campaign',
-        description: 'Plan and execute the Q1 marketing campaign for product launch',
-        status: 'planning',
-        priority: 'medium' as TaskPriority,
-        category: 'Marketing',
-        dueDate: '2025-03-01',
-        tags: ['campaign', 'social-media', 'launch'],
-        assignedTo: {
-          id: 'user3',
-          name: 'Alex Rivera',
-          email: 'alex@example.com',
-          photoUrl: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'
-        },
-        subtasks: [
-          { id: 's8', title: 'Define target audience', completed: true, createdAt: new Date().toISOString() },
-          { id: 's9', title: 'Create campaign materials', completed: false, createdAt: new Date().toISOString() },
-          { id: 's10', title: 'Schedule social media posts', completed: false, createdAt: new Date().toISOString() }
-        ]
-      }
-    ]
-
-    for (const taskData of demoTasks) {
-      try {
-        const newTask = await addTask(taskData)
-        if (newTask) {
-          console.log('Demo task created:', newTask.title)
-        }
-      } catch (error) {
-        console.error('Error creating demo task:', taskData.title, error)
-      }
     }
   }
 

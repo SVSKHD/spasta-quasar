@@ -22,52 +22,25 @@ export const useCategoryStore = defineStore('categories', () => {
         const stored = localStorage.getItem('guest_categories')
         if (stored) {
           categories.value = JSON.parse(stored)
-          console.log('Loaded categories from localStorage:', categories.value)
+          console.log('Loaded categories from localStorage:', categories.value.length, 'categories')
         } else {
-          // Create default categories for guest
-          console.log('Creating default categories for guest user')
-          await createDefaultCategories()
+          console.log('No categories found in localStorage - user needs to create them')
+          categories.value = []
         }
       } else {
         // Load from Firestore for authenticated users
         console.log('Loading categories from Firestore')
         const firestoreCategories = await firestoreService.getCategories(authStore.user.id)
-        console.log('Firestore categories loaded:', firestoreCategories)
-        
-        if (firestoreCategories.length === 0) {
-          // Create default categories if none exist
-          console.log('No categories found, creating default categories')
-          await createDefaultCategories()
-        } else {
-          categories.value = firestoreCategories
-        }
+        categories.value = firestoreCategories
+        console.log('Loaded categories from Firestore:', categories.value.length, 'categories')
       }
       
-      console.log('Final categories loaded:', categories.value)
+      console.log('Categories loaded:', categories.value)
     } catch (error) {
       console.error('Error loading categories:', error)
-      // Fallback to default categories on error
-      await createDefaultCategories()
+      categories.value = []
     } finally {
       loading.value = false
-    }
-  }
-
-  // Create default categories
-  const createDefaultCategories = async () => {
-    console.log('Creating default categories...')
-    const defaultCategoriesData = getDefaultCategoriesData()
-    
-    for (const categoryData of defaultCategoriesData) {
-      try {
-        console.log('Creating category:', categoryData.name)
-        const newCategory = await addCategory(categoryData)
-        if (newCategory) {
-          console.log('Successfully created category:', newCategory.name)
-        }
-      } catch (error) {
-        console.error('Error creating default category:', categoryData.name, error)
-      }
     }
   }
 
@@ -77,48 +50,6 @@ export const useCategoryStore = defineStore('categories', () => {
       localStorage.setItem('guest_categories', JSON.stringify(categories.value))
       console.log('Saved guest categories to localStorage')
     }
-  }
-
-  // Get default categories data for Firebase (without IDs)
-  const getDefaultCategoriesData = (): Omit<Category, 'id' | 'createdAt' | 'updatedAt'>[] => {
-    return [
-      {
-        name: 'Development',
-        description: 'Software development tasks and projects',
-        icon: 'code',
-        color: 'primary',
-        statuses: [
-          { id: '1', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '2', name: 'in-progress', label: 'In Progress', color: 'primary', icon: 'hourglass_empty', order: 2 },
-          { id: '3', name: 'review', label: 'Code Review', color: 'warning', icon: 'rate_review', order: 3 },
-          { id: '4', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      },
-      {
-        name: 'Design',
-        description: 'UI/UX design and creative tasks',
-        icon: 'palette',
-        color: 'purple',
-        statuses: [
-          { id: '5', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '6', name: 'wireframe', label: 'Wireframe', color: 'info', icon: 'crop_landscape', order: 2 },
-          { id: '7', name: 'design', label: 'Design', color: 'purple', icon: 'brush', order: 3 },
-          { id: '8', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      },
-      {
-        name: 'Marketing',
-        description: 'Marketing campaigns and promotional activities',
-        icon: 'campaign',
-        color: 'orange',
-        statuses: [
-          { id: '9', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '10', name: 'planning', label: 'Planning', color: 'info', icon: 'event_note', order: 2 },
-          { id: '11', name: 'execution', label: 'Execution', color: 'orange', icon: 'play_arrow', order: 3 },
-          { id: '12', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      }
-    ]
   }
 
   // Actions
