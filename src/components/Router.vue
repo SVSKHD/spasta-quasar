@@ -375,16 +375,25 @@ const logout = async () => {
   }
 }
 
+// Initialize data when user is authenticated
+const initializeData = async () => {
+  if (authStore.isAuthenticated && authStore.user?.id) {
+    try {
+      await Promise.all([
+        categoryStore.loadCategories(),
+        taskStore.loadTasks()
+      ])
+    } catch (error) {
+      console.error('Error initializing data:', error)
+    }
+  }
+}
+
 // Watch for authentication state changes
 watch(() => authStore.isAuthenticated, async (isAuth) => {
   if (isAuth) {
     showAuthDialog.value = false
-    if (route.name === 'Dashboard') {
-      await Promise.all([
-        taskStore.loadTasks(),
-        categoryStore.loadCategories()
-      ])
-    }
+    await initializeData()
   } else if (!authStore.loading) {
     showAuthDialog.value = true
   }
@@ -397,6 +406,9 @@ onMounted(async () => {
   // Show auth dialog if not authenticated after loading
   if (!authStore.loading && !authStore.isAuthenticated) {
     showAuthDialog.value = true
+  } else if (authStore.isAuthenticated) {
+    // Initialize data if already authenticated
+    await initializeData()
   }
 })
 </script>

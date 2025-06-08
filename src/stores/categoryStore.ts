@@ -30,7 +30,7 @@ export const useCategoryStore = defineStore('categories', () => {
         const firestoreCategories = await firestoreService.getCategories(authStore.user.id)
         if (firestoreCategories.length === 0) {
           // Add default categories if none exist
-          const defaultCategories = getDefaultCategories()
+          const defaultCategories = getDefaultCategoriesData()
           for (const categoryData of defaultCategories) {
             const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
             if (newCategory) {
@@ -43,6 +43,11 @@ export const useCategoryStore = defineStore('categories', () => {
       }
     } catch (error) {
       console.error('Error loading categories:', error)
+      // Fallback to default categories on error
+      categories.value = getDefaultCategories()
+      if (authStore.user.id === 'guest') {
+        saveGuestCategories()
+      }
     } finally {
       loading.value = false
     }
@@ -55,8 +60,59 @@ export const useCategoryStore = defineStore('categories', () => {
     }
   }
 
-  // Get default categories
-  const getDefaultCategories = (): Omit<Category, 'id' | 'createdAt' | 'updatedAt'>[] => {
+  // Get default categories with IDs for immediate use
+  const getDefaultCategories = (): Category[] => {
+    return [
+      {
+        id: 'dev-1',
+        name: 'Development',
+        description: 'Software development tasks',
+        icon: 'code',
+        color: 'primary',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        statuses: [
+          { id: '1', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
+          { id: '2', name: 'in-progress', label: 'In Progress', color: 'primary', icon: 'hourglass_empty', order: 2 },
+          { id: '3', name: 'review', label: 'Code Review', color: 'warning', icon: 'rate_review', order: 3 },
+          { id: '4', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
+        ]
+      },
+      {
+        id: 'design-1',
+        name: 'Design',
+        description: 'UI/UX design tasks',
+        icon: 'palette',
+        color: 'purple',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        statuses: [
+          { id: '5', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
+          { id: '6', name: 'wireframe', label: 'Wireframe', color: 'info', icon: 'crop_landscape', order: 2 },
+          { id: '7', name: 'design', label: 'Design', color: 'purple', icon: 'brush', order: 3 },
+          { id: '8', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
+        ]
+      },
+      {
+        id: 'marketing-1',
+        name: 'Marketing',
+        description: 'Marketing and promotion tasks',
+        icon: 'campaign',
+        color: 'orange',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        statuses: [
+          { id: '9', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
+          { id: '10', name: 'planning', label: 'Planning', color: 'info', icon: 'event_note', order: 2 },
+          { id: '11', name: 'execution', label: 'Execution', color: 'orange', icon: 'play_arrow', order: 3 },
+          { id: '12', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
+        ]
+      }
+    ]
+  }
+
+  // Get default categories data for Firebase (without IDs)
+  const getDefaultCategoriesData = (): Omit<Category, 'id' | 'createdAt' | 'updatedAt'>[] => {
     return [
       {
         name: 'Development',
@@ -99,7 +155,9 @@ export const useCategoryStore = defineStore('categories', () => {
 
   // Actions
   const addCategory = async (categoryData: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!authStore.user?.id) return null
+    if (!authStore.user?.id) {
+      throw new Error('User not authenticated')
+    }
 
     loading.value = true
     try {
@@ -107,7 +165,7 @@ export const useCategoryStore = defineStore('categories', () => {
         // Handle guest users with localStorage
         const newCategory: Category = {
           ...categoryData,
-          id: Date.now().toString(),
+          id: `guest-${Date.now()}`,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -121,7 +179,7 @@ export const useCategoryStore = defineStore('categories', () => {
           categories.value.push(newCategory)
           return newCategory
         }
-        return null
+        throw new Error('Failed to create category in Firebase')
       }
     } catch (error) {
       console.error('Error adding category:', error)
@@ -132,12 +190,16 @@ export const useCategoryStore = defineStore('categories', () => {
   }
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
-    if (!authStore.user?.id) return null
+    if (!authStore.user?.id) {
+      throw new Error('User not authenticated')
+    }
 
     loading.value = true
     try {
       const index = categories.value.findIndex(category => category.id === id)
-      if (index === -1) return null
+      if (index === -1) {
+        throw new Error('Category not found')
+      }
 
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
@@ -159,7 +221,7 @@ export const useCategoryStore = defineStore('categories', () => {
           }
           return categories.value[index]
         }
-        return null
+        throw new Error('Failed to update category in Firebase')
       }
     } catch (error) {
       console.error('Error updating category:', error)
@@ -170,12 +232,16 @@ export const useCategoryStore = defineStore('categories', () => {
   }
 
   const deleteCategory = async (id: string) => {
-    if (!authStore.user?.id) return false
+    if (!authStore.user?.id) {
+      throw new Error('User not authenticated')
+    }
 
     loading.value = true
     try {
       const index = categories.value.findIndex(category => category.id === id)
-      if (index === -1) return false
+      if (index === -1) {
+        throw new Error('Category not found')
+      }
 
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
@@ -187,12 +253,13 @@ export const useCategoryStore = defineStore('categories', () => {
         const success = await firestoreService.deleteCategory(id)
         if (success) {
           categories.value.splice(index, 1)
+          return true
         }
-        return success
+        throw new Error('Failed to delete category from Firebase')
       }
     } catch (error) {
       console.error('Error deleting category:', error)
-      return false
+      throw error
     } finally {
       loading.value = false
     }
