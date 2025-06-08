@@ -16,7 +16,7 @@
           <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
             <q-icon name="dashboard" class="q-mr-sm icon-md" />
             Spasta
-            <span class="text-caption q-ml-sm">{{ currentPageTitle }}</span>
+            <span class="text-h6 q-ml-md route-text">{{ currentPageTitle }}</span>
           </q-toolbar-title>
           
           <q-btn
@@ -460,6 +460,13 @@ onMounted(async () => {
   box-shadow: 0 12px 40px rgba(58, 107, 140, 0.4);
 }
 
+/* Route text styling */
+.route-text {
+  font-weight: 500;
+  opacity: 0.9;
+  color: #EFE4D2;
+}
+
 /* Main Content Spacing */
 .main-content {
   padding-top: 100px !important; /* Space for detached header */
@@ -509,6 +516,10 @@ onMounted(async () => {
     min-height: 56px;
   }
   
+  .route-text {
+    font-size: 1rem;
+  }
+  
   .main-content {
     padding-top: 80px !important;
   }
@@ -556,11 +567,6 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.q-toolbar-title .text-caption {
-  opacity: 0.8;
-  font-weight: 400;
 }
 
 /* User avatar hover effect */
