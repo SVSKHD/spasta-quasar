@@ -8,10 +8,12 @@
             flat
             dense
             round
-            icon="menu"
+            :icon="drawerOpen ? 'close' : 'menu'"
             @click="drawerOpen = !drawerOpen"
-            class="q-mr-sm spasta-text"
-          />
+            class="q-mr-sm spasta-text menu-toggle-btn"
+          >
+            <q-tooltip>{{ drawerOpen ? 'Close menu' : 'Open menu' }}</q-tooltip>
+          </q-btn>
           
           <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
             <q-icon name="dashboard" class="q-mr-sm icon-md" />
@@ -500,6 +502,27 @@ onMounted(async () => {
 .spasta-header:hover {
   border-color: rgba(239, 228, 210, 0.4);
   box-shadow: 0 12px 40px rgba(58, 107, 140, 0.4);
+}
+
+/* Menu toggle button styling */
+.menu-toggle-btn {
+  transition: all 0.3s ease;
+  border-radius: 12px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-toggle-btn:hover {
+  background: rgba(239, 228, 210, 0.2) !important;
+  transform: scale(1.1);
+}
+
+.menu-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.menu-toggle-btn .q-icon {
+  transition: all 0.3s ease;
 }
 
 /* Route text styling */
