@@ -22,95 +22,112 @@ export const useTaskStore = defineStore('tasks', () => {
 
     loading.value = true
     try {
+      console.log('Loading tasks for user:', authStore.user.id)
+      
       if (authStore.user.id === 'guest') {
         // Load from localStorage for guest users
         const stored = localStorage.getItem('guest_tasks')
         if (stored) {
           tasks.value = JSON.parse(stored)
+          console.log('Loaded tasks from localStorage:', tasks.value.length, 'tasks')
         } else {
-          // Add demo tasks for guest
-          tasks.value = [
-            {
-              id: '1',
-              title: 'Design new dashboard',
-              description: 'Create wireframes and mockups for the new analytics dashboard',
-              status: 'in-progress',
-              priority: 'high',
-              category: 'Design',
-              dueDate: '2025-02-15',
-              createdAt: '2025-01-01T10:00:00Z',
-              updatedAt: '2025-01-10T14:30:00Z',
-              tags: ['ui', 'wireframes', 'analytics'],
-              photoUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400',
-              assignedTo: {
-                id: 'user1',
-                name: 'Sarah Johnson',
-                email: 'sarah@example.com',
-                photoUrl: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100'
-              },
-              subtasks: [
-                { id: 's1', title: 'Create user personas', completed: true, createdAt: '2025-01-01T10:00:00Z' },
-                { id: 's2', title: 'Design wireframes', completed: true, createdAt: '2025-01-01T10:00:00Z' },
-                { id: 's3', title: 'Create high-fidelity mockups', completed: false, createdAt: '2025-01-01T10:00:00Z' },
-                { id: 's4', title: 'User testing', completed: false, createdAt: '2025-01-01T10:00:00Z' }
-              ]
-            },
-            {
-              id: '2',
-              title: 'Implement user authentication',
-              description: 'Set up Firebase authentication with Google sign-in',
-              status: 'todo',
-              priority: 'high',
-              category: 'Development',
-              dueDate: '2025-02-20',
-              createdAt: '2025-01-05T09:00:00Z',
-              updatedAt: '2025-01-05T09:00:00Z',
-              tags: ['auth', 'firebase', 'backend'],
-              photoUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=400',
-              assignedTo: {
-                id: 'user2',
-                name: 'Mike Chen',
-                email: 'mike@example.com'
-              },
-              subtasks: [
-                { id: 's5', title: 'Setup Firebase project', completed: false, createdAt: '2025-01-05T09:00:00Z' },
-                { id: 's6', title: 'Configure Google OAuth', completed: false, createdAt: '2025-01-05T09:00:00Z' },
-                { id: 's7', title: 'Implement login flow', completed: false, createdAt: '2025-01-05T09:00:00Z' }
-              ]
-            },
-            {
-              id: '3',
-              title: 'Write API documentation',
-              description: 'Document all REST endpoints with examples and response schemas',
-              status: 'done',
-              priority: 'medium',
-              category: 'Documentation',
-              createdAt: '2024-12-20T08:00:00Z',
-              updatedAt: '2025-01-08T16:45:00Z',
-              tags: ['docs', 'api', 'swagger'],
-              assignedTo: {
-                id: 'user3',
-                name: 'Alex Rivera',
-                email: 'alex@example.com',
-                photoUrl: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'
-              },
-              subtasks: [
-                { id: 's8', title: 'Document authentication endpoints', completed: true, createdAt: '2024-12-20T08:00:00Z' },
-                { id: 's9', title: 'Document user management endpoints', completed: true, createdAt: '2024-12-20T08:00:00Z' },
-                { id: 's10', title: 'Add code examples', completed: true, createdAt: '2024-12-20T08:00:00Z' }
-              ]
-            }
-          ]
-          saveGuestTasks()
+          // Create demo tasks for guest
+          console.log('Creating demo tasks for guest user')
+          await createDemoTasks()
         }
       } else {
         // Load from Firestore for authenticated users
-        tasks.value = await firestoreService.getTasks(authStore.user.id)
+        console.log('Loading tasks from Firestore')
+        const firestoreTasks = await firestoreService.getTasks(authStore.user.id)
+        tasks.value = firestoreTasks
+        console.log('Loaded tasks from Firestore:', tasks.value.length, 'tasks')
       }
     } catch (error) {
       console.error('Error loading tasks:', error)
+      // Create demo tasks on error for better user experience
+      await createDemoTasks()
     } finally {
       loading.value = false
+    }
+  }
+
+  // Create demo tasks
+  const createDemoTasks = async () => {
+    console.log('Creating demo tasks...')
+    const demoTasks = [
+      {
+        title: 'Design new dashboard',
+        description: 'Create wireframes and mockups for the new analytics dashboard',
+        status: 'in-progress',
+        priority: 'high' as TaskPriority,
+        category: 'Design',
+        dueDate: '2025-02-15',
+        tags: ['ui', 'wireframes', 'analytics'],
+        photoUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400',
+        assignedTo: {
+          id: 'user1',
+          name: 'Sarah Johnson',
+          email: 'sarah@example.com',
+          photoUrl: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100'
+        },
+        subtasks: [
+          { id: 's1', title: 'Create user personas', completed: true, createdAt: new Date().toISOString() },
+          { id: 's2', title: 'Design wireframes', completed: true, createdAt: new Date().toISOString() },
+          { id: 's3', title: 'Create high-fidelity mockups', completed: false, createdAt: new Date().toISOString() },
+          { id: 's4', title: 'User testing', completed: false, createdAt: new Date().toISOString() }
+        ]
+      },
+      {
+        title: 'Implement user authentication',
+        description: 'Set up Firebase authentication with Google sign-in',
+        status: 'todo',
+        priority: 'high' as TaskPriority,
+        category: 'Development',
+        dueDate: '2025-02-20',
+        tags: ['auth', 'firebase', 'backend'],
+        photoUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=400',
+        assignedTo: {
+          id: 'user2',
+          name: 'Mike Chen',
+          email: 'mike@example.com'
+        },
+        subtasks: [
+          { id: 's5', title: 'Setup Firebase project', completed: false, createdAt: new Date().toISOString() },
+          { id: 's6', title: 'Configure Google OAuth', completed: false, createdAt: new Date().toISOString() },
+          { id: 's7', title: 'Implement login flow', completed: false, createdAt: new Date().toISOString() }
+        ]
+      },
+      {
+        title: 'Launch marketing campaign',
+        description: 'Plan and execute the Q1 marketing campaign for product launch',
+        status: 'planning',
+        priority: 'medium' as TaskPriority,
+        category: 'Marketing',
+        dueDate: '2025-03-01',
+        tags: ['campaign', 'social-media', 'launch'],
+        assignedTo: {
+          id: 'user3',
+          name: 'Alex Rivera',
+          email: 'alex@example.com',
+          photoUrl: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'
+        },
+        subtasks: [
+          { id: 's8', title: 'Define target audience', completed: true, createdAt: new Date().toISOString() },
+          { id: 's9', title: 'Create campaign materials', completed: false, createdAt: new Date().toISOString() },
+          { id: 's10', title: 'Schedule social media posts', completed: false, createdAt: new Date().toISOString() }
+        ]
+      }
+    ]
+
+    for (const taskData of demoTasks) {
+      try {
+        const newTask = await addTask(taskData)
+        if (newTask) {
+          console.log('Demo task created:', newTask.title)
+        }
+      } catch (error) {
+        console.error('Error creating demo task:', taskData.title, error)
+      }
     }
   }
 
@@ -118,6 +135,7 @@ export const useTaskStore = defineStore('tasks', () => {
   const saveGuestTasks = () => {
     if (authStore.user?.id === 'guest') {
       localStorage.setItem('guest_tasks', JSON.stringify(tasks.value))
+      console.log('Saved guest tasks to localStorage')
     }
   }
 
@@ -182,6 +200,8 @@ export const useTaskStore = defineStore('tasks', () => {
     if (!authStore.user?.id) return null
 
     try {
+      console.log('Adding task:', taskData.title)
+      
       const taskWithSubtasks = {
         ...taskData,
         subtasks: taskData.subtasks || []
@@ -197,12 +217,14 @@ export const useTaskStore = defineStore('tasks', () => {
         }
         tasks.value.push(newTask)
         saveGuestTasks()
+        console.log('Task added for guest user:', newTask.title)
         return newTask
       } else {
         // Handle authenticated users with Firestore
         const newTask = await firestoreService.addTask(authStore.user.id, taskWithSubtasks)
         if (newTask) {
           tasks.value.push(newTask)
+          console.log('Task added to Firebase:', newTask.title)
         }
         return newTask
       }
@@ -217,6 +239,8 @@ export const useTaskStore = defineStore('tasks', () => {
       const index = tasks.value.findIndex(task => task.id === id)
       if (index === -1) return null
 
+      console.log('Updating task:', id, updates)
+
       if (authStore.user?.id === 'guest') {
         // Handle guest users with localStorage
         tasks.value[index] = {
@@ -225,6 +249,7 @@ export const useTaskStore = defineStore('tasks', () => {
           updatedAt: new Date().toISOString()
         }
         saveGuestTasks()
+        console.log('Task updated for guest user:', tasks.value[index].title)
         return tasks.value[index]
       } else {
         // Handle authenticated users with Firestore
@@ -235,6 +260,7 @@ export const useTaskStore = defineStore('tasks', () => {
             ...updates,
             updatedAt: new Date().toISOString()
           }
+          console.log('Task updated in Firebase:', tasks.value[index].title)
           return tasks.value[index]
         }
         return null
@@ -250,16 +276,20 @@ export const useTaskStore = defineStore('tasks', () => {
       const index = tasks.value.findIndex(task => task.id === id)
       if (index === -1) return false
 
+      console.log('Deleting task:', id)
+
       if (authStore.user?.id === 'guest') {
         // Handle guest users with localStorage
         tasks.value.splice(index, 1)
         saveGuestTasks()
+        console.log('Task deleted for guest user')
         return true
       } else {
         // Handle authenticated users with Firestore
         const success = await firestoreService.deleteTask(id)
         if (success) {
           tasks.value.splice(index, 1)
+          console.log('Task deleted from Firebase')
         }
         return success
       }
@@ -303,6 +333,13 @@ export const useTaskStore = defineStore('tasks', () => {
     return tasks.value.find(task => task.id === id)
   }
 
+  // Force refresh tasks
+  const refreshTasks = async () => {
+    console.log('Refreshing tasks...')
+    tasks.value = []
+    await loadTasks()
+  }
+
   return {
     tasks,
     loading,
@@ -320,6 +357,7 @@ export const useTaskStore = defineStore('tasks', () => {
     setFilter,
     clearFilter,
     getTaskById,
-    loadTasks
+    loadTasks,
+    refreshTasks
   }
 })

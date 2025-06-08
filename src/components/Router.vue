@@ -266,9 +266,10 @@ const navigateTo = (routeName: string) => {
 
 const refreshData = async () => {
   if (route.name === 'Dashboard') {
+    console.log('Refreshing dashboard data...')
     await Promise.all([
-      taskStore.loadTasks(),
-      categoryStore.loadCategories()
+      categoryStore.refreshCategories(),
+      taskStore.refreshTasks()
     ])
     $q.notify({
       type: 'info',
@@ -343,6 +344,7 @@ const handleTaskUpdated = (task: Task) => {
 }
 
 const handleCategoryCreated = (category: Category) => {
+  console.log('Category created event received:', category)
   $q.notify({
     type: 'positive',
     message: `Board "${category.name}" created successfully`,
@@ -352,6 +354,7 @@ const handleCategoryCreated = (category: Category) => {
 }
 
 const handleCategoryUpdated = (category: Category) => {
+  console.log('Category updated event received:', category)
   $q.notify({
     type: 'positive',
     message: `Board "${category.name}" updated successfully`,
@@ -379,10 +382,12 @@ const logout = async () => {
 const initializeData = async () => {
   if (authStore.isAuthenticated && authStore.user?.id) {
     try {
+      console.log('Initializing data for authenticated user...')
       await Promise.all([
         categoryStore.loadCategories(),
         taskStore.loadTasks()
       ])
+      console.log('Data initialization complete')
     } catch (error) {
       console.error('Error initializing data:', error)
     }
@@ -391,6 +396,7 @@ const initializeData = async () => {
 
 // Watch for authentication state changes
 watch(() => authStore.isAuthenticated, async (isAuth) => {
+  console.log('Auth state changed:', isAuth)
   if (isAuth) {
     showAuthDialog.value = false
     await initializeData()
@@ -400,6 +406,7 @@ watch(() => authStore.isAuthenticated, async (isAuth) => {
 })
 
 onMounted(async () => {
+  console.log('Router component mounted')
   // Initialize Firebase auth listener
   authStore.initializeAuth()
   

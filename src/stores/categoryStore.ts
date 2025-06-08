@@ -15,41 +15,59 @@ export const useCategoryStore = defineStore('categories', () => {
 
     loading.value = true
     try {
+      console.log('Loading categories for user:', authStore.user.id)
+      
       if (authStore.user.id === 'guest') {
         // Load from localStorage for guest users
         const stored = localStorage.getItem('guest_categories')
         if (stored) {
           categories.value = JSON.parse(stored)
+          console.log('Loaded categories from localStorage:', categories.value)
         } else {
-          // Add default categories for guest
-          categories.value = getDefaultCategories()
-          saveGuestCategories()
+          // Create default categories for guest
+          console.log('Creating default categories for guest user')
+          await createDefaultCategories()
         }
       } else {
         // Load from Firestore for authenticated users
+        console.log('Loading categories from Firestore')
         const firestoreCategories = await firestoreService.getCategories(authStore.user.id)
+        console.log('Firestore categories loaded:', firestoreCategories)
+        
         if (firestoreCategories.length === 0) {
-          // Add default categories if none exist
-          const defaultCategories = getDefaultCategoriesData()
-          for (const categoryData of defaultCategories) {
-            const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
-            if (newCategory) {
-              categories.value.push(newCategory)
-            }
-          }
+          // Create default categories if none exist
+          console.log('No categories found, creating default categories')
+          await createDefaultCategories()
         } else {
           categories.value = firestoreCategories
         }
       }
+      
+      console.log('Final categories loaded:', categories.value)
     } catch (error) {
       console.error('Error loading categories:', error)
       // Fallback to default categories on error
-      categories.value = getDefaultCategories()
-      if (authStore.user.id === 'guest') {
-        saveGuestCategories()
-      }
+      await createDefaultCategories()
     } finally {
       loading.value = false
+    }
+  }
+
+  // Create default categories
+  const createDefaultCategories = async () => {
+    console.log('Creating default categories...')
+    const defaultCategoriesData = getDefaultCategoriesData()
+    
+    for (const categoryData of defaultCategoriesData) {
+      try {
+        console.log('Creating category:', categoryData.name)
+        const newCategory = await addCategory(categoryData)
+        if (newCategory) {
+          console.log('Successfully created category:', newCategory.name)
+        }
+      } catch (error) {
+        console.error('Error creating default category:', categoryData.name, error)
+      }
     }
   }
 
@@ -57,58 +75,8 @@ export const useCategoryStore = defineStore('categories', () => {
   const saveGuestCategories = () => {
     if (authStore.user?.id === 'guest') {
       localStorage.setItem('guest_categories', JSON.stringify(categories.value))
+      console.log('Saved guest categories to localStorage')
     }
-  }
-
-  // Get default categories with IDs for immediate use
-  const getDefaultCategories = (): Category[] => {
-    return [
-      {
-        id: 'dev-1',
-        name: 'Development',
-        description: 'Software development tasks',
-        icon: 'code',
-        color: 'primary',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        statuses: [
-          { id: '1', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '2', name: 'in-progress', label: 'In Progress', color: 'primary', icon: 'hourglass_empty', order: 2 },
-          { id: '3', name: 'review', label: 'Code Review', color: 'warning', icon: 'rate_review', order: 3 },
-          { id: '4', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      },
-      {
-        id: 'design-1',
-        name: 'Design',
-        description: 'UI/UX design tasks',
-        icon: 'palette',
-        color: 'purple',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        statuses: [
-          { id: '5', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '6', name: 'wireframe', label: 'Wireframe', color: 'info', icon: 'crop_landscape', order: 2 },
-          { id: '7', name: 'design', label: 'Design', color: 'purple', icon: 'brush', order: 3 },
-          { id: '8', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      },
-      {
-        id: 'marketing-1',
-        name: 'Marketing',
-        description: 'Marketing and promotion tasks',
-        icon: 'campaign',
-        color: 'orange',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        statuses: [
-          { id: '9', name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
-          { id: '10', name: 'planning', label: 'Planning', color: 'info', icon: 'event_note', order: 2 },
-          { id: '11', name: 'execution', label: 'Execution', color: 'orange', icon: 'play_arrow', order: 3 },
-          { id: '12', name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
-        ]
-      }
-    ]
   }
 
   // Get default categories data for Firebase (without IDs)
@@ -116,7 +84,7 @@ export const useCategoryStore = defineStore('categories', () => {
     return [
       {
         name: 'Development',
-        description: 'Software development tasks',
+        description: 'Software development tasks and projects',
         icon: 'code',
         color: 'primary',
         statuses: [
@@ -128,7 +96,7 @@ export const useCategoryStore = defineStore('categories', () => {
       },
       {
         name: 'Design',
-        description: 'UI/UX design tasks',
+        description: 'UI/UX design and creative tasks',
         icon: 'palette',
         color: 'purple',
         statuses: [
@@ -140,7 +108,7 @@ export const useCategoryStore = defineStore('categories', () => {
       },
       {
         name: 'Marketing',
-        description: 'Marketing and promotion tasks',
+        description: 'Marketing campaigns and promotional activities',
         icon: 'campaign',
         color: 'orange',
         statuses: [
@@ -161,6 +129,8 @@ export const useCategoryStore = defineStore('categories', () => {
 
     loading.value = true
     try {
+      console.log('Adding category:', categoryData.name)
+      
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
         const newCategory: Category = {
@@ -171,13 +141,14 @@ export const useCategoryStore = defineStore('categories', () => {
         }
         categories.value.push(newCategory)
         saveGuestCategories()
+        console.log('Category added for guest user:', newCategory)
         return newCategory
       } else {
         // Handle authenticated users with Firestore
         console.log('Adding category to Firebase:', categoryData)
         const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
         if (newCategory) {
-          console.log('Category added successfully:', newCategory)
+          console.log('Category added successfully to Firebase:', newCategory)
           categories.value.push(newCategory)
           return newCategory
         }
@@ -203,6 +174,8 @@ export const useCategoryStore = defineStore('categories', () => {
         throw new Error('Category not found')
       }
 
+      console.log('Updating category:', id, updates)
+
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
         categories.value[index] = {
@@ -211,6 +184,7 @@ export const useCategoryStore = defineStore('categories', () => {
           updatedAt: new Date().toISOString()
         }
         saveGuestCategories()
+        console.log('Category updated for guest user:', categories.value[index])
         return categories.value[index]
       } else {
         // Handle authenticated users with Firestore
@@ -222,7 +196,7 @@ export const useCategoryStore = defineStore('categories', () => {
             ...updates,
             updatedAt: new Date().toISOString()
           }
-          console.log('Category updated successfully:', categories.value[index])
+          console.log('Category updated successfully in Firebase:', categories.value[index])
           return categories.value[index]
         }
         throw new Error('Failed to update category in Firebase')
@@ -247,10 +221,13 @@ export const useCategoryStore = defineStore('categories', () => {
         throw new Error('Category not found')
       }
 
+      console.log('Deleting category:', id)
+
       if (authStore.user.id === 'guest') {
         // Handle guest users with localStorage
         categories.value.splice(index, 1)
         saveGuestCategories()
+        console.log('Category deleted for guest user')
         return true
       } else {
         // Handle authenticated users with Firestore
@@ -258,7 +235,7 @@ export const useCategoryStore = defineStore('categories', () => {
         const success = await firestoreService.deleteCategory(id)
         if (success) {
           categories.value.splice(index, 1)
-          console.log('Category deleted successfully')
+          console.log('Category deleted successfully from Firebase')
           return true
         }
         throw new Error('Failed to delete category from Firebase')
@@ -279,6 +256,13 @@ export const useCategoryStore = defineStore('categories', () => {
     return categories.value.find(category => category.name === name)
   }
 
+  // Force refresh categories
+  const refreshCategories = async () => {
+    console.log('Refreshing categories...')
+    categories.value = []
+    await loadCategories()
+  }
+
   return {
     categories,
     loading,
@@ -287,6 +271,7 @@ export const useCategoryStore = defineStore('categories', () => {
     deleteCategory,
     getCategoryById,
     getCategoryByName,
-    loadCategories
+    loadCategories,
+    refreshCategories
   }
 })
