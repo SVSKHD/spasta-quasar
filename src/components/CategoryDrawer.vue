@@ -472,4 +472,3 @@ watch(() => props.category, () => {
   border-radius: 8px;
 }
 </style>
-</template>
