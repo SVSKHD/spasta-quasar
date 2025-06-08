@@ -267,16 +267,26 @@ const navigateTo = (routeName: string) => {
 const refreshData = async () => {
   if (route.name === 'Dashboard') {
     console.log('Refreshing dashboard data...')
-    await Promise.all([
-      categoryStore.refreshCategories(),
-      taskStore.refreshTasks()
-    ])
-    $q.notify({
-      type: 'info',
-      message: 'Data refreshed',
-      position: 'top-right',
-      timeout: 1500
-    })
+    try {
+      await Promise.all([
+        categoryStore.loadCategories(),
+        taskStore.loadTasks()
+      ])
+      $q.notify({
+        type: 'info',
+        message: 'Data refreshed',
+        position: 'top-right',
+        timeout: 1500
+      })
+    } catch (error) {
+      console.error('Error refreshing data:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Error refreshing data',
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
   }
 }
 
