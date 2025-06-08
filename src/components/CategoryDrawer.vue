@@ -380,6 +380,8 @@ const submitForm = async () => {
       }))
     }
     
+    console.log('Submitting category form:', categoryData)
+    
     if (isEditing.value && props.category) {
       const updatedCategory = await categoryStore.updateCategory(props.category.id, categoryData)
       if (updatedCategory) {
@@ -438,19 +440,19 @@ watch(() => props.category, () => {
 
 <style scoped>
 .category-drawer {
-  background: linear-gradient(145deg, rgba(11, 29, 81, 0.95) 0%, rgba(11, 29, 81, 0.98) 100%);
-  border-left: 2px solid rgba(255, 227, 169, 0.2);
+  background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
+  border-left: 2px solid rgba(239, 228, 210, 0.2);
 }
 
 .form-section {
-  background: rgba(255, 227, 169, 0.05);
+  background: rgba(239, 228, 210, 0.05);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(255, 227, 169, 0.1);
+  border: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 .form-actions {
-  border-top: 1px solid rgba(255, 227, 169, 0.1);
+  border-top: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 .status-item {

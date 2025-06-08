@@ -174,8 +174,10 @@ export const useCategoryStore = defineStore('categories', () => {
         return newCategory
       } else {
         // Handle authenticated users with Firestore
+        console.log('Adding category to Firebase:', categoryData)
         const newCategory = await firestoreService.addCategory(authStore.user.id, categoryData)
         if (newCategory) {
+          console.log('Category added successfully:', newCategory)
           categories.value.push(newCategory)
           return newCategory
         }
@@ -212,6 +214,7 @@ export const useCategoryStore = defineStore('categories', () => {
         return categories.value[index]
       } else {
         // Handle authenticated users with Firestore
+        console.log('Updating category in Firebase:', id, updates)
         const success = await firestoreService.updateCategory(id, updates)
         if (success) {
           categories.value[index] = {
@@ -219,6 +222,7 @@ export const useCategoryStore = defineStore('categories', () => {
             ...updates,
             updatedAt: new Date().toISOString()
           }
+          console.log('Category updated successfully:', categories.value[index])
           return categories.value[index]
         }
         throw new Error('Failed to update category in Firebase')
@@ -250,9 +254,11 @@ export const useCategoryStore = defineStore('categories', () => {
         return true
       } else {
         // Handle authenticated users with Firestore
+        console.log('Deleting category from Firebase:', id)
         const success = await firestoreService.deleteCategory(id)
         if (success) {
           categories.value.splice(index, 1)
+          console.log('Category deleted successfully')
           return true
         }
         throw new Error('Failed to delete category from Firebase')
