@@ -103,7 +103,7 @@ const dialogVisible = computed({
 const handleGoogleLogin = async () => {
   loading.value = true
   try {
-    const user = await authStore.loginWithRedirect()
+    const user = await authStore.login()
     if (user) {
       $q.notify({
         type: 'positive',
@@ -193,7 +193,7 @@ const loginAsGuest = () => {
 <style scoped>
 .auth-card {
   border-radius: 16px;
-  border: 2px solid rgba(255, 227, 169, 0.2);
+  border: 2px solid rgba(239, 228, 210, 0.2);
 }
 
 .google-btn {
