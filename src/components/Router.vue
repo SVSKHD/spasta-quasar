@@ -164,21 +164,22 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Show on Overview and Dashboard -->
-        <div v-else-if="['Overview', 'Dashboard'].includes($route.name as string)" class="greeting-container">
+        <!-- Greeting Card - Show on all pages -->
+        <div v-else class="greeting-container">
           <SpastaGreetingCard />
         </div>
         
-        <!-- Router View -->
-        <router-view 
-          v-if="!authStore.loading"
-          @add-task="handleAddTask"
-          @edit-task="handleEditTask"
-          @delete-task="handleDeleteTask"
-          @move-task="handleMoveTask"
-          @toggle-subtask="handleToggleSubtask"
-          @edit-category="handleEditCategory"
-        />
+        <!-- Router View with Scrollable Content -->
+        <div v-if="!authStore.loading" class="page-content">
+          <router-view 
+            @add-task="handleAddTask"
+            @edit-task="handleEditTask"
+            @delete-task="handleDeleteTask"
+            @move-task="handleMoveTask"
+            @toggle-subtask="handleToggleSubtask"
+            @edit-category="handleEditCategory"
+          />
+        </div>
       </q-page>
     </q-page-container>
 
@@ -488,7 +489,7 @@ onMounted(async () => {
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 12px 24px 0 24px; /* Reduced top padding from 16px to 12px */
+  padding: 8px 24px 0 24px; /* Reduced top padding from 12px to 8px */
 }
 
 .header-wrapper {
@@ -543,20 +544,28 @@ onMounted(async () => {
 
 /* Main Content Spacing */
 .main-content {
-  padding-top: 88px !important; /* Reduced from 100px to 88px */
+  padding-top: 80px !important; /* Reduced from 88px to 80px */
+  height: 100vh;
+  overflow: hidden;
 }
 
 .greeting-container {
-  padding: 0 24px 16px 24px; /* Reduced bottom padding from 24px to 16px */
+  padding: 0 24px 8px 24px; /* Reduced bottom padding from 16px to 8px */
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.page-content {
+  height: calc(100vh - 160px); /* Adjusted for reduced header spacing */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 88px; /* Reduced from 100px to 88px */
+  margin-top: 80px; /* Reduced from 88px to 80px */
 }
 
 .nav-item {
@@ -580,7 +589,7 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 8px 16px 0 16px; /* Reduced top padding from 12px to 8px */
+    padding: 6px 16px 0 16px; /* Reduced top padding from 8px to 6px */
   }
   
   .spasta-header {
@@ -594,34 +603,42 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 72px !important; /* Reduced from 80px to 72px */
+    padding-top: 64px !important; /* Reduced from 72px to 64px */
   }
   
   .greeting-container {
-    padding: 0 16px 12px 16px; /* Reduced bottom padding from 16px to 12px */
+    padding: 0 16px 6px 16px; /* Reduced bottom padding from 12px to 6px */
+  }
+  
+  .page-content {
+    height: calc(100vh - 130px); /* Adjusted for mobile */
   }
   
   .spasta-drawer {
-    margin-top: 72px; /* Reduced from 80px to 72px */
+    margin-top: 64px; /* Reduced from 72px to 64px */
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 10px 20px 0 20px; /* Reduced top padding from 14px to 10px */
+    padding: 7px 20px 0 20px; /* Reduced top padding from 10px to 7px */
   }
   
   .greeting-container {
-    padding: 0 20px 14px 20px; /* Reduced bottom padding from 20px to 14px */
+    padding: 0 20px 7px 20px; /* Reduced bottom padding from 14px to 7px */
   }
   
   .main-content {
-    padding-top: 80px !important; /* Reduced from 90px to 80px */
+    padding-top: 72px !important; /* Reduced from 80px to 72px */
+  }
+  
+  .page-content {
+    height: calc(100vh - 145px); /* Adjusted for tablet */
   }
   
   .spasta-drawer {
-    margin-top: 80px; /* Reduced from 90px to 80px */
+    margin-top: 72px; /* Reduced from 80px to 72px */
   }
 }
 
@@ -650,5 +667,27 @@ onMounted(async () => {
 .q-btn-dropdown:hover .q-avatar {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(239, 228, 210, 0.3);
+}
+
+/* Scrollbar styling for page content */
+.page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background: rgba(239, 228, 210, 0.1);
+  border-radius: 8px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background: rgba(58, 107, 140, 0.6);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(58, 107, 140, 0.8);
+  transform: scale(1.1);
 }
 </style>
