@@ -23,8 +23,7 @@ export const firestoreService = {
       const tasksRef = collection(db, 'tasks')
       const q = query(
         tasksRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -111,8 +110,7 @@ export const firestoreService = {
       const categoriesRef = collection(db, 'categories')
       const q = query(
         categoriesRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -203,8 +201,7 @@ export const firestoreService = {
       const expensesRef = collection(db, 'expenses')
       const q = query(
         expensesRef, 
-        where('userId', '==', userId),
-        orderBy('date', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -288,8 +285,7 @@ export const firestoreService = {
       const goalsRef = collection(db, 'goals')
       const q = query(
         goalsRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -373,8 +369,7 @@ export const firestoreService = {
       const categoriesRef = collection(db, 'expense_categories')
       const q = query(
         categoriesRef, 
-        where('userId', '==', userId),
-        orderBy('name', 'asc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -402,8 +397,7 @@ export const firestoreService = {
       const budgetsRef = collection(db, 'budgets')
       const q = query(
         budgetsRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -432,8 +426,7 @@ export const firestoreService = {
       const tasksRef = collection(db, 'calendar_tasks')
       const q = query(
         tasksRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -515,8 +508,7 @@ export const firestoreService = {
       const notesRef = collection(db, 'notes')
       const q = query(
         notesRef, 
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
@@ -600,8 +592,7 @@ export const firestoreService = {
       const categoriesRef = collection(db, 'note_categories')
       const q = query(
         categoriesRef, 
-        where('userId', '==', userId),
-        orderBy('name', 'asc')
+        where('userId', '==', userId)
       )
       const querySnapshot = await getDocs(q)
       
