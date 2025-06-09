@@ -489,7 +489,7 @@ onMounted(async () => {
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 8px 24px 0 24px; /* Reduced top padding from 12px to 8px */
+  padding: 4px 24px 0 24px; /* Further reduced top padding from 8px to 4px */
 }
 
 .header-wrapper {
@@ -544,19 +544,19 @@ onMounted(async () => {
 
 /* Main Content Spacing */
 .main-content {
-  padding-top: 80px !important; /* Reduced from 88px to 80px */
+  padding-top: 76px !important; /* Further reduced from 80px to 76px */
   height: 100vh;
   overflow: hidden;
 }
 
 .greeting-container {
-  padding: 0 24px 8px 24px; /* Reduced bottom padding from 16px to 8px */
+  padding: 0 24px 4px 24px; /* Further reduced bottom padding from 8px to 4px */
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .page-content {
-  height: calc(100vh - 160px); /* Adjusted for reduced header spacing */
+  height: calc(100vh - 140px); /* Adjusted for further reduced header spacing */
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -565,7 +565,7 @@ onMounted(async () => {
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 80px; /* Reduced from 88px to 80px */
+  margin-top: 76px; /* Further reduced from 80px to 76px */
 }
 
 .nav-item {
@@ -589,7 +589,7 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 6px 16px 0 16px; /* Reduced top padding from 8px to 6px */
+    padding: 2px 16px 0 16px; /* Further reduced top padding from 6px to 2px */
   }
   
   .spasta-header {
@@ -603,42 +603,42 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 64px !important; /* Reduced from 72px to 64px */
+    padding-top: 60px !important; /* Further reduced from 64px to 60px */
   }
   
   .greeting-container {
-    padding: 0 16px 6px 16px; /* Reduced bottom padding from 12px to 6px */
+    padding: 0 16px 2px 16px; /* Further reduced bottom padding from 6px to 2px */
   }
   
   .page-content {
-    height: calc(100vh - 130px); /* Adjusted for mobile */
+    height: calc(100vh - 110px); /* Adjusted for mobile */
   }
   
   .spasta-drawer {
-    margin-top: 64px; /* Reduced from 72px to 64px */
+    margin-top: 60px; /* Further reduced from 64px to 60px */
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 7px 20px 0 20px; /* Reduced top padding from 10px to 7px */
+    padding: 3px 20px 0 20px; /* Further reduced top padding from 7px to 3px */
   }
   
   .greeting-container {
-    padding: 0 20px 7px 20px; /* Reduced bottom padding from 14px to 7px */
+    padding: 0 20px 3px 20px; /* Further reduced bottom padding from 7px to 3px */
   }
   
   .main-content {
-    padding-top: 72px !important; /* Reduced from 80px to 72px */
+    padding-top: 68px !important; /* Further reduced from 72px to 68px */
   }
   
   .page-content {
-    height: calc(100vh - 145px); /* Adjusted for tablet */
+    height: calc(100vh - 125px); /* Adjusted for tablet */
   }
   
   .spasta-drawer {
-    margin-top: 72px; /* Reduced from 80px to 72px */
+    margin-top: 68px; /* Further reduced from 72px to 68px */
   }
 }
 
