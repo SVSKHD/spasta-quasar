@@ -489,7 +489,7 @@ onMounted(async () => {
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 4px 24px 0 24px; /* Further reduced top padding from 8px to 4px */
+  padding: 0px 24px 0 24px; /* Further reduced top padding from 8px to 4px */
 }
 
 .header-wrapper {
