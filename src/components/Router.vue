@@ -164,8 +164,8 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container">
+        <!-- Greeting Card - Show on Overview and Dashboard -->
+        <div v-else-if="['Overview', 'Dashboard'].includes($route.name as string)" class="greeting-container">
           <SpastaGreetingCard />
         </div>
         
@@ -239,6 +239,12 @@ const initialTaskStatus = ref<string>('')
 
 const navigationRoutes = [
   {
+    name: 'Overview',
+    title: 'Overview',
+    description: 'Customizable widgets dashboard',
+    icon: 'widgets'
+  },
+  {
     name: 'Dashboard',
     title: 'Dashboard',
     description: 'Task management boards',
@@ -278,7 +284,7 @@ const navigationRoutes = [
 
 const currentPageTitle = computed(() => {
   const currentRoute = navigationRoutes.find(r => r.name === route.name)
-  return currentRoute?.title || 'Dashboard'
+  return currentRoute?.title || 'Overview'
 })
 
 const isLoading = computed(() => {
@@ -310,7 +316,7 @@ const navigateTo = (routeName: string) => {
 const refreshData = async () => {
   console.log('Refreshing data for route:', route.name)
   try {
-    if (route.name === 'Dashboard') {
+    if (route.name === 'Dashboard' || route.name === 'Overview') {
       await Promise.all([
         categoryStore.loadCategories(),
         taskStore.loadTasks()
@@ -555,7 +561,6 @@ onMounted(async () => {
 
 .nav-item {
   transition: all 0.2s ease;
-  margin-bottom: 4px;
 }
 
 .nav-item:hover {

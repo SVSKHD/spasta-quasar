@@ -4,6 +4,12 @@ import { useAuthStore } from '../stores/authStore'
 const routes = [
   {
     path: '/',
+    name: 'Overview',
+    component: () => import('../views/OverviewView.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     component: () => import('../views/DashboardView.vue'),
     meta: { requiresAuth: false }
@@ -50,7 +56,7 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // Redirect to dashboard with auth dialog
+    // Redirect to overview with auth dialog
     next('/')
   } else {
     next()
