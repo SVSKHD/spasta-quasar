@@ -202,6 +202,9 @@
 
     <!-- Auth Dialog -->
     <SpastaAuthDialog v-model="showAuthDialog" />
+
+    <!-- Productivity Dialogs -->
+    <SpastaProductivityDialogs />
   </q-layout>
 </template>
 

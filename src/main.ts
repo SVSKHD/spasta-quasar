@@ -33,6 +33,7 @@ import SpastaCategoryBoard from './components/CategoryBoard.vue'
 import SpastaCategoryForm from './components/CategoryForm.vue'
 import SpastaGreetingCard from './components/GreetingCard.vue'
 import SpastaTable from './components/SpastaTable.vue'
+import SpastaProductivityDialogs from './components/ProductivityDialogs.vue'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -52,6 +53,7 @@ app.component('SpastaCategoryBoard', SpastaCategoryBoard)
 app.component('SpastaCategoryForm', SpastaCategoryForm)
 app.component('SpastaGreetingCard', SpastaGreetingCard)
 app.component('SpastaTable', SpastaTable)
+app.component('SpastaProductivityDialogs', SpastaProductivityDialogs)
 
 app.use(pinia)
 app.use(router)
