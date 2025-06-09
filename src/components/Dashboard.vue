@@ -2,12 +2,12 @@
   <div class="dashboard-content">
     <!-- Category Board Component -->
     <SpastaCategoryBoard
-      @add-task="(status, category) => $emit('add-task', status, category)"
-      @edit-task="(task) => $emit('edit-task', task)"
-      @delete-task="(taskId) => $emit('delete-task', taskId)"
-      @move-task="(taskId, newStatus) => $emit('move-task', taskId, newStatus)"
-      @toggle-subtask="(taskId, subtaskId) => $emit('toggle-subtask', taskId, subtaskId)"
-      @edit-category="(category) => $emit('edit-category', category)"
+      @add-task="(status: string, category?: string) => $emit('add-task', status, category)"
+      @edit-task="(task: Task) => $emit('edit-task', task)"
+      @delete-task="(taskId: string) => $emit('delete-task', taskId)"
+      @move-task="(taskId: string, newStatus: string) => $emit('move-task', taskId, newStatus)"
+      @toggle-subtask="(taskId: string, subtaskId: string) => $emit('toggle-subtask', taskId, subtaskId)"
+      @edit-category="(category?: Category) => $emit('edit-category', category)"
     />
   </div>
 </template>
@@ -21,7 +21,7 @@ interface Emits {
   (e: 'delete-task', taskId: string): void
   (e: 'move-task', taskId: string, newStatus: string): void
   (e: 'toggle-subtask', taskId: string, subtaskId: string): void
-  (e: 'edit-category', category: Category): void
+  (e: 'edit-category', category?: Category): void
 }
 
 defineEmits<Emits>()

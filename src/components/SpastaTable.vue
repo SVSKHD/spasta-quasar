@@ -14,7 +14,7 @@
       class="spasta-table"
       :class="tableClass"
       v-bind="$attrs"
-      @update:selected="(value: any[]) => $emit('update:selected', value)"
+      @update:selected="(value: readonly any[]) => $emit('update:selected', [...value])"
       @row-click="(evt: Event, row: any, index: number) => $emit('row-click', evt, row, index)"
       @request="(requestProp: any) => $emit('request', requestProp)"
     >
@@ -38,13 +38,13 @@
             </div>
             
             <div v-else-if="column.type === 'currency'" class="currency-cell">
-              <span :class="getCurrencyClass(props.value, column)">
+              <span :class="getCurrencyClass(props.value)">
                 {{ formatCurrency(props.value, column) }}
               </span>
             </div>
             
             <div v-else-if="column.type === 'percentage'" class="percentage-cell">
-              <span :class="getPercentageClass(props.value, column)">
+              <span :class="getPercentageClass(props.value)">
                 {{ formatPercentage(props.value, column) }}
               </span>
             </div>
@@ -76,7 +76,7 @@
               <div class="progress-container">
                 <q-linear-progress
                   :value="props.value / 100"
-                  :color="getProgressColor(props.value, column)"
+                  :color="getProgressColor(props.value)"
                   track-color="grey-3"
                   size="8px"
                   rounded
@@ -300,7 +300,7 @@ const getChipTextColor = (value: any, column: TableColumn) => {
   return 'white'
 }
 
-const getCurrencyClass = (value: any, column: TableColumn) => {
+const getCurrencyClass = (value: any) => {
   const classes = ['currency-value', 'text-weight-medium']
   const numValue = parseFloat(value)
   
@@ -315,7 +315,7 @@ const getCurrencyClass = (value: any, column: TableColumn) => {
   return classes.join(' ')
 }
 
-const getPercentageClass = (value: any, column: TableColumn) => {
+const getPercentageClass = (value: any) => {
   const classes = ['percentage-value', 'text-weight-medium']
   const numValue = parseFloat(value)
   
@@ -330,18 +330,10 @@ const getPercentageClass = (value: any, column: TableColumn) => {
   return classes.join(' ')
 }
 
-const getProgressColor = (value: any, column: TableColumn) => {
+const getProgressColor = (value: any) => {
   const numValue = parseFloat(value)
   if (isNaN(numValue)) {
     return 'grey'
-  }
-  
-  if (column.progressColors) {
-    for (const [threshold, color] of Object.entries(column.progressColors)) {
-      if (numValue >= parseInt(threshold)) {
-        return color
-      }
-    }
   }
   
   if (numValue >= 80) return 'positive'

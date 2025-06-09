@@ -78,17 +78,145 @@
       </div>
     </div>
 
-    <!-- Rest of the template content -->
+    <!-- Expense Dialog -->
+    <q-dialog v-model="showExpenseDialog">
+      <q-card class="spasta-card" style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6 spasta-text">Add Expense</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form @submit="addExpense" class="q-gutter-md">
+            <q-input
+              v-model="expenseForm.title"
+              label="Title"
+              outlined
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-model.number="expenseForm.amount"
+              label="Amount"
+              outlined
+              type="number"
+              step="0.01"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-select
+              v-model="expenseForm.category"
+              label="Category"
+              outlined
+              :options="['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Bills & Utilities', 'Healthcare']"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+
+            <q-input
+              v-model="expenseForm.date"
+              label="Date"
+              outlined
+              type="date"
+              required
+              class="spasta-input"
+              color="white"
+              label-color="white"
+              dark
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" @click="showExpenseDialog = false" class="spasta-text" />
+          <q-btn 
+            flat 
+            label="Add" 
+            color="white" 
+            text-color="grey-8"
+            @click="addExpense"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useFinanceStore } from '../stores/financeStore'
-import type { Expense } from '../types/finance'
 
-// Rest of the script content
+const $q = useQuasar()
+const financeStore = useFinanceStore()
+const showExpenseDialog = ref(false)
+
+const expenseForm = ref({
+  title: '',
+  amount: 0,
+  category: '',
+  date: new Date().toISOString().split('T')[0]
+})
+
+const refreshData = async () => {
+  await financeStore.loadFinanceData()
+  $q.notify({
+    type: 'info',
+    message: 'Data refreshed',
+    position: 'top-right',
+    timeout: 1500
+  })
+}
+
+const addExpense = async () => {
+  try {
+    const expenseData = {
+      ...expenseForm.value,
+      description: '',
+      type: 'expense' as const,
+      tags: []
+    }
+
+    await financeStore.addExpense(expenseData)
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Expense added successfully',
+      position: 'top-right',
+      timeout: 2000
+    })
+
+    showExpenseDialog.value = false
+    expenseForm.value = {
+      title: '',
+      amount: 0,
+      category: '',
+      date: new Date().toISOString().split('T')[0]
+    }
+  } catch (error) {
+    console.error('Error adding expense:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error adding expense',
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+}
+
+onMounted(() => {
+  financeStore.loadFinanceData()
+})
 </script>
 
 <style scoped>
@@ -104,6 +232,4 @@ import type { Expense } from '../types/finance'
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(114, 92, 173, 0.3);
 }
-
-/* Rest of the style content */
 </style>
