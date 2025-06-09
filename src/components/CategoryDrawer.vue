@@ -210,6 +210,8 @@
                 label="Cancel" 
                 @click="close" 
                 class="spasta-text col" 
+                icon="close"
+                size="lg"
               />
               <q-btn 
                 type="submit" 
@@ -218,6 +220,8 @@
                 :label="isEditing ? 'Update Board' : 'Create Board'"
                 :loading="submitting"
                 class="col"
+                :icon="isEditing ? 'save' : 'add'"
+                size="lg"
               />
             </div>
           </div>
