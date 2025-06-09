@@ -1029,7 +1029,10 @@ const forexColumns = [
     field: 'bid', 
     align: 'right',
     type: 'currency',
-    format: (val: number) => val.toFixed(5)
+    format: (val: number) => {
+      const numVal = parseFloat(val as any)
+      return isNaN(numVal) ? 'N/A' : numVal.toFixed(5)
+    }
   },
   { 
     name: 'ask', 
@@ -1037,14 +1040,20 @@ const forexColumns = [
     field: 'ask', 
     align: 'right',
     type: 'currency',
-    format: (val: number) => val.toFixed(5)
+    format: (val: number) => {
+      const numVal = parseFloat(val as any)
+      return isNaN(numVal) ? 'N/A' : numVal.toFixed(5)
+    }
   },
   { 
     name: 'spread', 
     label: 'Spread', 
     field: 'spread', 
     align: 'right',
-    format: (val: number) => val.toFixed(1)
+    format: (val: number) => {
+      const numVal = parseFloat(val as any)
+      return isNaN(numVal) ? 'N/A' : numVal.toFixed(1)
+    }
   },
   { 
     name: 'change', 
