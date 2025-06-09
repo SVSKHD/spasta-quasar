@@ -388,7 +388,7 @@ const handleEditCategory = (category: Category) => {
   showCategoryDrawer.value = true
 }
 
-const handleTaskCreated = (task: Task) => {
+const handleTaskCreated = () => {
   $q.notify({
     type: 'positive',
     message: 'Task created successfully',
@@ -397,7 +397,7 @@ const handleTaskCreated = (task: Task) => {
   })
 }
 
-const handleTaskUpdated = (task: Task) => {
+const handleTaskUpdated = () => {
   $q.notify({
     type: 'positive',
     message: 'Task updated successfully',

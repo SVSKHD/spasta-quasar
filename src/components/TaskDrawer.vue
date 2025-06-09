@@ -531,12 +531,12 @@ const submitForm = async () => {
     }
 
     if (isEditing.value && props.task) {
-      const updatedTask = taskStore.updateTask(props.task.id, taskData)
+      const updatedTask = await taskStore.updateTask(props.task.id, taskData)
       if (updatedTask) {
         emit('task-updated', updatedTask)
       }
     } else {
-      const newTask = taskStore.addTask(taskData)
+      const newTask = await taskStore.addTask(taskData)
       if (newTask) {
         emit('task-created', newTask)
       }

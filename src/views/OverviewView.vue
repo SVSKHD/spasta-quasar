@@ -417,13 +417,11 @@ import { useQuasar } from 'quasar'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
 import { useFinanceStore } from '../stores/financeStore'
-import { useAuthStore } from '../stores/authStore'
 
 const $q = useQuasar()
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
 const financeStore = useFinanceStore()
-const authStore = useAuthStore()
 
 // State
 const showAddWidgetDialog = ref(false)
@@ -434,7 +432,7 @@ const gridColumns = ref(3)
 const currentDate = ref(new Date())
 
 // Widget layout state
-const widgets = ref({
+const widgets = ref<Record<string, { x: number; y: number; width: number; height: number; visible: boolean }>>({
   'stats': { x: 0, y: 0, width: 2, height: 1, visible: true },
   'recent-tasks': { x: 2, y: 0, width: 1, height: 2, visible: true },
   'calendar': { x: 0, y: 1, width: 1, height: 2, visible: true },
@@ -481,7 +479,6 @@ const calendarDates = computed(() => {
   const month = currentDate.value.getMonth()
   
   const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
   const startDate = new Date(firstDay)
   startDate.setDate(startDate.getDate() - firstDay.getDay())
   
@@ -514,8 +511,6 @@ const calendarDates = computed(() => {
 const getWidgetStyle = (widgetId: string) => {
   const widget = widgets.value[widgetId]
   if (!widget || !widget.visible) return { display: 'none' }
-  
-  const cellSize = 100 / gridColumns.value
   
   return {
     gridColumn: `${widget.x + 1} / span ${widget.width}`,
@@ -670,7 +665,7 @@ const refreshData = async () => {
   }
 }
 
-const startResize = (event: MouseEvent, widgetId: string) => {
+const startResize = () => {
   // Placeholder for resize functionality
   // This would implement drag-to-resize logic
 }

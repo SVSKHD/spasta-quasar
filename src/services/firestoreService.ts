@@ -6,10 +6,8 @@ import {
   deleteDoc, 
   getDocs, 
   query, 
-  where, 
-  orderBy,
-  serverTimestamp,
-  Timestamp
+  where,
+  serverTimestamp
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { Task, Category } from '../types/task'

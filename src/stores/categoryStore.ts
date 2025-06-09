@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { firestoreService } from '../services/firestoreService'
 import { useAuthStore } from './authStore'
-import type { Category, CategoryStatus } from '../types/task'
+import type { Category } from '../types/task'
 
 export const useCategoryStore = defineStore('categories', () => {
   const authStore = useAuthStore()

@@ -537,12 +537,12 @@ const expenseForm = ref({
 })
 
 const expenseColumns = [
-  { name: 'title', label: 'Title', field: 'title', align: 'left' },
-  { name: 'type', label: 'Type', field: 'type', align: 'center' },
-  { name: 'amount', label: 'Amount', field: 'amount', align: 'right' },
-  { name: 'category', label: 'Category', field: 'category', align: 'left' },
-  { name: 'date', label: 'Date', field: 'date', align: 'center', format: (val: string) => formatDate(val) },
-  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+  { name: 'title', label: 'Title', field: 'title', align: 'left' as const },
+  { name: 'type', label: 'Type', field: 'type', align: 'center' as const },
+  { name: 'amount', label: 'Amount', field: 'amount', align: 'right' as const },
+  { name: 'category', label: 'Category', field: 'category', align: 'left' as const },
+  { name: 'date', label: 'Date', field: 'date', align: 'center' as const, format: (val: string) => formatDate(val) },
+  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' as const }
 ]
 
 const categoryOptions = computed(() => {

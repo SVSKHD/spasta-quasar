@@ -143,7 +143,7 @@
                 flat
                 icon="edit"
                 label="Edit Board"
-                @click="$emit('edit-category', selectedCategoryData)"
+                @click="$emit('edit-category', selectedCategoryData || undefined)"
                 class="spasta-text q-mr-sm"
               />
               <q-chip 

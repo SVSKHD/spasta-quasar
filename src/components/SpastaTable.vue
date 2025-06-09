@@ -14,9 +14,9 @@
       class="spasta-table"
       :class="tableClass"
       v-bind="$attrs"
-      @update:selected="$emit('update:selected', $event)"
-      @row-click="$emit('row-click', $event)"
-      @request="$emit('request', $event)"
+      @update:selected="(value: any[]) => $emit('update:selected', value)"
+      @row-click="(evt: Event, row: any, index: number) => $emit('row-click', evt, row, index)"
+      @request="(requestProp: any) => $emit('request', requestProp)"
     >
       <!-- Header slot -->
       <template v-if="$slots.top" v-slot:top>
@@ -141,8 +141,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface TableColumn {
   name: string
   label: string
@@ -195,7 +193,7 @@ interface Emits {
   (e: 'action', actionName: string, row: any): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   rowKey: 'id',
   pagination: () => ({ rowsPerPage: 10 }),
   loading: false,
@@ -205,7 +203,7 @@ const props = withDefaults(defineProps<Props>(), {
   showAvatarName: false
 })
 
-const emit = defineEmits<Emits>()
+defineEmits<Emits>()
 
 const getCellClass = (column: TableColumn) => {
   const classes = ['spasta-table-cell']

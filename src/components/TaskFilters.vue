@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
-import type { TaskFilter, TaskStatus, TaskPriority } from '../types/task'
+import type { TaskFilter } from '../types/task'
 
 const taskStore = useTaskStore()
 
@@ -153,7 +153,7 @@ const hasActiveFilters = computed(() => {
   )
 })
 
-const getStatusLabel = (status: TaskStatus) => {
+const getStatusLabel = (status: string) => {
   switch (status) {
     case 'in-progress': return 'In Progress'
     default: return status.charAt(0).toUpperCase() + status.slice(1)

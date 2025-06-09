@@ -326,8 +326,10 @@ const submitForm = async () => {
       }))
     }
     
-    const newCategory = categoryStore.addCategory(categoryData)
-    emit('category-created', newCategory)
+    const newCategory = await categoryStore.addCategory(categoryData)
+    if (newCategory) {
+      emit('category-created', newCategory)
+    }
     close()
   } catch (error) {
     console.error('Error creating category:', error)
