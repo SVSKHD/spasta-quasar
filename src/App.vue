@@ -30,6 +30,92 @@ body {
   background: linear-gradient(135deg, #254D70 0%, #1a3a52 50%, #0f2a3d 100%);
 }
 
+/* Heading padding to prevent touching screen edges */
+h1, h2, h3, h4, h5, h6,
+.text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6 {
+  padding-top: 5px !important;
+}
+
+/* Ensure headings in cards and sections also have proper spacing */
+.q-card-section h1,
+.q-card-section h2,
+.q-card-section h3,
+.q-card-section h4,
+.q-card-section h5,
+.q-card-section h6,
+.q-card-section .text-h1,
+.q-card-section .text-h2,
+.q-card-section .text-h3,
+.q-card-section .text-h4,
+.q-card-section .text-h5,
+.q-card-section .text-h6 {
+  padding-top: 5px !important;
+}
+
+/* Specific spacing for page headers */
+.overview-title h1,
+.overview-title h2,
+.overview-title h3,
+.overview-title h4,
+.overview-title h5,
+.overview-title h6,
+.overview-title .text-h1,
+.overview-title .text-h2,
+.overview-title .text-h3,
+.overview-title .text-h4,
+.overview-title .text-h5,
+.overview-title .text-h6 {
+  padding-top: 5px !important;
+}
+
+/* Widget headers */
+.widget-title h1,
+.widget-title h2,
+.widget-title h3,
+.widget-title h4,
+.widget-title h5,
+.widget-title h6,
+.widget-title .text-h1,
+.widget-title .text-h2,
+.widget-title .text-h3,
+.widget-title .text-h4,
+.widget-title .text-h5,
+.widget-title .text-h6 {
+  padding-top: 5px !important;
+}
+
+/* Calendar headers */
+.calendar-title h1,
+.calendar-title h2,
+.calendar-title h3,
+.calendar-title h4,
+.calendar-title h5,
+.calendar-title h6,
+.calendar-title .text-h1,
+.calendar-title .text-h2,
+.calendar-title .text-h3,
+.calendar-title .text-h4,
+.calendar-title .text-h5,
+.calendar-title .text-h6 {
+  padding-top: 5px !important;
+}
+
+/* Greeting card headers */
+.greeting-content h1,
+.greeting-content h2,
+.greeting-content h3,
+.greeting-content h4,
+.greeting-content h5,
+.greeting-content h6,
+.greeting-content .text-h1,
+.greeting-content .text-h2,
+.greeting-content .text-h3,
+.greeting-content .text-h4,
+.greeting-content .text-h5,
+.greeting-content .text-h6 {
+  padding-top: 5px !important;
+}
+
 /* Smooth transitions for all elements */
 * {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
