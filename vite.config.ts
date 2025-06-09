@@ -9,10 +9,7 @@ export default defineConfig({
       template: { transformAssetUrls }
     }),
     quasar(),
-    VueDevTools({
-      enabled: true,
-      appendTo: 'body'
-    })
+    VueDevTools()
   ],
   define: {
     __VUE_PROD_DEVTOOLS__: true

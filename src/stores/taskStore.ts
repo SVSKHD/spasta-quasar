@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { firestoreService } from '../services/firestoreService'
 import { useAuthStore } from './authStore'
-import type { Task, TaskStatus, TaskPriority, TaskFilter, TaskStats, Subtask } from '../types/task'
+import type { Task, TaskStatus, TaskFilter, TaskStats } from '../types/task'
 
 export const useTaskStore = defineStore('tasks', () => {
   const authStore = useAuthStore()

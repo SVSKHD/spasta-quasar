@@ -441,13 +441,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
-import { useAuthStore } from '../stores/authStore'
 import type { Task, TaskPriority, TaskRecurrence } from '../types/task'
 
 const $q = useQuasar()
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
-const authStore = useAuthStore()
 
 const currentView = ref<'month' | 'week' | 'day'>('month')
 const currentDate = ref(new Date())
@@ -549,7 +547,6 @@ const monthDays = computed(() => {
   const month = currentDate.value.getMonth()
   
   const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
   const startDate = new Date(firstDay)
   startDate.setDate(startDate.getDate() - firstDay.getDay())
   

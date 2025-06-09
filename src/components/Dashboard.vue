@@ -2,12 +2,12 @@
   <div class="dashboard-content">
     <!-- Category Board Component -->
     <SpastaCategoryBoard
-      @add-task="$emit('add-task', $event, arguments[1])"
-      @edit-task="$emit('edit-task', $event)"
-      @delete-task="$emit('delete-task', $event)"
-      @move-task="$emit('move-task', $event, arguments[1])"
-      @toggle-subtask="$emit('toggle-subtask', $event, arguments[1])"
-      @edit-category="$emit('edit-category', $event)"
+      @add-task="(status, category) => $emit('add-task', status, category)"
+      @edit-task="(task) => $emit('edit-task', task)"
+      @delete-task="(taskId) => $emit('delete-task', taskId)"
+      @move-task="(taskId, newStatus) => $emit('move-task', taskId, newStatus)"
+      @toggle-subtask="(taskId, subtaskId) => $emit('toggle-subtask', taskId, subtaskId)"
+      @edit-category="(category) => $emit('edit-category', category)"
     />
   </div>
 </template>
