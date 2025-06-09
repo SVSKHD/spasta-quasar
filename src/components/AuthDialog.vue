@@ -165,7 +165,7 @@ const handleGoogleRedirect = async () => {
 const loginAsGuest = () => {
   loading.value = true
   try {
-    const guestUser = authStore.loginAsGuest()
+    authStore.loginAsGuest()
     
     $q.notify({
       type: 'info',
