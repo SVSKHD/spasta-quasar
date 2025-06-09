@@ -253,7 +253,7 @@ const formatCurrency = (value: any, column: TableColumn) => {
   return `${prefix}${symbol}${Math.abs(numValue).toLocaleString()}`
 }
 
-const formatPercentage = (value: any, column: TableColumn) => {
+const formatPercentage = (value: any) => {
   // Ensure value is a number
   const numValue = parseFloat(value)
   if (isNaN(numValue)) {
