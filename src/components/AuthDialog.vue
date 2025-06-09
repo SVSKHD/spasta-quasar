@@ -145,16 +145,9 @@ const handleGoogleLogin = async () => {
 const handleGoogleRedirect = async () => {
   loading.value = true
   try {
-    const user = await authStore.loginWithRedirect()
-    if (user) {
-      $q.notify({
-        type: 'positive',
-        message: `Welcome, ${user.name}!`,
-        position: 'top-right',
-        timeout: 3000
-      })
-      dialogVisible.value = false
-    }
+    await authStore.loginWithRedirect()
+    // Note: After redirect, the user will be redirected away from this page
+    // The redirect result will be handled when they return
   } catch (error: any) {
     console.error('Redirect login error:', error)
     
@@ -172,7 +165,7 @@ const handleGoogleRedirect = async () => {
 const loginAsGuest = () => {
   loading.value = true
   try {
-    const user = authStore.loginAsGuest()
+    authStore.loginAsGuest()
     
     $q.notify({
       type: 'info',
