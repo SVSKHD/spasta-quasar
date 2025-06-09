@@ -550,7 +550,7 @@ onMounted(async () => {
 }
 
 .greeting-container {
-  padding: 0 24px 4px 24px; /* Further reduced bottom padding from 8px to 4px */
+  padding: 0 12px 4px 12px; /* Further reduced bottom padding from 8px to 4px */
   max-width: 1200px;
   margin: 0 auto;
 }
