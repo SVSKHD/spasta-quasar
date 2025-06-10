@@ -521,7 +521,7 @@ const selectedDayData = computed(() => {
 })
 
 const categoryFilterOptions = computed(() => {
-  const options = [{ label: 'All Categories', value: undefined }]
+  const options: Array<{ label: string; value: string | undefined }> = [{ label: 'All Categories', value: undefined }]
   categoryStore.categories.forEach(cat => {
     options.push({ label: cat.name, value: cat.name })
   })
