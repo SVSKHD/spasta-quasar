@@ -521,13 +521,25 @@ const submitForm = async () => {
   submitting.value = true
   
   try {
-    // Clean up assignedTo if no name is provided
+    // Clean up assignedTo - only include if name is provided
+    const assignedTo = form.value.assignedTo.name.trim() ? {
+      id: form.value.assignedTo.id || Date.now().toString(),
+      name: form.value.assignedTo.name.trim(),
+      email: form.value.assignedTo.email.trim(),
+      photoUrl: form.value.assignedTo.photoUrl.trim()
+    } : undefined
+
     const taskData = {
-      ...form.value,
-      assignedTo: form.value.assignedTo.name ? {
-        ...form.value.assignedTo,
-        id: form.value.assignedTo.id || Date.now().toString()
-      } : undefined
+      title: form.value.title,
+      description: form.value.description,
+      status: form.value.status,
+      priority: form.value.priority,
+      category: form.value.category,
+      dueDate: form.value.dueDate || undefined,
+      tags: form.value.tags,
+      subtasks: form.value.subtasks,
+      photoUrl: form.value.photoUrl || undefined,
+      assignedTo
     }
 
     if (isEditing.value && props.task) {
