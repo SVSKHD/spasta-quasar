@@ -45,7 +45,7 @@
             
             <div v-else-if="column.type === 'percentage'" class="percentage-cell">
               <span :class="getPercentageClass(props.value)">
-                {{ formatPercentage(props.value, column) }}
+                {{ formatPercentage(props.value) }}
               </span>
             </div>
             

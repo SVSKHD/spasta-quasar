@@ -450,7 +450,7 @@ const categoryStore = useCategoryStore()
 const currentView = ref<'month' | 'week' | 'day'>('month')
 const currentDate = ref(new Date())
 const selectedDate = ref(new Date())
-const selectedCategoryFilter = ref<string | null>(null)
+const selectedCategoryFilter = ref<string | undefined>(undefined)
 const showEventDialog = ref(false)
 const editingEvent = ref<Task | null>(null)
 
@@ -521,7 +521,7 @@ const selectedDayData = computed(() => {
 })
 
 const categoryFilterOptions = computed(() => {
-  const options = [{ label: 'All Categories', value: null }]
+  const options = [{ label: 'All Categories', value: undefined }]
   categoryStore.categories.forEach(cat => {
     options.push({ label: cat.name, value: cat.name })
   })
