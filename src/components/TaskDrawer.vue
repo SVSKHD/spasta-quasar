@@ -521,12 +521,16 @@ const submitForm = async () => {
   submitting.value = true
   
   try {
-    // Clean up assignedTo - only include if name is provided
-    const assignedTo = form.value.assignedTo.name.trim() ? {
+    // Clean up assignedTo - only include if name is provided and handle undefined photoUrl
+    const assignedToName = form.value.assignedTo.name?.trim()
+    const assignedToEmail = form.value.assignedTo.email?.trim()
+    const assignedToPhotoUrl = form.value.assignedTo.photoUrl?.trim()
+    
+    const assignedTo = assignedToName ? {
       id: form.value.assignedTo.id || Date.now().toString(),
-      name: form.value.assignedTo.name.trim(),
-      email: form.value.assignedTo.email.trim(),
-      photoUrl: form.value.assignedTo.photoUrl.trim()
+      name: assignedToName,
+      email: assignedToEmail || '',
+      photoUrl: assignedToPhotoUrl || ''
     } : undefined
 
     const taskData = {
