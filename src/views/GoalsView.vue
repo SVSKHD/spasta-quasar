@@ -392,7 +392,7 @@
         <q-item 
           clickable 
           v-close-popup
-          @click="editGoal(selectedGoalForMenu!)"
+          @click="selectedGoalForMenu && editGoal(selectedGoalForMenu)"
           class="spasta-text"
         >
           <q-item-section avatar>
@@ -403,7 +403,7 @@
         <q-item 
           clickable 
           v-close-popup
-          @click="deleteGoal(selectedGoalForMenu!.id)"
+          @click="selectedGoalForMenu && deleteGoal(selectedGoalForMenu.id)"
           class="text-negative"
         >
           <q-item-section avatar>
