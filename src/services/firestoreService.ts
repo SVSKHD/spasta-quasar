@@ -76,7 +76,7 @@ async addTask(userId: string, taskData: Omit<Task, 'id' | 'createdAt' | 'updated
     console.error('Error adding task:', error)
     return null
   }
-}
+},
 
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<boolean> {
