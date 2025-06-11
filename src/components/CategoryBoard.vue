@@ -488,7 +488,7 @@ onMounted(async () => {
 
 /* Smooth scrollbar for task flow */
 .task-flow::-webkit-scrollbar {
-  width: 8px;
+  height: 10px;
 }
 
 .task-flow::-webkit-scrollbar-track {
