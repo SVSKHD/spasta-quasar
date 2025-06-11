@@ -53,7 +53,7 @@
                 <q-icon :name="category.icon" size="md" class="q-mr-sm" color="white" />
                 <div class="text-h6 text-weight-medium">{{ category.name }}</div>
               </div>
-              <div class="row items-center spacing-xs">
+              <div class="row items-center q-gutter-xs">
                 <q-btn
                   flat
                   round
@@ -61,7 +61,7 @@
                   icon="edit"
                   size="sm"
                   @click.stop="$emit('edit-category', category)"
-                  class="spasta-text"
+                  class="spasta-text action-btn"
                 >
                   <q-tooltip>Edit board</q-tooltip>
                 </q-btn>
@@ -72,7 +72,7 @@
                   icon="delete"
                   size="sm"
                   @click.stop="handleDeleteCategory(category)"
-                  class="text-negative"
+                  class="text-negative action-btn"
                 >
                   <q-tooltip>Delete board</q-tooltip>
                 </q-btn>
@@ -141,7 +141,7 @@
                 round
                 icon="arrow_back"
                 @click="clearCategorySelection"
-                class="q-mr-md spasta-text"
+                class="q-mr-md spasta-text action-btn"
               />
               <q-icon 
                 :name="selectedCategoryData?.icon" 
@@ -154,25 +154,27 @@
                 <div class="text-body2 spasta-text opacity-80">{{ selectedCategoryData?.description }}</div>
               </div>
               <q-space />
-              <q-btn
-                flat
-                icon="edit"
-                label="Edit Board"
-                @click="$emit('edit-category', selectedCategoryData || undefined)"
-                class="spasta-text q-mr-sm"
-              />
-              <q-btn
-                flat
-                icon="delete"
-                label="Delete Board"
-                @click="handleDeleteCategory(selectedCategoryData!)"
-                class="text-negative q-mr-sm"
-              />
-              <q-chip 
-                :label="`${categoryTasks.length} tasks`" 
-                color="white" 
-                text-color="grey-8" 
-              />
+              <div class="row items-center q-gutter-sm">
+                <q-btn
+                  flat
+                  icon="edit"
+                  label="Edit Board"
+                  @click="$emit('edit-category', selectedCategoryData || undefined)"
+                  class="spasta-text action-btn"
+                />
+                <q-btn
+                  flat
+                  icon="delete"
+                  label="Delete Board"
+                  @click="handleDeleteCategory(selectedCategoryData!)"
+                  class="text-negative action-btn"
+                />
+                <q-chip 
+                  :label="`${categoryTasks.length} tasks`" 
+                  color="white" 
+                  text-color="grey-8" 
+                />
+              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -432,8 +434,22 @@ onMounted(async () => {
   min-width: 380px;
 }
 
-.spacing-xs {
-  gap: 4px;
+/* Action Button Styling */
+.action-btn {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.action-btn:hover {
+  background: rgba(239, 228, 210, 0.2) !important;
+  transform: scale(1.05) !important;
+}
+
+.action-btn.text-negative:hover {
+  background: rgba(244, 67, 54, 0.2) !important;
 }
 
 /* Mobile Responsive */
@@ -461,6 +477,12 @@ onMounted(async () => {
     flex: none;
     min-width: auto;
     width: 100%;
+  }
+  
+  .action-btn {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 4px !important;
   }
 }
 
