@@ -293,7 +293,6 @@ const handleDeleteCategory = async (category: Category) => {
   $q.dialog({
     title: 'Delete Board',
     message: `Are you sure you want to delete "${category.name}"? ${taskCount > 0 ? `This will also delete ${taskCount} task${taskCount > 1 ? 's' : ''} in this board.` : ''}`,
-    cancel: true,
     persistent: true,
     class: 'spasta-card',
     ok: {
