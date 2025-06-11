@@ -15,28 +15,45 @@
         </div>
 
         <q-form @submit="submitForm" class="q-gutter-lg">
-          <!-- Basic Information -->
+          <!-- Step 1: Board Information -->
           <div class="form-section">
-            <div class="text-subtitle1 spasta-text q-mb-md">Basic Information</div>
+            <div class="section-header q-mb-md">
+              <q-icon name="info" class="q-mr-sm" color="primary" />
+              <span class="text-subtitle1 spasta-text">Step 1: Board Information</span>
+            </div>
             
-            <div class="row q-gutter-md q-mb-md">
-              <div class="col">
-                <q-input
-                  v-model="form.name"
-                  label="Board Name *"
-                  outlined
-                  dense
-                  :rules="[val => !!val || 'Board name is required']"
-                  class="spasta-input"
-                  color="white"
-                  label-color="white"
-                  dark
-                />
-              </div>
+            <q-input
+              v-model="form.name"
+              label="Board Name *"
+              outlined
+              dense
+              :rules="[val => !!val || 'Board name is required']"
+              class="spasta-input q-mb-md"
+              color="white"
+              label-color="white"
+              dark
+              placeholder="e.g., Development Team, Marketing Campaign"
+            />
+
+            <q-input
+              v-model="form.description"
+              label="Description"
+              outlined
+              dense
+              type="textarea"
+              rows="2"
+              class="spasta-input q-mb-md"
+              color="white"
+              label-color="white"
+              dark
+              placeholder="Describe what this board is for..."
+            />
+
+            <div class="row q-gutter-md">
               <div class="col">
                 <q-select
                   v-model="form.icon"
-                  label="Icon"
+                  label="Board Icon"
                   outlined
                   dense
                   :options="iconOptions"
@@ -61,72 +78,125 @@
                   </template>
                 </q-select>
               </div>
+              <div class="col">
+                <q-select
+                  v-model="form.color"
+                  label="Color Theme"
+                  outlined
+                  dense
+                  :options="colorOptions"
+                  option-value="value"
+                  option-label="label"
+                  emit-value
+                  map-options
+                  class="spasta-input"
+                  color="white"
+                  label-color="white"
+                  dark
+                >
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps" class="spasta-card">
+                      <q-item-section avatar>
+                        <q-icon name="circle" :color="scope.opt.value" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="spasta-text">{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
             </div>
 
-            <q-input
-              v-model="form.description"
-              label="Description"
-              outlined
-              dense
-              type="textarea"
-              rows="2"
-              class="spasta-input q-mb-md"
-              color="white"
-              label-color="white"
-              dark
-            />
-
-            <q-select
-              v-model="form.color"
-              label="Color Theme"
-              outlined
-              dense
-              :options="colorOptions"
-              option-value="value"
-              option-label="label"
-              emit-value
-              map-options
-              class="spasta-input"
-              color="white"
-              label-color="white"
-              dark
-            >
-              <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps" class="spasta-card">
-                  <q-item-section avatar>
-                    <q-icon name="circle" :color="scope.opt.value" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="spasta-text">{{ scope.opt.label }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
+            <!-- Board Preview -->
+            <div class="board-preview q-mt-md">
+              <div class="text-caption spasta-text q-mb-sm">Board Preview:</div>
+              <q-card flat class="spasta-card-light q-pa-md">
+                <div class="row items-center">
+                  <q-icon :name="form.icon" :color="form.color" size="md" class="q-mr-sm" />
+                  <div>
+                    <div class="text-body1 spasta-text text-weight-medium">
+                      {{ form.name || 'Board Name' }}
+                    </div>
+                    <div class="text-caption spasta-text opacity-70">
+                      {{ form.description || 'Board description will appear here' }}
+                    </div>
+                  </div>
+                </div>
+              </q-card>
+            </div>
           </div>
 
-          <!-- Workflow Statuses -->
+          <!-- Step 2: Workflow Design -->
           <div class="form-section">
+            <div class="section-header q-mb-md">
+              <q-icon name="account_tree" class="q-mr-sm" color="primary" />
+              <span class="text-subtitle1 spasta-text">Step 2: Workflow Design</span>
+            </div>
+            
+            <div class="workflow-info q-mb-md">
+              <q-banner class="spasta-card-light">
+                <template v-slot:avatar>
+                  <q-icon name="info" color="info" />
+                </template>
+                <div class="text-body2 spasta-text">
+                  Design your workflow by defining the stages tasks will move through. 
+                  Start with basic stages and customize as needed.
+                </div>
+              </q-banner>
+            </div>
+
             <div class="row items-center justify-between q-mb-md">
               <div>
-                <div class="text-subtitle1 spasta-text">Workflow Statuses</div>
-                <div class="text-body2 spasta-text opacity-70">
-                  Define the workflow stages for this board
+                <div class="text-body1 spasta-text text-weight-medium">Workflow Stages</div>
+                <div class="text-caption spasta-text opacity-70">
+                  Define how tasks flow through your board (minimum 2 stages required)
                 </div>
               </div>
               <q-btn
                 flat
                 icon="add"
-                label="Add Status"
+                label="Add Stage"
                 size="sm"
                 @click="addStatus"
                 class="spasta-text"
+                :disable="form.statuses.length >= 8"
               />
             </div>
 
-            <div v-if="form.statuses.length === 0" class="text-center q-pa-lg">
+            <!-- Quick Templates -->
+            <div class="workflow-templates q-mb-md">
+              <div class="text-caption spasta-text q-mb-sm">Quick Templates:</div>
+              <div class="row q-gutter-xs">
+                <q-btn
+                  flat
+                  size="sm"
+                  label="Basic (To Do → Done)"
+                  @click="applyTemplate('basic')"
+                  class="spasta-text template-btn"
+                />
+                <q-btn
+                  flat
+                  size="sm"
+                  label="Development (To Do → In Progress → Review → Done)"
+                  @click="applyTemplate('development')"
+                  class="spasta-text template-btn"
+                />
+                <q-btn
+                  flat
+                  size="sm"
+                  label="Marketing (Ideas → Planning → Execution → Review → Published)"
+                  @click="applyTemplate('marketing')"
+                  class="spasta-text template-btn"
+                />
+              </div>
+            </div>
+
+            <!-- Status Configuration -->
+            <div v-if="form.statuses.length === 0" class="empty-workflow text-center q-pa-lg">
               <q-icon name="view_column" size="lg" class="spasta-text opacity-30 q-mb-md" />
-              <div class="text-body2 spasta-text opacity-70">No workflow statuses</div>
-              <div class="text-caption spasta-text opacity-50">Add statuses to define your workflow</div>
+              <div class="text-body2 spasta-text opacity-70">No workflow stages defined</div>
+              <div class="text-caption spasta-text opacity-50">Use a template above or add stages manually</div>
             </div>
 
             <div v-else class="status-list">
@@ -137,20 +207,55 @@
               >
                 <q-card flat bordered class="spasta-card-light">
                   <q-card-section class="q-py-md q-px-lg">
-                    <div class="row q-gutter-md items-center">
-                      <div class="col-3">
+                    <div class="row items-center justify-between q-mb-sm">
+                      <div class="text-body2 spasta-text text-weight-medium">
+                        Stage {{ index + 1 }}
+                        <q-chip 
+                          v-if="index === 0" 
+                          size="xs" 
+                          label="Start" 
+                          color="positive" 
+                          text-color="white" 
+                          class="q-ml-sm"
+                        />
+                        <q-chip 
+                          v-if="index === form.statuses.length - 1" 
+                          size="xs" 
+                          label="End" 
+                          color="info" 
+                          text-color="white" 
+                          class="q-ml-sm"
+                        />
+                      </div>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="delete"
+                        color="negative"
+                        size="sm"
+                        @click="removeStatus(index)"
+                        :disable="form.statuses.length <= 2"
+                      >
+                        <q-tooltip>Remove stage</q-tooltip>
+                      </q-btn>
+                    </div>
+                    
+                    <div class="row q-gutter-md items-end">
+                      <div class="col-4">
                         <q-input
                           v-model="status.label"
-                          label="Status Label"
+                          label="Stage Name"
                           outlined
                           dense
                           class="spasta-input"
                           color="white"
                           label-color="white"
                           dark
+                          placeholder="e.g., In Progress"
                         />
                       </div>
-                      <div class="col-2">
+                      <div class="col-3">
                         <q-select
                           v-model="status.icon"
                           label="Icon"
@@ -165,9 +270,16 @@
                           color="white"
                           label-color="white"
                           dark
-                        />
+                        >
+                          <template v-slot:selected>
+                            <div class="row items-center">
+                              <q-icon :name="status.icon" class="q-mr-xs" />
+                              <span>{{ getIconLabel(status.icon) }}</span>
+                            </div>
+                          </template>
+                        </q-select>
                       </div>
-                      <div class="col-2">
+                      <div class="col-3">
                         <q-select
                           v-model="status.color"
                           label="Color"
@@ -182,23 +294,82 @@
                           color="white"
                           label-color="white"
                           dark
-                        />
+                        >
+                          <template v-slot:selected>
+                            <div class="row items-center">
+                              <q-icon name="circle" :color="status.color" class="q-mr-xs" />
+                              <span>{{ getColorLabel(status.color) }}</span>
+                            </div>
+                          </template>
+                        </q-select>
                       </div>
                       <div class="col-auto">
-                        <q-btn
-                          flat
-                          round
-                          dense
-                          icon="delete"
-                          color="negative"
-                          @click="removeStatus(index)"
-                          :disable="form.statuses.length <= 2"
-                        />
+                        <!-- Move buttons -->
+                        <div class="column q-gutter-xs">
+                          <q-btn
+                            flat
+                            round
+                            dense
+                            icon="keyboard_arrow_up"
+                            size="xs"
+                            @click="moveStatus(index, -1)"
+                            :disable="index === 0"
+                            class="spasta-text"
+                          >
+                            <q-tooltip>Move up</q-tooltip>
+                          </q-btn>
+                          <q-btn
+                            flat
+                            round
+                            dense
+                            icon="keyboard_arrow_down"
+                            size="xs"
+                            @click="moveStatus(index, 1)"
+                            :disable="index === form.statuses.length - 1"
+                            class="spasta-text"
+                          >
+                            <q-tooltip>Move down</q-tooltip>
+                          </q-btn>
+                        </div>
                       </div>
+                    </div>
+
+                    <!-- Stage Preview -->
+                    <div class="stage-preview q-mt-sm">
+                      <q-chip 
+                        :color="status.color" 
+                        text-color="white" 
+                        size="sm"
+                        :icon="status.icon"
+                        :label="status.label || 'Stage Name'"
+                      />
                     </div>
                   </q-card-section>
                 </q-card>
               </div>
+            </div>
+
+            <!-- Workflow Preview -->
+            <div v-if="form.statuses.length > 0" class="workflow-preview q-mt-md">
+              <div class="text-caption spasta-text q-mb-sm">Workflow Preview:</div>
+              <q-card flat class="spasta-card-light q-pa-md">
+                <div class="row items-center justify-center q-gutter-sm">
+                  <template v-for="(status, index) in form.statuses" :key="index">
+                    <q-chip 
+                      :color="status.color" 
+                      text-color="white" 
+                      size="sm"
+                      :icon="status.icon"
+                      :label="status.label || `Stage ${index + 1}`"
+                    />
+                    <q-icon 
+                      v-if="index < form.statuses.length - 1"
+                      name="arrow_forward" 
+                      class="spasta-text opacity-50" 
+                    />
+                  </template>
+                </div>
+              </q-card>
             </div>
           </div>
 
@@ -219,11 +390,25 @@
                 text-color="grey-8"
                 :label="isEditing ? 'Update Board' : 'Create Board'"
                 :loading="submitting"
-                :disable="!authStore.isAuthenticated"
+                :disable="!authStore.isAuthenticated || !form.name || form.statuses.length < 2"
                 class="col"
                 :icon="isEditing ? 'save' : 'add'"
                 size="lg"
               />
+            </div>
+            
+            <!-- Validation Messages -->
+            <div v-if="!form.name" class="text-caption text-warning q-mt-sm">
+              <q-icon name="warning" class="q-mr-xs" />
+              Board name is required
+            </div>
+            <div v-if="form.statuses.length < 2" class="text-caption text-warning q-mt-sm">
+              <q-icon name="warning" class="q-mr-xs" />
+              At least 2 workflow stages are required
+            </div>
+            <div v-if="!authStore.isAuthenticated" class="text-caption text-negative q-mt-sm">
+              <q-icon name="error" class="q-mr-xs" />
+              You must be logged in to create or update boards
             </div>
           </div>
         </q-form>
@@ -289,7 +474,9 @@ const iconOptions = [
   { label: 'Finance', value: 'account_balance' },
   { label: 'HR', value: 'people' },
   { label: 'Operations', value: 'settings' },
-  { label: 'Research', value: 'science' }
+  { label: 'Research', value: 'science' },
+  { label: 'Project', value: 'assignment' },
+  { label: 'Team', value: 'groups' }
 ]
 
 const colorOptions = [
@@ -314,7 +501,10 @@ const statusIconOptions = [
   { label: 'Review', value: 'rate_review' },
   { label: 'Test', value: 'bug_report' },
   { label: 'Deploy', value: 'rocket_launch' },
-  { label: 'Archive', value: 'archive' }
+  { label: 'Archive', value: 'archive' },
+  { label: 'Flag', value: 'flag' },
+  { label: 'Star', value: 'star' },
+  { label: 'Build', value: 'build' }
 ]
 
 const statusColorOptions = [
@@ -328,11 +518,19 @@ const statusColorOptions = [
   { label: 'Pink', value: 'pink' }
 ]
 
+const getIconLabel = (iconValue: string) => {
+  return statusIconOptions.find(opt => opt.value === iconValue)?.label || iconValue
+}
+
+const getColorLabel = (colorValue: string) => {
+  return statusColorOptions.find(opt => opt.value === colorValue)?.label || colorValue
+}
+
 const addStatus = () => {
   const newOrder = form.value.statuses.length + 1
   form.value.statuses.push({
     name: `custom-${newOrder}`,
-    label: `Custom Status ${newOrder}`,
+    label: `Custom Stage ${newOrder}`,
     color: 'info',
     icon: 'radio_button_unchecked',
     order: newOrder
@@ -345,6 +543,48 @@ const removeStatus = (index: number) => {
   form.value.statuses.forEach((status, idx) => {
     status.order = idx + 1
   })
+}
+
+const moveStatus = (index: number, direction: number) => {
+  const newIndex = index + direction
+  if (newIndex >= 0 && newIndex < form.value.statuses.length) {
+    const temp = form.value.statuses[index]
+    form.value.statuses[index] = form.value.statuses[newIndex]
+    form.value.statuses[newIndex] = temp
+    
+    // Update order
+    form.value.statuses.forEach((status, idx) => {
+      status.order = idx + 1
+    })
+  }
+}
+
+const applyTemplate = (template: string) => {
+  switch (template) {
+    case 'basic':
+      form.value.statuses = [
+        { name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
+        { name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 2 }
+      ]
+      break
+    case 'development':
+      form.value.statuses = [
+        { name: 'todo', label: 'To Do', color: 'grey', icon: 'radio_button_unchecked', order: 1 },
+        { name: 'in-progress', label: 'In Progress', color: 'primary', icon: 'play_arrow', order: 2 },
+        { name: 'review', label: 'Review', color: 'warning', icon: 'rate_review', order: 3 },
+        { name: 'done', label: 'Done', color: 'positive', icon: 'check_circle', order: 4 }
+      ]
+      break
+    case 'marketing':
+      form.value.statuses = [
+        { name: 'ideas', label: 'Ideas', color: 'purple', icon: 'lightbulb', order: 1 },
+        { name: 'planning', label: 'Planning', color: 'info', icon: 'assignment', order: 2 },
+        { name: 'execution', label: 'Execution', color: 'primary', icon: 'play_arrow', order: 3 },
+        { name: 'review', label: 'Review', color: 'warning', icon: 'rate_review', order: 4 },
+        { name: 'published', label: 'Published', color: 'positive', icon: 'publish', order: 5 }
+      ]
+      break
+  }
 }
 
 const resetForm = () => {
@@ -472,6 +712,13 @@ watch(() => props.category, () => {
   border: 1px solid rgba(239, 228, 210, 0.1);
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(239, 228, 210, 0.1);
+}
+
 .form-actions {
   border-top: 1px solid rgba(239, 228, 210, 0.1);
 }
@@ -485,7 +732,66 @@ watch(() => props.category, () => {
   overflow-y: auto;
 }
 
+.board-preview,
+.workflow-preview {
+  background: rgba(239, 228, 210, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.05);
+}
+
+.stage-preview {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
+.workflow-info {
+  margin-bottom: 16px;
+}
+
+.workflow-templates {
+  background: rgba(239, 228, 210, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.05);
+}
+
+.template-btn {
+  border: 1px solid rgba(239, 228, 210, 0.2);
+  border-radius: 6px;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.template-btn:hover {
+  background: rgba(239, 228, 210, 0.1);
+  border-color: rgba(239, 228, 210, 0.4);
+}
+
+.empty-workflow {
+  background: rgba(239, 228, 210, 0.03);
+  border: 2px dashed rgba(239, 228, 210, 0.2);
+  border-radius: 8px;
+}
+
 .q-btn {
   border-radius: 8px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .category-drawer {
+    width: 100vw !important;
+  }
+  
+  .workflow-templates .row {
+    flex-direction: column;
+  }
+  
+  .template-btn {
+    width: 100%;
+    margin-bottom: 4px;
+  }
 }
 </style>
