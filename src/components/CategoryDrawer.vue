@@ -219,6 +219,7 @@
                 text-color="grey-8"
                 :label="isEditing ? 'Update Board' : 'Create Board'"
                 :loading="submitting"
+                :disable="!authStore.isAuthenticated"
                 class="col"
                 :icon="isEditing ? 'save' : 'add'"
                 size="lg"
@@ -235,6 +236,7 @@
 import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useCategoryStore } from '../stores/categoryStore'
+import { useAuthStore } from '../stores/authStore'
 import type { Category, CategoryStatus } from '../types/task'
 
 interface Props {
@@ -253,6 +255,7 @@ const emit = defineEmits<Emits>()
 
 const $q = useQuasar()
 const categoryStore = useCategoryStore()
+const authStore = useAuthStore()
 const submitting = ref(false)
 
 const isEditing = computed(() => !!props.category)
@@ -369,6 +372,16 @@ const loadCategoryData = () => {
 }
 
 const submitForm = async () => {
+  if (!authStore.isAuthenticated) {
+    $q.notify({
+      type: 'negative',
+      message: 'You must be logged in to create or update boards',
+      position: 'top-right',
+      timeout: 3000
+    })
+    return
+  }
+
   submitting.value = true
   
   try {
