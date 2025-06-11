@@ -46,31 +46,38 @@ export const firestoreService = {
     }
   },
 
-  async addTask(userId: string, taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task | null> {
-    try {
-      console.log('Adding task to Firestore for userId:', userId)
-      const tasksRef = collection(db, 'tasks')
-      const docRef = await addDoc(tasksRef, {
-        ...taskData,
-        userId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-      
-      const newTask = {
-        id: docRef.id,
-        ...taskData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-      
-      console.log('Task added to Firestore:', newTask.id)
-      return newTask
-    } catch (error) {
-      console.error('Error adding task:', error)
-      return null
+async addTask(userId: string, taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task | null> {
+  try {
+    console.log('Adding task to Firestore for userId:', userId)
+
+    // Filter out undefined fields
+    const sanitizedData = Object.fromEntries(
+      Object.entries(taskData).filter(([_, v]) => v !== undefined)
+    )
+
+    const tasksRef = collection(db, 'tasks')
+    const docRef = await addDoc(tasksRef, {
+      ...sanitizedData,
+      userId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    })
+
+    const newTask = {
+      id: docRef.id,
+      ...taskData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
-  },
+
+    console.log('Task added to Firestore:', newTask.id)
+    return newTask
+  } catch (error) {
+    console.error('Error adding task:', error)
+    return null
+  }
+},
+
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<boolean> {
     try {
