@@ -101,9 +101,13 @@ const dialogVisible = computed({
 })
 
 const handleGoogleLogin = async () => {
-  loading.value = true
   try {
-    const user = await authStore.login()
+    // Start the login process immediately to avoid popup blocking
+    const loginPromise = authStore.login()
+    // Set loading state after initiating the popup
+    loading.value = true
+    
+    const user = await loginPromise
     if (user) {
       $q.notify({
         type: 'positive',
