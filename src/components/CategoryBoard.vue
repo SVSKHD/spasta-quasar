@@ -53,15 +53,30 @@
                 <q-icon :name="category.icon" size="md" class="q-mr-sm" color="white" />
                 <div class="text-h6 text-weight-medium">{{ category.name }}</div>
               </div>
-              <q-btn
-                flat
-                round
-                dense
-                icon="edit"
-                size="sm"
-                @click.stop="$emit('edit-category', category)"
-                class="spasta-text"
-              />
+              <div class="row items-center q-gutter-xs">
+                <q-btn
+                  flat
+                  round
+                  dense
+                  icon="edit"
+                  size="sm"
+                  @click.stop="$emit('edit-category', category)"
+                  class="spasta-text action-btn"
+                >
+                  <q-tooltip>Edit board</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  round
+                  dense
+                  icon="delete"
+                  size="sm"
+                  @click.stop="handleDeleteCategory(category)"
+                  class="text-negative action-btn"
+                >
+                  <q-tooltip>Delete board</q-tooltip>
+                </q-btn>
+              </div>
             </div>
             
             <div class="text-body2 q-mb-lg opacity-90">
@@ -126,7 +141,7 @@
                 round
                 icon="arrow_back"
                 @click="clearCategorySelection"
-                class="q-mr-md spasta-text"
+                class="q-mr-md spasta-text action-btn"
               />
               <q-icon 
                 :name="selectedCategoryData?.icon" 
@@ -139,18 +154,27 @@
                 <div class="text-body2 spasta-text opacity-80">{{ selectedCategoryData?.description }}</div>
               </div>
               <q-space />
-              <q-btn
-                flat
-                icon="edit"
-                label="Edit Board"
-                @click="$emit('edit-category', selectedCategoryData || undefined)"
-                class="spasta-text q-mr-sm"
-              />
-              <q-chip 
-                :label="`${categoryTasks.length} tasks`" 
-                color="white" 
-                text-color="grey-8" 
-              />
+              <div class="row items-center q-gutter-sm">
+                <q-btn
+                  flat
+                  icon="edit"
+                  label="Edit Board"
+                  @click="$emit('edit-category', selectedCategoryData || undefined)"
+                  class="spasta-text action-btn"
+                />
+                <q-btn
+                  flat
+                  icon="delete"
+                  label="Delete Board"
+                  @click="handleDeleteCategory(selectedCategoryData!)"
+                  class="text-negative action-btn"
+                />
+                <q-chip 
+                  :label="`${categoryTasks.length} tasks`" 
+                  color="white" 
+                  text-color="grey-8" 
+                />
+              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -180,6 +204,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useTaskStore } from '../stores/taskStore'
 import { useCategoryStore } from '../stores/categoryStore'
 import { useAuthStore } from '../stores/authStore'
@@ -196,6 +221,7 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
+const $q = useQuasar()
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
 const authStore = useAuthStore()
@@ -259,6 +285,65 @@ const handleMoveTask = async (taskId: string, newStatus: string) => {
 const handleToggleSubtask = async (taskId: string, subtaskId: string) => {
   console.log('CategoryBoard: Toggling subtask:', subtaskId, 'for task:', taskId)
   await taskStore.toggleSubtask(taskId, subtaskId)
+}
+
+const handleDeleteCategory = async (category: Category) => {
+  const taskCount = getCategoryTaskCount(category.name)
+  
+  $q.dialog({
+    title: 'Delete Board',
+    message: `Are you sure you want to delete "${category.name}"? ${taskCount > 0 ? `This will also delete ${taskCount} task${taskCount > 1 ? 's' : ''} in this board.` : ''}`,
+    cancel: true,
+    persistent: true,
+    class: 'spasta-card',
+    ok: {
+      label: 'Delete',
+      color: 'negative',
+      flat: true
+    },
+    cancel: {
+      label: 'Cancel',
+      color: 'white',
+      flat: true
+    }
+  }).onOk(async () => {
+    try {
+      console.log('Deleting category and related tasks:', category.name)
+      
+      // First, delete all tasks in this category
+      const tasksToDelete = taskStore.tasks.filter(task => task.category === category.name)
+      console.log(`Found ${tasksToDelete.length} tasks to delete`)
+      
+      for (const task of tasksToDelete) {
+        console.log('Deleting task:', task.id, task.title)
+        await taskStore.deleteTask(task.id)
+      }
+      
+      // Then delete the category
+      console.log('Deleting category:', category.id)
+      await categoryStore.deleteCategory(category.id)
+      
+      // Clear selection if we're currently viewing this category
+      if (selectedCategory.value === category.name) {
+        selectedCategory.value = null
+      }
+      
+      $q.notify({
+        type: 'positive',
+        message: `Board "${category.name}" and ${tasksToDelete.length} related task${tasksToDelete.length !== 1 ? 's' : ''} deleted successfully`,
+        position: 'top-right',
+        timeout: 3000
+      })
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Error deleting board. Please try again.',
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+  })
 }
 
 // Watch for auth changes and reload categories
@@ -349,6 +434,24 @@ onMounted(async () => {
   min-width: 380px;
 }
 
+/* Action Button Styling */
+.action-btn {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.action-btn:hover {
+  background: rgba(239, 228, 210, 0.2) !important;
+  transform: scale(1.05) !important;
+}
+
+.action-btn.text-negative:hover {
+  background: rgba(244, 67, 54, 0.2) !important;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .category-boards {
@@ -375,24 +478,33 @@ onMounted(async () => {
     min-width: auto;
     width: 100%;
   }
+  
+  .action-btn {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 4px !important;
+  }
 }
 
 /* Smooth scrollbar for task flow */
 .task-flow::-webkit-scrollbar {
-  height: 10px;
+  width: 8px;
 }
 
 .task-flow::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .task-flow::-webkit-scrollbar-thumb {
-  background: #3A6B8C;
-  border-radius: 6px;
+  background: rgba(58, 107, 140, 0.6);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .task-flow::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
+  transform: scale(1.1);
 }
 </style>
