@@ -92,8 +92,21 @@
 
             <!-- Notes List -->
             <div class="notes-list">
-              <div class="text-subtitle2 spasta-text q-mb-sm">
-                {{ selectedCategoryName }} Notes
+              <div class="row items-center justify-between q-mb-sm">
+                <div class="text-subtitle2 spasta-text">
+                  {{ selectedCategoryName }} Notes
+                </div>
+                <q-btn
+                  flat
+                  round
+                  dense
+                  icon="add"
+                  @click="createNewNote"
+                  class="spasta-text"
+                  size="sm"
+                >
+                  <q-tooltip>New note</q-tooltip>
+                </q-btn>
               </div>
               
               <q-item
@@ -134,101 +147,138 @@
                 <div class="text-body2 spasta-text opacity-70">No notes found</div>
                 <div class="text-caption spasta-text opacity-50">Create your first note</div>
               </div>
-
-              <!-- Add Note Button -->
-              <q-btn
-                flat
-                icon="add"
-                label="New Note"
-                @click="createNewNote"
-                class="full-width q-mt-md spasta-text"
-              />
             </div>
           </div>
         </q-scroll-area>
       </div>
 
-      <!-- Right Side - Note Editor -->
+      <!-- Right Side - WordPress-style Editor -->
       <div class="notes-editor">
         <div v-if="selectedNote" class="editor-container">
-          <!-- Editor Header -->
-          <div class="editor-header spasta-card q-pa-lg">
-            <q-input
-              v-model="selectedNote.title"
-              placeholder="Note title..."
-              outlined
-              dense
-              class="spasta-input q-mb-md"
-              color="white"
-              label-color="white"
-              dark
-              @update:model-value="saveNote"
-            />
-            
-            <div class="row items-center justify-between">
-              <div class="row items-center spacing-sm">
-                <q-select
-                  v-model="selectedNote.categoryId"
-                  :options="categorySelectOptions"
-                  option-value="value"
-                  option-label="label"
-                  emit-value
-                  map-options
-                  outlined
-                  dense
-                  label="Category"
-                  class="spasta-input"
-                  color="white"
-                  label-color="white"
-                  dark
-                  @update:model-value="saveNote"
-                />
-                
-                <q-btn
-                  flat
-                  icon="add"
-                  label="Tag"
-                  size="sm"
-                  @click="showTagDialog = true"
-                  class="spasta-text"
-                />
-              </div>
-              
-              <div class="text-caption spasta-text opacity-70">
-                Last saved: {{ formatDate(selectedNote.updatedAt) }}
-              </div>
-            </div>
-
-            <!-- Tags -->
-            <div v-if="selectedNote.tags.length" class="row q-gutter-xs q-mt-sm">
-              <q-chip
-                v-for="tag in selectedNote.tags"
-                :key="tag"
-                removable
-                @remove="removeTag(tag)"
-                color="white"
-                text-color="grey-8"
-                size="sm"
-                :label="`#${tag}`"
+          <!-- WordPress-style Header -->
+          <div class="editor-header spasta-card">
+            <div class="q-pa-lg">
+              <!-- Title Input -->
+              <q-input
+                v-model="selectedNote.title"
+                placeholder="Add title"
+                borderless
+                class="title-input"
+                @update:model-value="debouncedSave"
               />
+              
+              <!-- Meta Information -->
+              <div class="row items-center justify-between q-mt-md">
+                <div class="row items-center spacing-md">
+                  <q-select
+                    v-model="selectedNote.categoryId"
+                    :options="categorySelectOptions"
+                    option-value="value"
+                    option-label="label"
+                    emit-value
+                    map-options
+                    outlined
+                    dense
+                    label="Category"
+                    class="spasta-input category-select"
+                    color="white"
+                    label-color="white"
+                    dark
+                    @update:model-value="debouncedSave"
+                  />
+                  
+                  <q-btn
+                    flat
+                    icon="local_offer"
+                    label="Add Tags"
+                    size="sm"
+                    @click="showTagDialog = true"
+                    class="spasta-text"
+                  />
+                </div>
+                
+                <div class="editor-actions row items-center spacing-sm">
+                  <q-btn
+                    flat
+                    icon="save"
+                    label="Save"
+                    size="sm"
+                    @click="saveNote"
+                    :loading="saving"
+                    class="spasta-text"
+                  />
+                  <q-btn
+                    flat
+                    icon="preview"
+                    label="Preview"
+                    size="sm"
+                    @click="togglePreview"
+                    class="spasta-text"
+                  />
+                  <div class="text-caption spasta-text opacity-70">
+                    {{ saving ? 'Saving...' : `Saved ${formatDate(selectedNote.updatedAt)}` }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tags Display -->
+              <div v-if="selectedNote.tags.length" class="row q-gutter-xs q-mt-sm">
+                <q-chip
+                  v-for="tag in selectedNote.tags"
+                  :key="tag"
+                  removable
+                  @remove="removeTag(tag)"
+                  color="white"
+                  text-color="grey-8"
+                  size="sm"
+                  :label="`#${tag}`"
+                />
+              </div>
             </div>
           </div>
 
-          <!-- Quasar Editor -->
+          <!-- WordPress-style Content Editor -->
           <div class="editor-content spasta-card">
-            <q-editor
-              v-model="selectedNote.content"
-              min-height="5rem"
-              class="spasta-editor"
-              :toolbar="[
-                ['bold', 'italic', 'underline', 'strike'],
-                ['hr', 'link'],
-                ['unordered', 'ordered'],
-                ['undo', 'redo'],
-                ['viewsource']
-              ]"
-              @update:model-value="saveNote"
-            />
+            <div v-if="!showPreview" class="editor-wrapper">
+              <!-- Rich Text Editor -->
+              <q-editor
+                v-model="selectedNote.content"
+                min-height="600px"
+                class="wordpress-editor"
+                :toolbar="editorToolbar"
+                @update:model-value="debouncedSave"
+                :fonts="{
+                  arial: 'Arial',
+                  arial_black: 'Arial Black',
+                  comic_sans: 'Comic Sans MS',
+                  courier_new: 'Courier New',
+                  impact: 'Impact',
+                  lucida_grande: 'Lucida Grande',
+                  times_new_roman: 'Times New Roman',
+                  verdana: 'Verdana'
+                }"
+                :font-sizes="{
+                  size1: '0.7rem',
+                  size2: '0.8rem',
+                  size3: '1rem',
+                  size4: '1.2rem',
+                  size5: '1.5rem',
+                  size6: '2rem',
+                  size7: '3rem'
+                }"
+              />
+            </div>
+            
+            <!-- Preview Mode -->
+            <div v-else class="preview-wrapper">
+              <div class="preview-header q-pa-md">
+                <div class="text-h4 spasta-text">{{ selectedNote.title || 'Untitled Note' }}</div>
+                <div class="text-caption spasta-text opacity-70 q-mt-sm">
+                  Last updated: {{ formatDate(selectedNote.updatedAt) }}
+                </div>
+              </div>
+              <div class="preview-content q-pa-md" v-html="selectedNote.content"></div>
+            </div>
           </div>
         </div>
         
@@ -237,15 +287,18 @@
           <q-card class="spasta-card full-height">
             <q-card-section class="text-center full-height flex flex-center">
               <div>
-                <q-icon name="note" size="xl" class="spasta-text opacity-30 q-mb-md" />
-                <div class="text-h6 spasta-text opacity-70">Select a note to edit</div>
-                <div class="text-body2 spasta-text opacity-50">Choose a note from the list or create a new one</div>
+                <q-icon name="edit_note" size="xl" class="spasta-text opacity-30 q-mb-md" />
+                <div class="text-h6 spasta-text opacity-70">Start Writing</div>
+                <div class="text-body2 spasta-text opacity-50 q-mb-lg">
+                  Select a note from the sidebar or create a new one to start writing
+                </div>
                 <q-btn
-                  flat
+                  color="white"
+                  text-color="grey-8"
                   icon="add"
                   label="Create New Note"
                   @click="createNewNote"
-                  class="q-mt-md spasta-text"
+                  class="q-px-lg"
                 />
               </div>
             </q-card-section>
@@ -330,7 +383,7 @@
     <q-dialog v-model="showTagDialog">
       <q-card class="spasta-card" style="min-width: 300px">
         <q-card-section>
-          <div class="text-h6 spasta-text">Add Tag</div>
+          <div class="text-h6 spasta-text">Add Tags</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -345,19 +398,16 @@
             label-color="white"
             dark
             @keyup.enter="addTag"
+            placeholder="Enter tag and press Enter"
           />
+          
+          <div class="text-caption spasta-text opacity-70 q-mt-sm">
+            Press Enter to add multiple tags
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" @click="showTagDialog = false" class="spasta-text" />
-          <q-btn 
-            flat 
-            label="Add" 
-            color="white" 
-            text-color="grey-8"
-            @click="addTag"
-            :disable="!newTag.trim()"
-          />
+          <q-btn flat label="Done" @click="showTagDialog = false" class="spasta-text" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -428,12 +478,57 @@ const showTagDialog = ref(false)
 const categoryMenuVisible = ref(false)
 const selectedCategoryForMenu = ref<Category | null>(null)
 const newTag = ref('')
+const saving = ref(false)
+const showPreview = ref(false)
+
+// Debounced save function
+let saveTimeout: NodeJS.Timeout | null = null
+const debouncedSave = () => {
+  if (saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(() => {
+    saveNote()
+  }, 1000) // Save after 1 second of inactivity
+}
 
 const newCategory = ref({
   name: '',
   icon: 'folder',
   color: 'primary'
 })
+
+// WordPress-style editor toolbar
+const editorToolbar = [
+  ['bold', 'italic', 'underline', 'strike'],
+  ['quote', 'unordered', 'ordered'],
+  ['link', 'custom_btn'],
+  ['print', 'fullscreen'],
+  [
+    {
+      label: $q.lang.editor.formatting,
+      icon: $q.iconSet.editor.formatting,
+      list: 'no-icons',
+      options: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code']
+    },
+    {
+      label: $q.lang.editor.fontSize,
+      icon: $q.iconSet.editor.fontSize,
+      fixedLabel: true,
+      fixedIcon: true,
+      list: 'no-icons',
+      options: ['size1', 'size2', 'size3', 'size4', 'size5', 'size6', 'size7']
+    },
+    {
+      label: $q.lang.editor.defaultFont,
+      icon: $q.iconSet.editor.font,
+      fixedIcon: true,
+      list: 'no-icons',
+      options: ['default_font', 'arial', 'arial_black', 'comic_sans', 'courier_new', 'impact', 'lucida_grande', 'times_new_roman', 'verdana']
+    },
+    'removeFormat'
+  ],
+  ['undo', 'redo'],
+  ['viewsource']
+]
 
 const iconOptions = [
   { label: 'Folder', value: 'folder' },
@@ -555,7 +650,7 @@ const loadData = async () => {
           {
             id: '1',
             title: 'Welcome to Spasta Notes',
-            content: '<h1>Welcome to Spasta Notes!</h1><p>This is your new <strong>WYSIWYG</strong> note editor. You can:</p><ul><li>Format text with <em>rich formatting</em></li><li>Create <u>organized</u> lists</li><li>Add <code>inline code</code></li><li>And much more!</li></ul><p>Start writing your ideas here...</p>',
+            content: '<h1>Welcome to Spasta Notes!</h1><p>This is your new <strong>WordPress-style</strong> note editor. You can:</p><ul><li>Format text with <em>rich formatting</em></li><li>Create <u>organized</u> lists</li><li>Add <code>inline code</code></li><li>Insert links and images</li><li>And much more!</li></ul><p>Start writing your ideas here...</p><blockquote><p>💡 <strong>Tip:</strong> Your notes are automatically saved as you type!</p></blockquote>',
             categoryId: '3',
             tags: ['welcome', 'tutorial'],
             createdAt: new Date().toISOString(),
@@ -563,10 +658,10 @@ const loadData = async () => {
           },
           {
             id: '2',
-            title: 'Project Planning',
-            content: '<h2>Project Roadmap</h2><p>Key milestones for the upcoming project:</p><ol><li><strong>Research Phase</strong> - Complete by end of month</li><li><strong>Design Phase</strong> - UI/UX mockups</li><li><strong>Development Phase</strong> - Implementation</li><li><strong>Testing Phase</strong> - QA and bug fixes</li></ol><p>Remember to <em>document everything</em> for future reference.</p>',
+            title: 'Project Planning Template',
+            content: '<h2>Project Overview</h2><p>Brief description of the project goals and objectives.</p><h3>Key Milestones</h3><ol><li><strong>Research Phase</strong> - Complete by end of month</li><li><strong>Design Phase</strong> - UI/UX mockups and wireframes</li><li><strong>Development Phase</strong> - Implementation and coding</li><li><strong>Testing Phase</strong> - QA, bug fixes, and optimization</li><li><strong>Launch Phase</strong> - Deployment and go-live</li></ol><h3>Resources Needed</h3><ul><li>Team members and roles</li><li>Budget allocation</li><li>Tools and software</li><li>Timeline and deadlines</li></ul><p>Remember to <em>document everything</em> for future reference and team collaboration.</p>',
             categoryId: '2',
-            tags: ['project', 'planning', 'roadmap'],
+            tags: ['project', 'planning', 'template'],
             createdAt: new Date(Date.now() - 86400000).toISOString(),
             updatedAt: new Date(Date.now() - 86400000).toISOString()
           }
@@ -627,6 +722,7 @@ const createNewNote = async () => {
 
 const selectNote = (note: Note) => {
   selectedNote.value = note
+  showPreview.value = false
 }
 
 const selectCategory = (categoryId: string | null) => {
@@ -634,8 +730,9 @@ const selectCategory = (categoryId: string | null) => {
 }
 
 const saveNote = async () => {
-  if (!selectedNote.value || !authStore.user?.id) return
+  if (!selectedNote.value || !authStore.user?.id || saving.value) return
 
+  saving.value = true
   selectedNote.value.updatedAt = new Date().toISOString()
   
   try {
@@ -646,7 +743,19 @@ const saveNote = async () => {
     }
   } catch (error) {
     console.error('Error saving note:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error saving note',
+      position: 'top-right',
+      timeout: 2000
+    })
+  } finally {
+    saving.value = false
   }
+}
+
+const togglePreview = () => {
+  showPreview.value = !showPreview.value
 }
 
 const deleteNote = async (noteId: string) => {
@@ -808,10 +917,9 @@ const addTag = () => {
     const tag = newTag.value.trim().toLowerCase()
     if (!selectedNote.value.tags.includes(tag)) {
       selectedNote.value.tags.push(tag)
-      saveNote()
+      debouncedSave()
     }
     newTag.value = ''
-    showTagDialog.value = false
   }
 }
 
@@ -820,7 +928,7 @@ const removeTag = (tag: string) => {
     const index = selectedNote.value.tags.indexOf(tag)
     if (index !== -1) {
       selectedNote.value.tags.splice(index, 1)
-      saveNote()
+      debouncedSave()
     }
   }
 }
@@ -868,16 +976,16 @@ onMounted(() => {
 }
 
 .notes-sidebar {
-  width: 350px;
-  min-width: 350px;
+  width: 320px;
+  min-width: 320px;
   border-radius: 0;
-  border-right: 2px solid rgba(255, 227, 169, 0.2);
+  border-right: 2px solid rgba(239, 228, 210, 0.2);
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
-  border-bottom: 1px solid rgba(255, 227, 169, 0.1);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 .sidebar-content {
@@ -898,12 +1006,21 @@ onMounted(() => {
 
 .editor-header {
   border-radius: 0;
-  border-bottom: 2px solid rgba(255, 227, 169, 0.2);
+  border-bottom: 2px solid rgba(239, 228, 210, 0.2);
+  background: rgba(58, 107, 140, 0.1);
 }
 
 .editor-content {
   flex: 1;
   border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(58, 107, 140, 0.05);
+}
+
+.editor-wrapper,
+.preview-wrapper {
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -918,12 +1035,12 @@ onMounted(() => {
 }
 
 .category-item:hover {
-  background: rgba(114, 92, 173, 0.2);
+  background: rgba(58, 107, 140, 0.2);
 }
 
 .category-item.q-item--active {
-  background: rgba(114, 92, 173, 0.3);
-  border-left: 4px solid #FFE3A9;
+  background: rgba(58, 107, 140, 0.3);
+  border-left: 4px solid #EFE4D2;
 }
 
 .note-item {
@@ -931,33 +1048,198 @@ onMounted(() => {
 }
 
 .note-item:hover {
-  background: rgba(114, 92, 173, 0.15);
+  background: rgba(58, 107, 140, 0.15);
 }
 
 .note-item.q-item--active {
-  background: rgba(114, 92, 173, 0.25);
-  border-left: 3px solid #FFE3A9;
+  background: rgba(58, 107, 140, 0.25);
+  border-left: 3px solid #EFE4D2;
 }
 
-/* Quasar Editor Styling */
-.spasta-editor :deep(.q-editor__content) {
-  background-color: rgba(11, 29, 81, 0.3);
-  color: #FFE3A9;
-  min-height: 400px;
-  padding: 20px;
+/* WordPress-style Editor Styling */
+.title-input {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #EFE4D2;
 }
 
-.spasta-editor :deep(.q-editor__toolbar) {
-  background-color: rgba(114, 92, 173, 0.3);
-  border-bottom: 1px solid rgba(255, 227, 169, 0.2);
+.title-input :deep(.q-field__native) {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #EFE4D2;
+  padding: 0;
 }
 
-.spasta-editor :deep(.q-btn) {
-  color: #FFE3A9;
+.title-input :deep(.q-field__control) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.spasta-editor :deep(.q-btn:hover) {
-  background-color: rgba(255, 227, 169, 0.2);
+.category-select {
+  min-width: 150px;
+}
+
+.editor-actions {
+  gap: 12px;
+}
+
+.spacing-md {
+  gap: 16px;
+}
+
+.spacing-sm {
+  gap: 8px;
+}
+
+/* WordPress Editor Styling */
+.wordpress-editor {
+  height: 100%;
+  background: transparent;
+}
+
+.wordpress-editor :deep(.q-editor__content) {
+  background-color: rgba(239, 228, 210, 0.05);
+  color: #EFE4D2;
+  min-height: 600px;
+  padding: 40px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.wordpress-editor :deep(.q-editor__toolbar) {
+  background-color: rgba(58, 107, 140, 0.2);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.2);
+  padding: 12px 20px;
+}
+
+.wordpress-editor :deep(.q-btn) {
+  color: #EFE4D2;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.wordpress-editor :deep(.q-btn:hover) {
+  background-color: rgba(239, 228, 210, 0.2);
+}
+
+.wordpress-editor :deep(.q-editor__content h1) {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  color: #EFE4D2;
+}
+
+.wordpress-editor :deep(.q-editor__content h2) {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 1.25rem 0;
+  color: #EFE4D2;
+}
+
+.wordpress-editor :deep(.q-editor__content h3) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0;
+  color: #EFE4D2;
+}
+
+.wordpress-editor :deep(.q-editor__content p) {
+  margin: 1rem 0;
+  color: #EFE4D2;
+}
+
+.wordpress-editor :deep(.q-editor__content blockquote) {
+  border-left: 4px solid #EFE4D2;
+  padding-left: 20px;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgba(239, 228, 210, 0.9);
+}
+
+.wordpress-editor :deep(.q-editor__content ul),
+.wordpress-editor :deep(.q-editor__content ol) {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  color: #EFE4D2;
+}
+
+.wordpress-editor :deep(.q-editor__content code) {
+  background: rgba(58, 107, 140, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #EFE4D2;
+}
+
+/* Preview Mode Styling */
+.preview-wrapper {
+  background: rgba(239, 228, 210, 0.05);
+}
+
+.preview-header {
+  border-bottom: 1px solid rgba(239, 228, 210, 0.2);
+  background: rgba(58, 107, 140, 0.1);
+}
+
+.preview-content {
+  flex: 1;
+  padding: 40px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #EFE4D2;
+  overflow-y: auto;
+}
+
+.preview-content :deep(h1) {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  color: #EFE4D2;
+}
+
+.preview-content :deep(h2) {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 1.25rem 0;
+  color: #EFE4D2;
+}
+
+.preview-content :deep(h3) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0;
+  color: #EFE4D2;
+}
+
+.preview-content :deep(p) {
+  margin: 1rem 0;
+  color: #EFE4D2;
+}
+
+.preview-content :deep(blockquote) {
+  border-left: 4px solid #EFE4D2;
+  padding-left: 20px;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgba(239, 228, 210, 0.9);
+}
+
+.preview-content :deep(ul),
+.preview-content :deep(ol) {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  color: #EFE4D2;
+}
+
+.preview-content :deep(code) {
+  background: rgba(58, 107, 140, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #EFE4D2;
 }
 
 /* Mobile Responsive */
@@ -975,11 +1257,35 @@ onMounted(() => {
     min-width: auto;
     height: 300px;
     border-right: none;
-    border-bottom: 2px solid rgba(255, 227, 169, 0.2);
+    border-bottom: 2px solid rgba(239, 228, 210, 0.2);
   }
   
   .notes-editor {
     height: calc(100vh - 500px);
+  }
+  
+  .title-input {
+    font-size: 1.8rem;
+  }
+  
+  .title-input :deep(.q-field__native) {
+    font-size: 1.8rem;
+  }
+  
+  .editor-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .wordpress-editor :deep(.q-editor__content) {
+    padding: 20px;
+    font-size: 14px;
+  }
+  
+  .preview-content {
+    padding: 20px;
+    font-size: 14px;
   }
 }
 </style>
