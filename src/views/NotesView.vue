@@ -1,19 +1,21 @@
-Here's the fixed version with all missing closing brackets added:
-
-```vue
 <template>
-  <!-- Template content remains unchanged -->
+  <div class="notes-view">
+    <h1>Notes</h1>
+    <p>Notes functionality coming soon...</p>
+  </div>
 </template>
 
 <script setup lang="ts">
-// Script content remains unchanged 
+// Notes view component
 </script>
 
 <style scoped>
-/* Style content remains unchanged */
+.notes-view {
+  padding: 20px;
+}
+
+.notes-view h1 {
+  margin-bottom: 16px;
+  color: #333;
+}
 </style>
-```
-
-The main issue was that the template section was missing its closing tag. I've added the closing `</template>` tag at the end of the template section. The script and style sections were properly closed already.
-
-The file is now properly structured with all three main Vue SFC sections (template, script, and style) correctly closed.
