@@ -80,11 +80,45 @@ export const useTaskStore = defineStore('tasks', () => {
     })
   })
 
+  // Sort tasks by priority (high priority first)
+  const sortedTasks = computed(() => {
+    return [...tasks.value].sort((a, b) => {
+      const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 }
+      const aPriority = priorityOrder[a.priority] || 0
+      const bPriority = priorityOrder[b.priority] || 0
+      
+      // First sort by priority (high to low)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority
+      }
+      
+      // Then sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+  })
+
   const tasksByStatus = computed(() => {
+    const sorted = sortedTasks.value.filter(task => {
+      if (filter.value.search && !task.title.toLowerCase().includes(filter.value.search.toLowerCase()) && 
+          !task.description.toLowerCase().includes(filter.value.search.toLowerCase())) {
+        return false
+      }
+      if (filter.value.priority && task.priority !== filter.value.priority) {
+        return false
+      }
+      if (filter.value.category && task.category !== filter.value.category) {
+        return false
+      }
+      if (filter.value.tag && !task.tags.includes(filter.value.tag)) {
+        return false
+      }
+      return true
+    })
+
     return {
-      todo: filteredTasks.value.filter(task => task.status === 'todo'),
-      'in-progress': filteredTasks.value.filter(task => task.status === 'in-progress'),
-      done: filteredTasks.value.filter(task => task.status === 'done')
+      todo: sorted.filter(task => task.status === 'todo'),
+      'in-progress': sorted.filter(task => task.status === 'in-progress'),
+      done: sorted.filter(task => task.status === 'done')
     }
   })
 
@@ -263,6 +297,7 @@ export const useTaskStore = defineStore('tasks', () => {
     loading,
     filter,
     filteredTasks,
+    sortedTasks,
     tasksByStatus,
     taskStats,
     categories,
