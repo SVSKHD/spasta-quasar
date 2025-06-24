@@ -280,6 +280,12 @@ const navigationRoutes = [
     title: 'Trading',
     description: 'Trading dashboard',
     icon: 'trending_up'
+  },
+  {
+    name: 'Backup',
+    title: 'Code Backup',
+    description: 'GitHub repository backups',
+    icon: 'backup'
   }
 ]
 
