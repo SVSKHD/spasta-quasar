@@ -249,17 +249,20 @@ const getCurrentLocation = async () => {
     console.error('Location error:', error)
     weatherError.value = true
     
-    if (error.code === 1) {
-      weatherErrorMessage.value = 'Location access denied. Please enable location services.'
+    // Handle GeolocationPositionError codes
+    if (error.code === 1 || error.message?.includes('denied') || error.message?.includes('User denied')) {
+      weatherErrorMessage.value = 'Location access denied. Please enable location services and refresh to get local weather.'
     } else if (error.code === 2) {
       weatherErrorMessage.value = 'Location unavailable. Please try again.'
     } else if (error.code === 3) {
       weatherErrorMessage.value = 'Location request timed out. Please try again.'
+    } else if (error.message?.includes('not supported')) {
+      weatherErrorMessage.value = 'Geolocation is not supported by this browser.'
     } else {
-      weatherErrorMessage.value = 'Unable to get location. Using default weather.'
+      weatherErrorMessage.value = 'Unable to get location. Showing default weather.'
     }
     
-    // Fallback to default weather
+    // Always fallback to default weather when location fails
     getDefaultWeather()
   } finally {
     locationLoading.value = false
@@ -435,9 +438,11 @@ const fetchWeather = async () => {
     await getCurrentLocation()
   } catch (error) {
     console.error('Error fetching weather:', error)
-    weatherError.value = true
-    weatherErrorMessage.value = 'Unable to get weather data'
-    getDefaultWeather()
+    // Error handling is already done in getCurrentLocation
+    // Just ensure we have some weather data
+    if (!weather.value) {
+      getDefaultWeather()
+    }
   } finally {
     weatherLoading.value = false
   }
