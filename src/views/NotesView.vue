@@ -120,13 +120,13 @@
                 class="rounded-borders q-mb-xs note-item"
               >
                 <q-item-section>
-                  <q-item-label class="spasta-text text-weight-medium">
+                  <q-item-label class="spasta-text text-weight-medium note-title">
                     {{ note.title || 'Untitled Note' }}
                   </q-item-label>
                   <q-item-label caption class="spasta-text opacity-70">
                     {{ formatDate(note.updatedAt) }}
                   </q-item-label>
-                  <q-item-label caption class="spasta-text opacity-60">
+                  <q-item-label caption class="spasta-text opacity-60 note-preview">
                     {{ getPlainTextPreview(note.content) }}
                   </q-item-label>
                 </q-item-section>
@@ -176,7 +176,7 @@
               color="white"
               label-color="white"
               dark
-              @update:model-value="saveNote"
+              @update:model-value="debouncedSaveNote"
             />
             
             <div class="row items-center justify-between">
@@ -241,7 +241,7 @@
                 ['undo', 'redo'],
                 ['viewsource']
               ]"
-              @update:model-value="saveNote"
+              @update:model-value="debouncedSaveNote"
             />
           </div>
         </div>
@@ -272,7 +272,7 @@
     <q-dialog v-model="showCategoryDialog">
       <q-card class="spasta-card" style="min-width: 400px">
         <q-card-section>
-          <div class="text-h6 spasta-text">Add Category</div>
+          <div class="text-h6 spasta-text">{{ editingCategory ? 'Edit Category' : 'Add Category' }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -330,10 +330,10 @@
           <q-btn flat label="Cancel" @click="closeCategoryDialog" class="spasta-text" />
           <q-btn 
             flat 
-            label="Add" 
+            :label="editingCategory ? 'Update' : 'Add'"
             color="white" 
             text-color="grey-8"
-            @click="addCategory"
+            @click="editingCategory ? updateCategory() : addCategory()"
             :disable="!newCategory.name.trim()"
           />
         </q-card-actions>
@@ -441,13 +441,24 @@ const showCategoryDialog = ref(false)
 const showTagDialog = ref(false)
 const categoryMenuVisible = ref(false)
 const selectedCategoryForMenu = ref<Category | null>(null)
+const editingCategory = ref<Category | null>(null)
 const newTag = ref('')
+const loading = ref(false)
 
 const newCategory = ref({
   name: '',
   icon: 'folder',
   color: 'primary'
 })
+
+// Debounce save function
+let saveTimeout: NodeJS.Timeout | null = null
+const debouncedSaveNote = () => {
+  if (saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(() => {
+    saveNote()
+  }, 500)
+}
 
 const iconOptions = [
   { label: 'Folder', value: 'folder' },
@@ -524,6 +535,7 @@ const getCategoryNoteCount = (categoryId: string) => {
 }
 
 const getPlainTextPreview = (htmlContent: string) => {
+  if (!htmlContent) return ''
   const div = document.createElement('div')
   div.innerHTML = htmlContent
   const text = div.textContent || div.innerText || ''
@@ -533,6 +545,7 @@ const getPlainTextPreview = (htmlContent: string) => {
 const loadData = async () => {
   if (!authStore.user?.id) return
 
+  loading.value = true
   try {
     if (authStore.user.id === 'guest') {
       // Load from localStorage for guest users
@@ -624,6 +637,14 @@ const loadData = async () => {
     }
   } catch (error) {
     console.error('Error loading data:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error loading notes data',
+      position: 'top-right',
+      timeout: 3000
+    })
+  } finally {
+    loading.value = false
   }
 }
 
@@ -664,8 +685,21 @@ const createNewNote = async () => {
     }
     
     selectedNote.value = newNote
+    
+    $q.notify({
+      type: 'positive',
+      message: 'New note created',
+      position: 'top-right',
+      timeout: 2000
+    })
   } catch (error) {
     console.error('Error creating note:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error creating note',
+      position: 'top-right',
+      timeout: 3000
+    })
   }
 }
 
@@ -690,6 +724,12 @@ const saveNote = async () => {
     }
   } catch (error) {
     console.error('Error saving note:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error saving note',
+      position: 'top-right',
+      timeout: 3000
+    })
   }
 }
 
@@ -728,6 +768,12 @@ const deleteNote = async (noteId: string) => {
         })
       } catch (error) {
         console.error('Error deleting note:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Error deleting note',
+          position: 'top-right',
+          timeout: 3000
+        })
       }
     }
   })
@@ -765,11 +811,61 @@ const addCategory = async () => {
     })
   } catch (error) {
     console.error('Error adding category:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error creating category',
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+}
+
+const updateCategory = async () => {
+  if (!editingCategory.value || !newCategory.value.name.trim() || !authStore.user?.id) return
+
+  const updatedCategory = {
+    ...editingCategory.value,
+    name: newCategory.value.name.trim(),
+    icon: newCategory.value.icon,
+    color: newCategory.value.color
+  }
+  
+  try {
+    const index = categories.value.findIndex(c => c.id === editingCategory.value!.id)
+    if (index !== -1) {
+      if (authStore.user.id === 'guest') {
+        categories.value[index] = updatedCategory
+        saveCategories()
+      } else {
+        const success = await firestoreService.updateNoteCategory(editingCategory.value.id, updatedCategory)
+        if (success) {
+          categories.value[index] = updatedCategory
+        }
+      }
+      
+      closeCategoryDialog()
+      
+      $q.notify({
+        type: 'positive',
+        message: `Category "${updatedCategory.name}" updated successfully`,
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+  } catch (error) {
+    console.error('Error updating category:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error updating category',
+      position: 'top-right',
+      timeout: 3000
+    })
   }
 }
 
 const closeCategoryDialog = () => {
   showCategoryDialog.value = false
+  editingCategory.value = null
   newCategory.value = {
     name: '',
     icon: 'folder',
@@ -783,12 +879,15 @@ const showCategoryMenu = (category: Category) => {
 }
 
 const editCategory = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Category editing coming soon',
-    position: 'top-right',
-    timeout: 2000
-  })
+  if (!selectedCategoryForMenu.value) return
+  
+  editingCategory.value = selectedCategoryForMenu.value
+  newCategory.value = {
+    name: selectedCategoryForMenu.value.name,
+    icon: selectedCategoryForMenu.value.icon,
+    color: selectedCategoryForMenu.value.color
+  }
+  showCategoryDialog.value = true
 }
 
 const deleteCategory = async () => {
@@ -843,6 +942,12 @@ const deleteCategory = async () => {
       }
     } catch (error) {
       console.error('Error deleting category:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Error deleting category',
+        position: 'top-right',
+        timeout: 3000
+      })
     }
   })
 }
@@ -853,6 +958,13 @@ const addTag = () => {
     if (!selectedNote.value.tags.includes(tag)) {
       selectedNote.value.tags.push(tag)
       saveNote()
+      
+      $q.notify({
+        type: 'positive',
+        message: `Tag "${tag}" added`,
+        position: 'top-right',
+        timeout: 1500
+      })
     }
     newTag.value = ''
     showTagDialog.value = false
@@ -865,6 +977,13 @@ const removeTag = (tag: string) => {
     if (index !== -1) {
       selectedNote.value.tags.splice(index, 1)
       saveNote()
+      
+      $q.notify({
+        type: 'info',
+        message: `Tag "${tag}" removed`,
+        position: 'top-right',
+        timeout: 1500
+      })
     }
   }
 }
@@ -963,6 +1082,7 @@ onMounted(() => {
 
 .category-item {
   transition: all 0.2s ease;
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .category-item:hover {
@@ -987,6 +1107,7 @@ onMounted(() => {
 
 .note-item {
   transition: all 0.2s ease;
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .note-item:hover {
@@ -998,12 +1119,35 @@ onMounted(() => {
   border-left: 3px solid #EFE4D2;
 }
 
+/* Text wrapping and overflow fixes */
+.note-title {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.note-preview {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Quasar Editor Styling */
 .spasta-editor :deep(.q-editor__content) {
   background-color: rgba(37, 77, 112, 0.3);
   color: #EFE4D2;
   min-height: 400px;
   padding: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .spasta-editor :deep(.q-editor__toolbar) {
@@ -1039,6 +1183,29 @@ onMounted(() => {
   
   .notes-editor {
     height: calc(100vh - 500px);
+  }
+  
+  /* Enhanced mobile text wrapping */
+  .note-title {
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+  
+  .note-preview {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    -webkit-line-clamp: 3; /* Show more lines on mobile */
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .note-title {
+    font-size: 0.85rem;
+  }
+  
+  .note-preview {
+    font-size: 0.75rem;
   }
 }
 </style>
