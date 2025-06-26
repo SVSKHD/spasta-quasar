@@ -286,6 +286,12 @@ const navigationRoutes = [
     title: 'Code Backup',
     description: 'GitHub repository backups',
     icon: 'backup'
+  },
+  {
+    name: 'Monitor',
+    title: 'Monitor Projects',
+    description: 'Project status & API monitoring',
+    icon: 'monitor'
   }
 ]
 
@@ -530,11 +536,10 @@ onMounted(async () => {
 
 .menu-toggle-btn:hover {
   background: rgba(239, 228, 210, 0.2) !important;
-  transform: scale(1.1);
 }
 
 .menu-toggle-btn:active {
-  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .menu-toggle-btn .q-icon {
@@ -580,12 +585,13 @@ onMounted(async () => {
 
 .nav-item:hover {
   background: rgba(58, 107, 140, 0.3);
-  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
 
 .nav-item.q-item--active {
   background: rgba(58, 107, 140, 0.5);
   border-left: 4px solid #EFE4D2;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .nav-item .q-icon {
@@ -655,7 +661,6 @@ onMounted(async () => {
 
 .spasta-header .q-btn:hover {
   background: rgba(239, 228, 210, 0.1);
-  transform: translateY(-1px);
 }
 
 /* Enhanced toolbar title styling */
@@ -671,7 +676,6 @@ onMounted(async () => {
 }
 
 .q-btn-dropdown:hover .q-avatar {
-  transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(239, 228, 210, 0.3);
 }
 
@@ -694,6 +698,5 @@ onMounted(async () => {
 
 .page-content::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
-  transform: scale(1.1);
 }
 </style>

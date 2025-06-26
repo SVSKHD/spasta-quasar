@@ -49,6 +49,12 @@ const routes = [
     name: 'Backup',
     component: () => import('../views/BackupView.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/monitor',
+    name: 'Monitor',
+    component: () => import('../views/MonitorView.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 
