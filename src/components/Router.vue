@@ -165,7 +165,7 @@
         </div>
         
         <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container">
+        <div v-else class="greeting-container q-pa-md">
           <SpastaGreetingCard />
         </div>
         
