@@ -93,7 +93,7 @@
                       dense
                       icon="more_vert"
                       size="sm"
-                      @click.stop="showCategoryMenu(category)"
+                      @click.stop="showCategoryMenu(category, $event)"
                       class="spasta-text"
                       :loading="category.deleting"
                     />
@@ -447,7 +447,12 @@
     </q-dialog>
 
     <!-- Category Menu -->
-    <q-menu v-model="categoryMenuVisible" class="spasta-card">
+    <q-menu 
+      v-model="categoryMenuVisible" 
+      class="spasta-card"
+      anchor="bottom right"
+      self="top right"
+    >
       <q-list style="min-width: 120px">
         <q-item 
           clickable 
@@ -1065,7 +1070,7 @@ const closeCategoryDialog = () => {
   }
 }
 
-const showCategoryMenu = (category: Category) => {
+const showCategoryMenu = (category: Category, event: Event) => {
   selectedCategoryForMenu.value = category
   categoryMenuVisible.value = true
 }
