@@ -58,35 +58,49 @@
 
             <q-separator class="q-my-md" />
 
-            <!-- Categories -->
-            <q-item
-              v-for="category in categories"
-              :key="category.id"
-              clickable
-              v-ripple
-              :active="selectedCategory === category.id"
-              @click="selectCategory(category.id)"
-              class="rounded-borders q-mb-xs category-item"
-            >
-              <q-item-section avatar>
-                <q-icon :name="category.icon" :color="category.color" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="spasta-text">{{ category.name }}</q-item-label>
-                <q-item-label caption class="spasta-text opacity-70">{{ getCategoryNoteCount(category.id) }} notes</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  flat
-                  round
-                  dense
-                  icon="more_vert"
-                  size="sm"
-                  @click.stop="showCategoryMenu(category)"
-                  class="spasta-text"
-                />
-              </q-item-section>
-            </q-item>
+            <!-- Categories List -->
+            <div class="categories-section">
+              <div class="text-subtitle2 spasta-text q-mb-sm">Categories</div>
+              
+              <q-item
+                v-for="category in categories"
+                :key="category.id"
+                clickable
+                v-ripple
+                :active="selectedCategory === category.id"
+                @click="selectCategory(category.id)"
+                class="rounded-borders q-mb-xs category-item"
+              >
+                <q-item-section avatar>
+                  <q-icon :name="category.icon" :color="category.color" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="spasta-text">{{ category.name }}</q-item-label>
+                  <q-item-label caption class="spasta-text opacity-70">{{ getCategoryNoteCount(category.id) }} notes</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="more_vert"
+                    size="sm"
+                    @click.stop="showCategoryMenu(category)"
+                    class="spasta-text"
+                  />
+                </q-item-section>
+              </q-item>
+
+              <!-- Add Category Button -->
+              <q-btn
+                flat
+                icon="add"
+                label="Add Category"
+                @click="showCategoryDialog = true"
+                class="full-width q-mt-sm spasta-text category-add-btn"
+                size="sm"
+              />
+            </div>
 
             <q-separator class="q-my-md" />
 
@@ -445,7 +459,12 @@ const iconOptions = [
   { label: 'Meeting', value: 'groups' },
   { label: 'Travel', value: 'flight' },
   { label: 'Finance', value: 'account_balance' },
-  { label: 'Health', value: 'local_hospital' }
+  { label: 'Health', value: 'local_hospital' },
+  { label: 'Education', value: 'school' },
+  { label: 'Shopping', value: 'shopping_cart' },
+  { label: 'Entertainment', value: 'movie' },
+  { label: 'Food', value: 'restaurant' },
+  { label: 'Sports', value: 'sports_soccer' }
 ]
 
 const colorOptions = [
@@ -456,7 +475,9 @@ const colorOptions = [
   { label: 'Purple', value: 'purple' },
   { label: 'Teal', value: 'teal' },
   { label: 'Pink', value: 'pink' },
-  { label: 'Indigo', value: 'indigo' }
+  { label: 'Indigo', value: 'indigo' },
+  { label: 'Brown', value: 'brown' },
+  { label: 'Grey', value: 'grey' }
 ]
 
 const allNotes = computed(() => notes.value)
@@ -541,6 +562,20 @@ const loadData = async () => {
             icon: 'lightbulb',
             color: 'warning',
             createdAt: new Date().toISOString()
+          },
+          {
+            id: '4',
+            name: 'Projects',
+            icon: 'assignment',
+            color: 'purple',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: '5',
+            name: 'Research',
+            icon: 'science',
+            color: 'teal',
+            createdAt: new Date().toISOString()
           }
         ]
         saveCategories()
@@ -569,6 +604,15 @@ const loadData = async () => {
             tags: ['project', 'planning', 'roadmap'],
             createdAt: new Date(Date.now() - 86400000).toISOString(),
             updatedAt: new Date(Date.now() - 86400000).toISOString()
+          },
+          {
+            id: '3',
+            title: 'Meeting Notes - Team Sync',
+            content: '<h3>Weekly Team Sync - January 2025</h3><p><strong>Attendees:</strong> John, Sarah, Mike, Lisa</p><h4>Agenda:</h4><ul><li>Project status updates</li><li>Upcoming deadlines</li><li>Resource allocation</li></ul><h4>Action Items:</h4><ol><li>John to finalize API documentation</li><li>Sarah to review UI designs</li><li>Mike to setup testing environment</li></ol>',
+            categoryId: '2',
+            tags: ['meeting', 'team', 'sync'],
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            updatedAt: new Date(Date.now() - 172800000).toISOString()
           }
         ]
         saveNotes()
@@ -871,13 +915,13 @@ onMounted(() => {
   width: 350px;
   min-width: 350px;
   border-radius: 0;
-  border-right: 2px solid rgba(255, 227, 169, 0.2);
+  border-right: 2px solid rgba(239, 228, 210, 0.2);
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
-  border-bottom: 1px solid rgba(255, 227, 169, 0.1);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.1);
 }
 
 .sidebar-content {
@@ -898,7 +942,7 @@ onMounted(() => {
 
 .editor-header {
   border-radius: 0;
-  border-bottom: 2px solid rgba(255, 227, 169, 0.2);
+  border-bottom: 2px solid rgba(239, 228, 210, 0.2);
 }
 
 .editor-content {
@@ -913,17 +957,32 @@ onMounted(() => {
   padding: 24px;
 }
 
+.categories-section {
+  margin-bottom: 16px;
+}
+
 .category-item {
   transition: all 0.2s ease;
 }
 
 .category-item:hover {
-  background: rgba(114, 92, 173, 0.2);
+  background: rgba(58, 107, 140, 0.2);
 }
 
 .category-item.q-item--active {
-  background: rgba(114, 92, 173, 0.3);
-  border-left: 4px solid #FFE3A9;
+  background: rgba(58, 107, 140, 0.3);
+  border-left: 4px solid #EFE4D2;
+}
+
+.category-add-btn {
+  border: 1px dashed rgba(239, 228, 210, 0.3);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.category-add-btn:hover {
+  border-color: rgba(239, 228, 210, 0.5);
+  background: rgba(58, 107, 140, 0.1);
 }
 
 .note-item {
@@ -931,33 +990,33 @@ onMounted(() => {
 }
 
 .note-item:hover {
-  background: rgba(114, 92, 173, 0.15);
+  background: rgba(58, 107, 140, 0.15);
 }
 
 .note-item.q-item--active {
-  background: rgba(114, 92, 173, 0.25);
-  border-left: 3px solid #FFE3A9;
+  background: rgba(58, 107, 140, 0.25);
+  border-left: 3px solid #EFE4D2;
 }
 
 /* Quasar Editor Styling */
 .spasta-editor :deep(.q-editor__content) {
-  background-color: rgba(11, 29, 81, 0.3);
-  color: #FFE3A9;
+  background-color: rgba(37, 77, 112, 0.3);
+  color: #EFE4D2;
   min-height: 400px;
   padding: 20px;
 }
 
 .spasta-editor :deep(.q-editor__toolbar) {
-  background-color: rgba(114, 92, 173, 0.3);
-  border-bottom: 1px solid rgba(255, 227, 169, 0.2);
+  background-color: rgba(58, 107, 140, 0.3);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.2);
 }
 
 .spasta-editor :deep(.q-btn) {
-  color: #FFE3A9;
+  color: #EFE4D2;
 }
 
 .spasta-editor :deep(.q-btn:hover) {
-  background-color: rgba(255, 227, 169, 0.2);
+  background-color: rgba(239, 228, 210, 0.2);
 }
 
 /* Mobile Responsive */
@@ -975,7 +1034,7 @@ onMounted(() => {
     min-width: auto;
     height: 300px;
     border-right: none;
-    border-bottom: 2px solid rgba(255, 227, 169, 0.2);
+    border-bottom: 2px solid rgba(239, 228, 210, 0.2);
   }
   
   .notes-editor {

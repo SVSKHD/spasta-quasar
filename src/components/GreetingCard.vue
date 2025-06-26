@@ -10,65 +10,93 @@
               size="lg" 
               class="q-mr-md time-icon"
             />
-            <div>
-              <div class="text-h5 text-weight-medium spasta-text">
+            <div class="greeting-text">
+              <div class="text-h5 text-weight-medium spasta-text greeting-message">
                 {{ greetingMessage }}
               </div>
-              <div class="text-body2 spasta-text opacity-80">
+              <div class="text-body2 spasta-text opacity-80 current-time">
                 {{ currentDateTime }}
               </div>
             </div>
           </div>
           
+          <!-- Weather Info with Location -->
           <div v-if="weather" class="weather-info row items-center q-mt-md">
             <q-icon 
               :name="weather.icon" 
               :color="weather.color" 
               size="md" 
-              class="q-mr-sm"
+              class="q-mr-sm weather-icon"
             />
-            <div class="text-body1 spasta-text">
-              {{ weather.temperature }}°{{ temperatureUnit }} • {{ weather.description }}
-            </div>
-            <q-separator vertical class="q-mx-md" />
-            <div class="text-body2 spasta-text opacity-70">
-              <q-icon name="location_on" size="xs" class="q-mr-xs" />
-              {{ weather.location }}
+            <div class="weather-details">
+              <div class="text-body1 spasta-text weather-main">
+                {{ weather.temperature }}°{{ temperatureUnit }} • {{ weather.description }}
+              </div>
+              <div class="text-body2 spasta-text opacity-70 weather-secondary">
+                <q-icon name="location_on" size="xs" class="q-mr-xs" />
+                <span class="location-text">{{ weather.location }}</span>
+                <span v-if="weather.humidity" class="q-ml-md humidity-text">
+                  <q-icon name="water_drop" size="xs" class="q-mr-xs" />
+                  {{ weather.humidity }}%
+                </span>
+                <span v-if="weather.windSpeed" class="q-ml-md wind-text">
+                  <q-icon name="air" size="xs" class="q-mr-xs" />
+                  {{ weather.windSpeed }} km/h
+                </span>
+              </div>
             </div>
           </div>
 
           <div v-if="!weather && weatherLoading" class="weather-loading q-mt-md">
-            <q-skeleton type="text" width="200px" />
+            <div class="row items-center">
+              <q-spinner-dots size="sm" color="white" class="q-mr-sm" />
+              <span class="text-body2 spasta-text opacity-70 loading-text">Getting your location and weather...</span>
+            </div>
           </div>
 
           <div v-if="weatherError" class="weather-error q-mt-md">
-            <div class="text-body2 text-warning">
+            <div class="text-body2 text-warning error-message">
               <q-icon name="warning" class="q-mr-xs" />
-              Unable to load weather data
+              <span class="error-text">{{ weatherErrorMessage }}</span>
             </div>
           </div>
         </div>
 
         <div class="greeting-actions">
-          <q-btn
-            flat
-            round
-            icon="refresh"
-            @click="refreshWeather"
-            :loading="weatherLoading"
-            class="spasta-text"
-          >
-            <q-tooltip>Refresh weather</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            :icon="temperatureUnit === 'C' ? 'thermostat' : 'ac_unit'"
-            @click="toggleTemperatureUnit"
-            class="spasta-text q-ml-sm"
-          >
-            <q-tooltip>Switch to {{ temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius' }}</q-tooltip>
-          </q-btn>
+          <div class="action-buttons column q-gutter-sm">
+            <q-btn
+              flat
+              round
+              icon="my_location"
+              @click="getCurrentLocation"
+              :loading="locationLoading"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Get current location</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              icon="refresh"
+              @click="refreshWeather"
+              :loading="weatherLoading"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Refresh weather</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              :icon="temperatureUnit === 'C' ? 'thermostat' : 'ac_unit'"
+              @click="toggleTemperatureUnit"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Switch to {{ temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius' }}</q-tooltip>
+            </q-btn>
+          </div>
         </div>
       </div>
     </q-card-section>
@@ -77,6 +105,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useQuasar } from 'quasar'
 
 interface Weather {
   temperature: number
@@ -86,13 +115,29 @@ interface Weather {
   location: string
   humidity: number
   windSpeed: number
+  coordinates?: {
+    lat: number
+    lon: number
+  }
 }
 
+interface LocationData {
+  lat: number
+  lon: number
+  city?: string
+  country?: string
+  state?: string
+}
+
+const $q = useQuasar()
 const weather = ref<Weather | null>(null)
 const weatherLoading = ref(false)
 const weatherError = ref(false)
+const weatherErrorMessage = ref('')
+const locationLoading = ref(false)
 const temperatureUnit = ref<'C' | 'F'>('C')
 const currentTime = ref(new Date())
+const userLocation = ref<LocationData | null>(null)
 let timeInterval: NodeJS.Timeout | null = null
 
 // Update time every minute
@@ -175,39 +220,106 @@ const convertTemperature = (temp: number, from: 'C' | 'F', to: 'C' | 'F') => {
   }
 }
 
-const fetchWeather = async () => {
-  weatherLoading.value = true
+const getCurrentLocation = async () => {
+  locationLoading.value = true
   weatherError.value = false
   
   try {
-    // Try to get user's location
-    if (navigator.geolocation) {
+    if (!navigator.geolocation) {
+      throw new Error('Geolocation is not supported by this browser')
+    }
+
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords
-          await getWeatherByCoords(latitude, longitude)
-        },
-        () => {
-          // Fallback to IP-based location or default
-          getDefaultWeather()
+        resolve,
+        reject,
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
         }
       )
-    } else {
-      getDefaultWeather()
-    }
-  } catch (error) {
-    console.error('Error fetching weather:', error)
+    })
+
+    const { latitude, longitude } = position.coords
+    console.log('Got coordinates:', latitude, longitude)
+    
+    // Get location details using reverse geocoding
+    await getLocationDetails(latitude, longitude)
+    
+    // Get weather for this location
+    await getWeatherByCoords(latitude, longitude)
+    
+  } catch (error: any) {
     weatherError.value = true
+    
+    // Handle GeolocationPositionError codes with appropriate logging levels
+    if (error.code === 1 || error.message?.includes('denied') || error.message?.includes('User denied')) {
+      console.warn('Location access denied by user')
+      weatherErrorMessage.value = 'Location access denied. Please enable location services and refresh to get local weather.'
+    } else if (error.code === 2) {
+      console.error('Location error:', error)
+      weatherErrorMessage.value = 'Location unavailable. Please try again.'
+    } else if (error.code === 3) {
+      console.error('Location error:', error)
+      weatherErrorMessage.value = 'Location request timed out. Please try again.'
+    } else if (error.message?.includes('not supported')) {
+      console.error('Location error:', error)
+      weatherErrorMessage.value = 'Geolocation is not supported by this browser.'
+    } else {
+      console.error('Location error:', error)
+      weatherErrorMessage.value = 'Unable to get location. Showing default weather.'
+    }
+    
+    // Always fallback to default weather when location fails
     getDefaultWeather()
   } finally {
-    weatherLoading.value = false
+    locationLoading.value = false
+  }
+}
+
+const getLocationDetails = async (lat: number, lon: number) => {
+  try {
+    // Using a free geocoding service (nominatim)
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`)
+    
+    if (response.ok) {
+      const data = await response.json()
+      console.log('Location data:', data)
+      
+      const address = data.address || {}
+      const city = address.city || address.town || address.village || address.suburb || 'Unknown City'
+      const state = address.state || address.region || ''
+      const country = address.country || 'Unknown Country'
+      
+      userLocation.value = {
+        lat,
+        lon,
+        city,
+        state,
+        country
+      }
+      
+      console.log('Parsed location:', userLocation.value)
+    } else {
+      throw new Error('Failed to get location details')
+    }
+  } catch (error) {
+    console.error('Error getting location details:', error)
+    // Set basic location info
+    userLocation.value = {
+      lat,
+      lon,
+      city: 'Your Location',
+      country: ''
+    }
   }
 }
 
 const getWeatherByCoords = async (lat: number, lon: number) => {
   try {
-    // Since we can't use real weather APIs without API keys,
-    // we'll simulate weather data based on location and time
+    // Since we can't use real weather APIs without API keys in this demo,
+    // we'll generate realistic weather data based on location and time
     const mockWeatherData = generateMockWeather(lat, lon)
     weather.value = mockWeatherData
   } catch (error) {
@@ -220,14 +332,22 @@ const generateMockWeather = (lat: number, lon: number) => {
   const hour = currentTime.value.getHours()
   const month = currentTime.value.getMonth()
   
-  // Generate realistic temperature based on time and season
+  // Generate realistic temperature based on time, season, and latitude
   let baseTemp = 20 // Base temperature in Celsius
+  
+  // Latitude-based adjustment (closer to equator = warmer)
+  const latAdjustment = (90 - Math.abs(lat)) / 90 * 15
+  baseTemp += latAdjustment
   
   // Seasonal adjustment
   if (month >= 11 || month <= 1) { // Winter
-    baseTemp -= 10
+    baseTemp -= 15
   } else if (month >= 5 && month <= 7) { // Summer
-    baseTemp += 8
+    baseTemp += 10
+  } else if (month >= 2 && month <= 4) { // Spring
+    baseTemp += 2
+  } else { // Fall
+    baseTemp -= 2
   }
   
   // Daily temperature variation
@@ -236,7 +356,7 @@ const generateMockWeather = (lat: number, lon: number) => {
   } else if (hour >= 15 && hour <= 18) { // Late afternoon
     baseTemp += Math.random() * 5
   } else { // Evening and night
-    baseTemp -= Math.random() * 5
+    baseTemp -= Math.random() * 8
   }
   
   // Weather conditions based on randomness and season
@@ -248,11 +368,21 @@ const generateMockWeather = (lat: number, lon: number) => {
     'Sunny'
   ]
   
-  const condition = conditions[Math.floor(Math.random() * conditions.length)]
+  // Adjust conditions based on season
+  let availableConditions = [...conditions]
+  if (month >= 11 || month <= 1) { // Winter
+    availableConditions.push('Snow', 'Overcast')
+  } else if (month >= 5 && month <= 7) { // Summer
+    availableConditions.push('Hot', 'Sunny', 'Clear sky')
+  }
+  
+  const condition = availableConditions[Math.floor(Math.random() * availableConditions.length)]
   const weatherIcon = getWeatherIcon(condition)
   
-  // Get approximate location name (simplified)
-  const location = getLocationName(lat, lon)
+  // Get location name
+  const location = userLocation.value 
+    ? `${userLocation.value.city}${userLocation.value.state ? ', ' + userLocation.value.state : ''}`
+    : getLocationName(lat, lon)
   
   return {
     temperature: Math.round(baseTemp),
@@ -261,7 +391,8 @@ const generateMockWeather = (lat: number, lon: number) => {
     color: weatherIcon.color,
     location,
     humidity: Math.floor(Math.random() * 40) + 40, // 40-80%
-    windSpeed: Math.floor(Math.random() * 20) + 5 // 5-25 km/h
+    windSpeed: Math.floor(Math.random() * 20) + 5, // 5-25 km/h
+    coordinates: { lat, lon }
   }
 }
 
@@ -301,14 +432,46 @@ const getDefaultWeather = () => {
     description: condition,
     icon: weatherIcon.icon,
     color: weatherIcon.color,
-    location: 'Your Location',
+    location: 'Default Location',
     humidity: 65,
     windSpeed: 10
   }
 }
 
-const refreshWeather = () => {
-  fetchWeather()
+const fetchWeather = async () => {
+  weatherLoading.value = true
+  weatherError.value = false
+  
+  try {
+    // Try to get user's location first
+    await getCurrentLocation()
+  } catch (error) {
+    console.error('Error fetching weather:', error)
+    // Error handling is already done in getCurrentLocation
+    // Just ensure we have some weather data
+    if (!weather.value) {
+      getDefaultWeather()
+    }
+  } finally {
+    weatherLoading.value = false
+  }
+}
+
+const refreshWeather = async () => {
+  if (userLocation.value) {
+    weatherLoading.value = true
+    await getWeatherByCoords(userLocation.value.lat, userLocation.value.lon)
+    weatherLoading.value = false
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Weather updated',
+      position: 'top-right',
+      timeout: 2000
+    })
+  } else {
+    await fetchWeather()
+  }
 }
 
 const toggleTemperatureUnit = () => {
@@ -350,94 +513,107 @@ onBeforeUnmount(() => {
 <style scoped>
 .greeting-card {
   border-radius: 20px;
-  border: 2px solid rgba(255, 227, 169, 0.2);
-  background: linear-gradient(135deg, rgba(114, 92, 173, 0.1) 0%, rgba(11, 29, 81, 0.1) 100%);
-  transition: all 0.3s ease;
+  border: 2px solid rgba(239, 228, 210, 0.2);
+  background: linear-gradient(135deg, rgba(58, 107, 140, 0.1) 0%, rgba(37, 77, 112, 0.1) 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 140px;
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .greeting-card:hover {
-  border-color: rgba(255, 227, 169, 0.4);
-  box-shadow: 0 8px 32px rgba(114, 92, 173, 0.2);
+  border-color: rgba(239, 228, 210, 0.4);
+  box-shadow: 0 8px 32px rgba(58, 107, 140, 0.2);
 }
 
 .greeting-content {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .greeting-header {
   align-items: flex-start;
 }
 
+.greeting-text {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Text wrapping and overflow fixes */
+.greeting-message {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.current-time {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
 .time-icon {
   animation: gentle-pulse 3s ease-in-out infinite;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 @keyframes gentle-pulse {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.05);
     opacity: 0.9;
   }
 }
 
 .weather-info {
-  background: rgba(255, 227, 169, 0.05);
+  background: rgba(239, 228, 210, 0.05);
   border-radius: 12px;
   padding: 12px 16px;
-  border: 1px solid rgba(255, 227, 169, 0.1);
+  border: 1px solid rgba(239, 228, 210, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
-.weather-loading {
-  background: rgba(255, 227, 169, 0.05);
-  border-radius: 12px;
-  padding: 12px 16px;
+.weather-details {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
 }
 
-.greeting-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.weather-main {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .greeting-card :deep(.q-card-section) {
-    padding: 16px !important;
-  }
-  
-  .greeting-header {
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-  }
-  
-  .time-icon {
-    margin-bottom: 8px;
-    margin-right: 0;
-  }
-  
-  .weather-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .weather-info .q-separator {
-    display: none;
-  }
-  
-  .greeting-actions {
-    flex-direction: row;
-    margin-top: 16px;
-  }
+.weather-secondary {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 
-/* Animation for weather icon */
-.weather-info .q-icon {
+.location-text,
+.humidity-text,
+.wind-text {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.weather-icon {
   animation: weather-float 4s ease-in-out infinite;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 @keyframes weather-float {
@@ -446,6 +622,183 @@ onBeforeUnmount(() => {
   }
   50% {
     transform: translateY(-2px);
+  }
+}
+
+.weather-loading,
+.weather-error {
+  background: rgba(239, 228, 210, 0.05);
+  border-radius: 12px;
+  padding: 12px 16px;
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.loading-text,
+.error-text {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.greeting-actions {
+  flex-shrink: 0; /* Prevent actions from shrinking */
+  margin-left: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-btn {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 12px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.action-btn:hover {
+  background: rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .greeting-card {
+    min-height: 120px;
+  }
+  
+  .greeting-card :deep(.q-card-section) {
+    padding: 16px !important;
+  }
+  
+  .greeting-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 8px;
+  }
+  
+  .time-icon {
+    margin-bottom: 0;
+    margin-right: 8px;
+  }
+  
+  .weather-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .greeting-actions {
+    margin-left: 0;
+    margin-top: 16px;
+    width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .action-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  
+  /* Enhanced mobile text wrapping */
+  .greeting-message {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  
+  .current-time {
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+  
+  .weather-main {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  
+  .weather-secondary {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  
+  .loading-text,
+  .error-text {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .greeting-message {
+    font-size: 1.1rem;
+  }
+  
+  .current-time {
+    font-size: 0.8rem;
+  }
+  
+  .weather-main {
+    font-size: 0.85rem;
+  }
+  
+  .weather-secondary {
+    font-size: 0.75rem;
+  }
+  
+  .loading-text,
+  .error-text {
+    font-size: 0.75rem;
+  }
+  
+  .weather-secondary .q-ml-md {
+    margin-left: 8px !important;
+  }
+}
+
+/* Ensure consistent spacing on all screen sizes */
+.q-icon.q-mr-xs {
+  margin-right: 4px !important;
+}
+
+.q-icon.q-mr-sm {
+  margin-right: 8px !important;
+}
+
+.q-icon.q-mr-md {
+  margin-right: 12px !important;
+}
+
+/* Consistent button sizing across the app */
+.action-btn .q-btn__content {
+  min-width: 0;
+  padding: 0;
+}
+
+.action-btn .q-icon {
+  font-size: 1.25rem;
+}
+
+/* Ensure tooltips work properly on mobile */
+@media (hover: none) {
+  .action-btn .q-tooltip {
+    display: none;
   }
 }
 </style>

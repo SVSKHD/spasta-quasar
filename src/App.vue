@@ -141,7 +141,6 @@ h1, h2, h3, h4, h5, h6,
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
-  transform: scale(1.1);
 }
 
 /* Utility classes */
@@ -231,7 +230,7 @@ h1, h2, h3, h4, h5, h6,
 .q-item:hover {
   background: rgba(58, 107, 140, 0.3) !important;
   backdrop-filter: blur(10px) !important;
-  transform: translateX(4px) scale(1.02) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
 
 .q-item.q-item--active {
@@ -239,7 +238,7 @@ h1, h2, h3, h4, h5, h6,
   backdrop-filter: blur(15px) !important;
   color: #EFE4D2;
   border: 1px solid rgba(239, 228, 210, 0.3) !important;
-  transform: translateX(8px) scale(1.05) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Tab styling with glass effect and animations */
@@ -259,13 +258,13 @@ h1, h2, h3, h4, h5, h6,
 
 .q-tab:hover {
   background: rgba(239, 228, 210, 0.1) !important;
-  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .q-tab--active {
   background: rgba(239, 228, 210, 0.2) !important;
   backdrop-filter: blur(10px) !important;
-  transform: translateY(-4px) scale(1.1) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
 .q-tab-panels {
@@ -281,26 +280,177 @@ h1, h2, h3, h4, h5, h6,
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Button styling with glass effect and smooth animations */
+/* CONSISTENT BUTTON STYLING - All buttons follow the same design pattern */
 .q-btn {
   border-radius: 12px !important;
   backdrop-filter: blur(10px) !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border: 1px solid rgba(239, 228, 210, 0.2) !important;
 }
 
+/* Primary Button Style - White background with dark text */
+.q-btn:not(.q-btn--flat):not(.q-btn--outline):not(.q-btn--unelevated) {
+  background: rgba(239, 228, 210, 0.9) !important;
+  color: #254D70 !important;
+  border: 1px solid rgba(239, 228, 210, 0.3) !important;
+}
+
+.q-btn:not(.q-btn--flat):not(.q-btn--outline):not(.q-btn--unelevated):hover {
+  background: rgba(239, 228, 210, 1) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.3) !important;
+}
+
+/* Flat Button Style - Transparent with light border */
 .q-btn--flat {
   background: rgba(239, 228, 210, 0.1) !important;
+  color: #EFE4D2 !important;
   border: 1px solid rgba(239, 228, 210, 0.2) !important;
 }
 
 .q-btn--flat:hover {
   background: rgba(239, 228, 210, 0.2) !important;
-  transform: translateY(-2px) scale(1.05) !important;
-  box-shadow: 0 8px 25px rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
 }
 
+/* Outline Button Style */
+.q-btn--outline {
+  background: transparent !important;
+  color: #EFE4D2 !important;
+  border: 2px solid rgba(239, 228, 210, 0.4) !important;
+}
+
+.q-btn--outline:hover {
+  background: rgba(239, 228, 210, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
+}
+
+/* Unelevated Button Style */
+.q-btn--unelevated {
+  background: rgba(58, 107, 140, 0.3) !important;
+  color: #EFE4D2 !important;
+  border: 1px solid rgba(239, 228, 210, 0.2) !important;
+}
+
+.q-btn--unelevated:hover {
+  background: rgba(58, 107, 140, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.3) !important;
+}
+
+/* Round Button Style */
+.q-btn--round {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+}
+
+/* Dense Button Style */
+.q-btn--dense {
+  min-height: 32px !important;
+  padding: 4px 12px !important;
+}
+
+.q-btn--dense.q-btn--round {
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 6px !important;
+}
+
+/* Small Button Style */
+.q-btn--sm {
+  min-height: 36px !important;
+  padding: 6px 14px !important;
+  font-size: 0.875rem !important;
+}
+
+/* Large Button Style */
+.q-btn--lg {
+  min-height: 48px !important;
+  padding: 12px 24px !important;
+  font-size: 1.125rem !important;
+}
+
+/* Extra Large Button Style */
+.q-btn--xl {
+  min-height: 56px !important;
+  padding: 16px 32px !important;
+  font-size: 1.25rem !important;
+}
+
+/* Active/Pressed Button State */
 .q-btn:active {
-  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Disabled Button State */
+.q-btn--disable {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* Loading Button State */
+.q-btn--loading {
+  pointer-events: none !important;
+}
+
+/* Color Variants */
+.q-btn.bg-positive,
+.q-btn.text-positive {
+  background: rgba(33, 186, 69, 0.2) !important;
+  color: #21BA45 !important;
+  border-color: rgba(33, 186, 69, 0.3) !important;
+}
+
+.q-btn.bg-negative,
+.q-btn.text-negative {
+  background: rgba(193, 0, 21, 0.2) !important;
+  color: #C10015 !important;
+  border-color: rgba(193, 0, 21, 0.3) !important;
+}
+
+.q-btn.bg-warning,
+.q-btn.text-warning {
+  background: rgba(242, 192, 55, 0.2) !important;
+  color: #F2C037 !important;
+  border-color: rgba(242, 192, 55, 0.3) !important;
+}
+
+.q-btn.bg-info,
+.q-btn.text-info {
+  background: rgba(49, 204, 236, 0.2) !important;
+  color: #31CCEC !important;
+  border-color: rgba(49, 204, 236, 0.3) !important;
+}
+
+/* Button Group Styling */
+.q-btn-group .q-btn {
+  border-radius: 0 !important;
+}
+
+.q-btn-group .q-btn:first-child {
+  border-radius: 12px 0 0 12px !important;
+}
+
+.q-btn-group .q-btn:last-child {
+  border-radius: 0 12px 12px 0 !important;
+}
+
+.q-btn-group .q-btn:only-child {
+  border-radius: 12px !important;
+}
+
+/* Toggle Button Styling */
+.q-btn-toggle .q-btn {
+  background: rgba(58, 107, 140, 0.1) !important;
+  color: #EFE4D2 !important;
+}
+
+.q-btn-toggle .q-btn--active {
+  background: rgba(239, 228, 210, 0.9) !important;
+  color: #254D70 !important;
 }
 
 /* Chip styling with animations */
@@ -311,7 +461,6 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .q-chip:hover {
-  transform: scale(1.05) !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
 }
 
@@ -386,7 +535,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .q-icon:hover {
-  transform: scale(1.1) rotate(5deg) !important;
+  filter: brightness(1.2) !important;
 }
 
 /* Enhanced Input Field Styling with glass effect and animations */
@@ -421,15 +570,13 @@ h1, h2, h3, h4, h5, h6,
 .spasta-input .q-field__control:hover {
   border-color: rgba(239, 228, 210, 0.5) !important;
   background: rgba(239, 228, 210, 0.15) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(239, 228, 210, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.1) !important;
 }
 
 .spasta-input.q-field--focused .q-field__control {
   border-color: #EFE4D2 !important;
   box-shadow: 0 0 0 2px rgba(239, 228, 210, 0.2) !important;
   background: rgba(239, 228, 210, 0.2) !important;
-  transform: translateY(-4px) scale(1.02) !important;
 }
 
 /* Select dropdown styling */
@@ -469,8 +616,7 @@ h1, h2, h3, h4, h5, h6,
 .q-table tbody tr:hover {
   background: rgba(58, 107, 140, 0.2) !important;
   backdrop-filter: blur(10px) !important;
-  transform: translateY(-2px) scale(1.01) !important;
-  box-shadow: 0 8px 25px rgba(58, 107, 140, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.2) !important;
 }
 
 /* Expansion item styling with animations */
@@ -484,8 +630,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .q-expansion-item:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(58, 107, 140, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.2) !important;
 }
 
 .q-expansion-item__header {
@@ -520,8 +665,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .q-banner:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Separator styling */
@@ -695,6 +839,27 @@ h1, h2, h3, h4, h5, h6,
   .q-dialog .q-card {
     border-radius: 20px !important;
   }
+  
+  /* Mobile button adjustments */
+  .q-btn {
+    min-height: 44px !important;
+    padding: 10px 16px !important;
+  }
+  
+  .q-btn--dense {
+    min-height: 36px !important;
+    padding: 6px 12px !important;
+  }
+  
+  .q-btn--round {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  
+  .q-btn--dense.q-btn--round {
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
 }
 
 @media (min-width: 769px) {
@@ -703,18 +868,17 @@ h1, h2, h3, h4, h5, h6,
   }
 }
 
-/* Enhanced glass effects for hover states with smooth animations */
+/* Enhanced glass effects for hover states with shadow instead of zoom */
 .spasta-card:hover {
   background: rgba(58, 107, 140, 0.25) !important;
   border-color: rgba(239, 228, 210, 0.4) !important;
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
 .spasta-card-light:hover {
   background: rgba(58, 107, 140, 0.2) !important;
   border-color: rgba(239, 228, 210, 0.3) !important;
-  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Loading spinner with glass effect and animation */
@@ -745,8 +909,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .calendar-event:hover {
-  transform: translateY(-2px) scale(1.05) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Task card animations */
@@ -755,8 +918,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .task-card:hover {
-  transform: translateY(-6px) scale(1.02) !important;
-  box-shadow: 0 16px 40px rgba(114, 92, 173, 0.4) !important;
+  box-shadow: 0 8px 24px rgba(114, 92, 173, 0.4) !important;
 }
 
 /* Drag and drop animations */

@@ -43,6 +43,18 @@ const routes = [
     name: 'Goals',
     component: () => import('../views/GoalsView.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/backup',
+    name: 'Backup',
+    component: () => import('../views/BackupView.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/monitor',
+    name: 'Monitor',
+    component: () => import('../views/MonitorView.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 
