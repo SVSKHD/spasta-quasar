@@ -1053,7 +1053,6 @@ const checkProject = async (project: Project, showNotification = true) => {
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000))
     
     // Simulate random status updates
-    const statuses = ['healthy', 'warning', 'error']
     const weights = [0.7, 0.2, 0.1] // 70% healthy, 20% warning, 10% error
     
     let randomValue = Math.random()
