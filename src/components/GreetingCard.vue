@@ -10,11 +10,11 @@
               size="lg" 
               class="q-mr-md time-icon"
             />
-            <div>
-              <div class="text-h5 text-weight-medium spasta-text">
+            <div class="greeting-text">
+              <div class="text-h5 text-weight-medium spasta-text greeting-message">
                 {{ greetingMessage }}
               </div>
-              <div class="text-body2 spasta-text opacity-80">
+              <div class="text-body2 spasta-text opacity-80 current-time">
                 {{ currentDateTime }}
               </div>
             </div>
@@ -29,17 +29,17 @@
               class="q-mr-sm weather-icon"
             />
             <div class="weather-details">
-              <div class="text-body1 spasta-text">
+              <div class="text-body1 spasta-text weather-main">
                 {{ weather.temperature }}°{{ temperatureUnit }} • {{ weather.description }}
               </div>
-              <div class="text-body2 spasta-text opacity-70">
+              <div class="text-body2 spasta-text opacity-70 weather-secondary">
                 <q-icon name="location_on" size="xs" class="q-mr-xs" />
-                {{ weather.location }}
-                <span v-if="weather.humidity" class="q-ml-md">
+                <span class="location-text">{{ weather.location }}</span>
+                <span v-if="weather.humidity" class="q-ml-md humidity-text">
                   <q-icon name="water_drop" size="xs" class="q-mr-xs" />
                   {{ weather.humidity }}%
                 </span>
-                <span v-if="weather.windSpeed" class="q-ml-md">
+                <span v-if="weather.windSpeed" class="q-ml-md wind-text">
                   <q-icon name="air" size="xs" class="q-mr-xs" />
                   {{ weather.windSpeed }} km/h
                 </span>
@@ -50,48 +50,53 @@
           <div v-if="!weather && weatherLoading" class="weather-loading q-mt-md">
             <div class="row items-center">
               <q-spinner-dots size="sm" color="white" class="q-mr-sm" />
-              <span class="text-body2 spasta-text opacity-70">Getting your location and weather...</span>
+              <span class="text-body2 spasta-text opacity-70 loading-text">Getting your location and weather...</span>
             </div>
           </div>
 
           <div v-if="weatherError" class="weather-error q-mt-md">
-            <div class="text-body2 text-warning">
+            <div class="text-body2 text-warning error-message">
               <q-icon name="warning" class="q-mr-xs" />
-              {{ weatherErrorMessage }}
+              <span class="error-text">{{ weatherErrorMessage }}</span>
             </div>
           </div>
         </div>
 
         <div class="greeting-actions">
-          <q-btn
-            flat
-            round
-            icon="my_location"
-            @click="getCurrentLocation"
-            :loading="locationLoading"
-            class="spasta-text"
-          >
-            <q-tooltip>Get current location</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            icon="refresh"
-            @click="refreshWeather"
-            :loading="weatherLoading"
-            class="spasta-text"
-          >
-            <q-tooltip>Refresh weather</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            :icon="temperatureUnit === 'C' ? 'thermostat' : 'ac_unit'"
-            @click="toggleTemperatureUnit"
-            class="spasta-text q-ml-sm"
-          >
-            <q-tooltip>Switch to {{ temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius' }}</q-tooltip>
-          </q-btn>
+          <div class="action-buttons column q-gutter-sm">
+            <q-btn
+              flat
+              round
+              icon="my_location"
+              @click="getCurrentLocation"
+              :loading="locationLoading"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Get current location</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              icon="refresh"
+              @click="refreshWeather"
+              :loading="weatherLoading"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Refresh weather</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              round
+              :icon="temperatureUnit === 'C' ? 'thermostat' : 'ac_unit'"
+              @click="toggleTemperatureUnit"
+              class="spasta-text action-btn"
+              size="md"
+            >
+              <q-tooltip>Switch to {{ temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius' }}</q-tooltip>
+            </q-btn>
+          </div>
         </div>
       </div>
     </q-card-section>
@@ -510,7 +515,9 @@ onBeforeUnmount(() => {
   border-radius: 20px;
   border: 2px solid rgba(239, 228, 210, 0.2);
   background: linear-gradient(135deg, rgba(58, 107, 140, 0.1) 0%, rgba(37, 77, 112, 0.1) 100%);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 140px;
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .greeting-card:hover {
@@ -520,23 +527,47 @@ onBeforeUnmount(() => {
 
 .greeting-content {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .greeting-header {
   align-items: flex-start;
 }
 
+.greeting-text {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Text wrapping and overflow fixes */
+.greeting-message {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.current-time {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
 .time-icon {
   animation: gentle-pulse 3s ease-in-out infinite;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 @keyframes gentle-pulse {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.05);
     opacity: 0.9;
   }
 }
@@ -546,14 +577,43 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   padding: 12px 16px;
   border: 1px solid rgba(239, 228, 210, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .weather-details {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.weather-main {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.weather-secondary {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+.location-text,
+.humidity-text,
+.wind-text {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 .weather-icon {
   animation: weather-float 4s ease-in-out infinite;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 @keyframes weather-float {
@@ -570,16 +630,53 @@ onBeforeUnmount(() => {
   background: rgba(239, 228, 210, 0.05);
   border-radius: 12px;
   padding: 12px 16px;
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.loading-text,
+.error-text {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .greeting-actions {
+  flex-shrink: 0; /* Prevent actions from shrinking */
+  margin-left: 16px;
+}
+
+.action-buttons {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+.action-btn {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 12px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.action-btn:hover {
+  background: rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .greeting-card {
+    min-height: 120px;
+  }
+  
   .greeting-card :deep(.q-card-section) {
     padding: 16px !important;
   }
@@ -588,11 +685,12 @@ onBeforeUnmount(() => {
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    gap: 8px;
   }
   
   .time-icon {
-    margin-bottom: 8px;
-    margin-right: 0;
+    margin-bottom: 0;
+    margin-right: 8px;
   }
   
   .weather-info {
@@ -602,8 +700,105 @@ onBeforeUnmount(() => {
   }
   
   .greeting-actions {
-    flex-direction: row;
+    margin-left: 0;
     margin-top: 16px;
+    width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .action-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  
+  /* Enhanced mobile text wrapping */
+  .greeting-message {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  
+  .current-time {
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+  
+  .weather-main {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  
+  .weather-secondary {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  
+  .loading-text,
+  .error-text {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .greeting-message {
+    font-size: 1.1rem;
+  }
+  
+  .current-time {
+    font-size: 0.8rem;
+  }
+  
+  .weather-main {
+    font-size: 0.85rem;
+  }
+  
+  .weather-secondary {
+    font-size: 0.75rem;
+  }
+  
+  .loading-text,
+  .error-text {
+    font-size: 0.75rem;
+  }
+  
+  .weather-secondary .q-ml-md {
+    margin-left: 8px !important;
+  }
+}
+
+/* Ensure consistent spacing on all screen sizes */
+.q-icon.q-mr-xs {
+  margin-right: 4px !important;
+}
+
+.q-icon.q-mr-sm {
+  margin-right: 8px !important;
+}
+
+.q-icon.q-mr-md {
+  margin-right: 12px !important;
+}
+
+/* Consistent button sizing across the app */
+.action-btn .q-btn__content {
+  min-width: 0;
+  padding: 0;
+}
+
+.action-btn .q-icon {
+  font-size: 1.25rem;
+}
+
+/* Ensure tooltips work properly on mobile */
+@media (hover: none) {
+  .action-btn .q-tooltip {
+    display: none;
   }
 }
 </style>
