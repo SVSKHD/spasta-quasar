@@ -246,19 +246,23 @@ const getCurrentLocation = async () => {
     await getWeatherByCoords(latitude, longitude)
     
   } catch (error: any) {
-    console.error('Location error:', error)
     weatherError.value = true
     
-    // Handle GeolocationPositionError codes
+    // Handle GeolocationPositionError codes with appropriate logging levels
     if (error.code === 1 || error.message?.includes('denied') || error.message?.includes('User denied')) {
+      console.warn('Location access denied by user')
       weatherErrorMessage.value = 'Location access denied. Please enable location services and refresh to get local weather.'
     } else if (error.code === 2) {
+      console.error('Location error:', error)
       weatherErrorMessage.value = 'Location unavailable. Please try again.'
     } else if (error.code === 3) {
+      console.error('Location error:', error)
       weatherErrorMessage.value = 'Location request timed out. Please try again.'
     } else if (error.message?.includes('not supported')) {
+      console.error('Location error:', error)
       weatherErrorMessage.value = 'Geolocation is not supported by this browser.'
     } else {
+      console.error('Location error:', error)
       weatherErrorMessage.value = 'Unable to get location. Showing default weather.'
     }
     
