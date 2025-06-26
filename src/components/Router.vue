@@ -170,7 +170,7 @@
         </div>
         
         <!-- Router View with Scrollable Content -->
-        <div v-if="!authStore.loading" class="page-content">
+        <div v-if="!authStore.loading" class="page-content q-pa-md">
           <router-view 
             @add-task="handleAddTask"
             @edit-task="handleEditTask"
