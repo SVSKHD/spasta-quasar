@@ -100,9 +100,9 @@
                 <div class="project-info">
                   <div class="row items-center q-mb-xs">
                     <q-icon :name="project.icon" :color="getStatusColor(project.status)" size="md" class="q-mr-sm" />
-                    <div class="text-h6 text-weight-medium spasta-text">{{ project.name }}</div>
+                    <div class="text-h6 text-weight-medium spasta-text project-name">{{ project.name }}</div>
                   </div>
-                  <div class="text-body2 spasta-text opacity-80">{{ project.description }}</div>
+                  <div class="text-body2 spasta-text opacity-80 project-description">{{ project.description }}</div>
                 </div>
                 <q-btn
                   flat
@@ -111,7 +111,7 @@
                   icon="more_vert"
                   size="sm"
                   @click="showProjectMenu(project)"
-                  class="spasta-text"
+                  class="spasta-text project-menu-btn"
                 />
               </div>
 
@@ -123,6 +123,7 @@
                   size="sm"
                   :icon="getStatusIcon(project.status)"
                   :label="project.status.toUpperCase()"
+                  class="status-chip"
                 />
                 <q-chip
                   outline
@@ -130,7 +131,7 @@
                   text-color="grey-8"
                   size="sm"
                   :label="project.environment"
-                  class="q-ml-sm"
+                  class="q-ml-sm environment-chip"
                 />
               </div>
 
@@ -140,8 +141,8 @@
                 <div v-for="endpoint in project.endpoints" :key="endpoint.id" class="endpoint-item q-mb-xs">
                   <div class="row items-center justify-between">
                     <div class="endpoint-info">
-                      <div class="text-caption spasta-text text-weight-medium">{{ endpoint.name }}</div>
-                      <div class="text-caption spasta-text opacity-70">{{ endpoint.method }} {{ endpoint.path }}</div>
+                      <div class="text-caption spasta-text text-weight-medium endpoint-name">{{ endpoint.name }}</div>
+                      <div class="text-caption spasta-text opacity-70 endpoint-path">{{ endpoint.method }} {{ endpoint.path }}</div>
                     </div>
                     <div class="endpoint-status">
                       <q-icon
@@ -149,7 +150,7 @@
                         :color="getStatusColor(endpoint.status)"
                         size="sm"
                       />
-                      <span class="text-caption spasta-text q-ml-xs">{{ endpoint.responseTime }}ms</span>
+                      <span class="text-caption spasta-text q-ml-xs response-time">{{ endpoint.responseTime }}ms</span>
                     </div>
                   </div>
                 </div>
@@ -160,20 +161,20 @@
                 <div class="row q-gutter-sm">
                   <div class="col">
                     <div class="metric-item text-center">
-                      <div class="text-h6 spasta-text">{{ project.metrics.uptime }}%</div>
-                      <div class="text-caption spasta-text opacity-70">Uptime</div>
+                      <div class="text-h6 spasta-text metric-value">{{ project.metrics.uptime }}%</div>
+                      <div class="text-caption spasta-text opacity-70 metric-label">Uptime</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="metric-item text-center">
-                      <div class="text-h6 spasta-text">{{ project.metrics.avgResponseTime }}ms</div>
-                      <div class="text-caption spasta-text opacity-70">Avg Response</div>
+                      <div class="text-h6 spasta-text metric-value">{{ project.metrics.avgResponseTime }}ms</div>
+                      <div class="text-caption spasta-text opacity-70 metric-label">Avg Response</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="metric-item text-center">
-                      <div class="text-h6 spasta-text">{{ project.metrics.errorRate }}%</div>
-                      <div class="text-caption spasta-text opacity-70">Error Rate</div>
+                      <div class="text-h6 spasta-text metric-value">{{ project.metrics.errorRate }}%</div>
+                      <div class="text-caption spasta-text opacity-70 metric-label">Error Rate</div>
                     </div>
                   </div>
                 </div>
@@ -181,7 +182,7 @@
 
               <!-- Last Updated -->
               <div class="project-footer">
-                <div class="text-caption spasta-text opacity-60">
+                <div class="text-caption spasta-text opacity-60 last-checked">
                   Last checked: {{ formatLastChecked(project.lastChecked) }}
                 </div>
               </div>
@@ -1083,6 +1084,7 @@ onBeforeUnmount(() => {
   transition: all 0.3s ease;
   min-height: 400px;
   border-left: 4px solid transparent;
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .project-card.project-healthy {
@@ -1117,6 +1119,40 @@ onBeforeUnmount(() => {
 
 .project-info {
   flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Text wrapping and overflow fixes */
+.project-name {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.project-description {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-menu-btn {
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.status-chip,
+.environment-chip {
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .api-endpoints {
@@ -1124,15 +1160,52 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   padding: 16px;
   border: 1px solid rgba(239, 228, 210, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .endpoint-item {
   padding: 8px 0;
   border-bottom: 1px solid rgba(239, 228, 210, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .endpoint-item:last-child {
   border-bottom: none;
+}
+
+.endpoint-info {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.endpoint-name {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.endpoint-path {
+  word-wrap: break-word;
+  word-break: break-all; /* Break long URLs */
+  hyphens: none; /* Don't hyphenate URLs */
+  overflow-wrap: break-word;
+  line-height: 1.3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+}
+
+.endpoint-status {
+  flex-shrink: 0; /* Prevent status from shrinking */
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.response-time {
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .project-metrics {
@@ -1144,6 +1217,36 @@ onBeforeUnmount(() => {
 
 .metric-item {
   padding: 8px;
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.metric-value {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.metric-label {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.project-footer {
+  overflow: hidden; /* Prevent content overflow */
+}
+
+.last-checked {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 
 .endpoints-section {
@@ -1174,6 +1277,54 @@ onBeforeUnmount(() => {
   
   .add-project-card {
     min-height: 200px;
+  }
+  
+  /* Enhanced mobile text wrapping */
+  .project-name {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+  
+  .project-description {
+    font-size: 0.875rem;
+    line-height: 1.3;
+    -webkit-line-clamp: 3; /* Show more lines on mobile */
+  }
+  
+  .endpoint-path {
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+  
+  .metric-value {
+    font-size: 1rem;
+  }
+  
+  .metric-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .project-name {
+    font-size: 0.9rem;
+  }
+  
+  .project-description {
+    font-size: 0.8rem;
+  }
+  
+  .endpoint-path {
+    font-size: 0.65rem;
+  }
+  
+  .metric-value {
+    font-size: 0.9rem;
+  }
+  
+  .metric-label {
+    font-size: 0.7rem;
   }
 }
 </style>
