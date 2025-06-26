@@ -16,6 +16,7 @@
               icon="add"
               @click="showCategoryDialog = true"
               class="spasta-text"
+              :loading="categoriesLoading"
             >
               <q-tooltip>Add category</q-tooltip>
             </q-btn>
@@ -39,124 +40,144 @@
 
         <q-scroll-area class="sidebar-content">
           <div class="q-pa-lg q-pt-none">
-            <!-- All Notes -->
-            <q-item
-              clickable
-              v-ripple
-              :active="selectedCategory === null"
-              @click="selectCategory(null)"
-              class="rounded-borders q-mb-xs category-item"
-            >
-              <q-item-section avatar>
-                <q-icon name="note" color="white" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="spasta-text">All Notes</q-item-label>
-                <q-item-label caption class="spasta-text opacity-70">{{ allNotes.length }} notes</q-item-label>
-              </q-item-section>
-            </q-item>
+            <!-- Loading Categories -->
+            <div v-if="categoriesLoading" class="text-center q-pa-lg">
+              <q-spinner-dots size="40px" color="white" />
+              <div class="text-body2 spasta-text q-mt-md">Loading categories...</div>
+            </div>
 
-            <q-separator class="q-my-md" />
-
-            <!-- Categories List -->
-            <div class="categories-section">
-              <div class="text-subtitle2 spasta-text q-mb-sm">Categories</div>
-              
+            <div v-else>
+              <!-- All Notes -->
               <q-item
-                v-for="category in categories"
-                :key="category.id"
                 clickable
                 v-ripple
-                :active="selectedCategory === category.id"
-                @click="selectCategory(category.id)"
+                :active="selectedCategory === null"
+                @click="selectCategory(null)"
                 class="rounded-borders q-mb-xs category-item"
               >
                 <q-item-section avatar>
-                  <q-icon :name="category.icon" :color="category.color" />
+                  <q-icon name="note" color="white" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="spasta-text">{{ category.name }}</q-item-label>
-                  <q-item-label caption class="spasta-text opacity-70">{{ getCategoryNoteCount(category.id) }} notes</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="more_vert"
-                    size="sm"
-                    @click.stop="showCategoryMenu(category)"
-                    class="spasta-text"
-                  />
+                  <q-item-label class="spasta-text">All Notes</q-item-label>
+                  <q-item-label caption class="spasta-text opacity-70">{{ allNotes.length }} notes</q-item-label>
                 </q-item-section>
               </q-item>
 
-              <!-- Add Category Button -->
-              <q-btn
-                flat
-                icon="add"
-                label="Add Category"
-                @click="showCategoryDialog = true"
-                class="full-width q-mt-sm spasta-text category-add-btn"
-                size="sm"
-              />
-            </div>
+              <q-separator class="q-my-md" />
 
-            <q-separator class="q-my-md" />
+              <!-- Categories List -->
+              <div class="categories-section">
+                <div class="text-subtitle2 spasta-text q-mb-sm">Categories</div>
+                
+                <q-item
+                  v-for="category in categories"
+                  :key="category.id"
+                  clickable
+                  v-ripple
+                  :active="selectedCategory === category.id"
+                  @click="selectCategory(category.id)"
+                  class="rounded-borders q-mb-xs category-item"
+                >
+                  <q-item-section avatar>
+                    <q-icon :name="category.icon" :color="category.color" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="spasta-text">{{ category.name }}</q-item-label>
+                    <q-item-label caption class="spasta-text opacity-70">{{ getCategoryNoteCount(category.id) }} notes</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="more_vert"
+                      size="sm"
+                      @click.stop="showCategoryMenu(category)"
+                      class="spasta-text"
+                      :loading="category.deleting"
+                    />
+                  </q-item-section>
+                </q-item>
 
-            <!-- Notes List -->
-            <div class="notes-list">
-              <div class="text-subtitle2 spasta-text q-mb-sm">
-                {{ selectedCategoryName }} Notes
+                <!-- Add Category Button -->
+                <q-btn
+                  flat
+                  icon="add"
+                  label="Add Category"
+                  @click="showCategoryDialog = true"
+                  class="full-width q-mt-sm spasta-text category-add-btn"
+                  size="sm"
+                  :loading="categoriesLoading"
+                />
               </div>
-              
-              <q-item
-                v-for="note in filteredNotes"
-                :key="note.id"
-                clickable
-                v-ripple
-                :active="selectedNote?.id === note.id"
-                @click="selectNote(note)"
-                class="rounded-borders q-mb-xs note-item"
-              >
-                <q-item-section>
-                  <q-item-label class="spasta-text text-weight-medium">
-                    {{ note.title || 'Untitled Note' }}
-                  </q-item-label>
-                  <q-item-label caption class="spasta-text opacity-70">
-                    {{ formatDate(note.updatedAt) }}
-                  </q-item-label>
-                  <q-item-label caption class="spasta-text opacity-60">
-                    {{ getPlainTextPreview(note.content) }}
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
+
+              <q-separator class="q-my-md" />
+
+              <!-- Notes List -->
+              <div class="notes-list">
+                <div class="text-subtitle2 spasta-text q-mb-sm">
+                  {{ selectedCategoryName }} Notes
+                </div>
+                
+                <!-- Loading Notes -->
+                <div v-if="notesLoading" class="text-center q-pa-lg">
+                  <q-spinner-dots size="30px" color="white" />
+                  <div class="text-body2 spasta-text q-mt-sm">Loading notes...</div>
+                </div>
+
+                <div v-else>
+                  <q-item
+                    v-for="note in filteredNotes"
+                    :key="note.id"
+                    clickable
+                    v-ripple
+                    :active="selectedNote?.id === note.id"
+                    @click="selectNote(note)"
+                    class="rounded-borders q-mb-xs note-item"
+                  >
+                    <q-item-section>
+                      <q-item-label class="spasta-text text-weight-medium">
+                        {{ note.title || 'Untitled Note' }}
+                      </q-item-label>
+                      <q-item-label caption class="spasta-text opacity-70">
+                        {{ formatDate(note.updatedAt) }}
+                      </q-item-label>
+                      <q-item-label caption class="spasta-text opacity-60">
+                        {{ getPlainTextPreview(note.content) }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="delete"
+                        size="sm"
+                        @click.stop="deleteNote(note.id)"
+                        class="spasta-text"
+                        :loading="note.deleting"
+                      />
+                    </q-item-section>
+                  </q-item>
+
+                  <div v-if="filteredNotes.length === 0 && !notesLoading" class="text-center q-pa-lg">
+                    <q-icon name="note_add" size="xl" class="spasta-text opacity-30 q-mb-md" />
+                    <div class="text-body2 spasta-text opacity-70">No notes found</div>
+                    <div class="text-caption spasta-text opacity-50">Create your first note</div>
+                  </div>
+
+                  <!-- Add Note Button -->
                   <q-btn
                     flat
-                    round
-                    dense
-                    icon="delete"
-                    size="sm"
-                    @click.stop="deleteNote(note.id)"
-                    class="spasta-text"
+                    icon="add"
+                    label="New Note"
+                    @click="createNewNote"
+                    class="full-width q-mt-md spasta-text"
+                    :loading="creatingNote"
                   />
-                </q-item-section>
-              </q-item>
-
-              <div v-if="filteredNotes.length === 0" class="text-center q-pa-lg">
-                <q-icon name="note_add" size="xl" class="spasta-text opacity-30 q-mb-md" />
-                <div class="text-body2 spasta-text opacity-70">No notes found</div>
-                <div class="text-caption spasta-text opacity-50">Create your first note</div>
+                </div>
               </div>
-
-              <!-- Add Note Button -->
-              <q-btn
-                flat
-                icon="add"
-                label="New Note"
-                @click="createNewNote"
-                class="full-width q-mt-md spasta-text"
-              />
             </div>
           </div>
         </q-scroll-area>
@@ -176,7 +197,8 @@
               color="white"
               label-color="white"
               dark
-              @update:model-value="saveNote"
+              @update:model-value="debouncedSaveNote"
+              :loading="savingNote"
             />
             
             <div class="row items-center justify-between">
@@ -195,7 +217,7 @@
                   color="white"
                   label-color="white"
                   dark
-                  @update:model-value="saveNote"
+                  @update:model-value="debouncedSaveNote"
                 />
                 
                 <q-btn
@@ -208,8 +230,11 @@
                 />
               </div>
               
-              <div class="text-caption spasta-text opacity-70">
-                Last saved: {{ formatDate(selectedNote.updatedAt) }}
+              <div class="row items-center spacing-sm">
+                <q-spinner-dots v-if="savingNote" size="20px" color="white" />
+                <div class="text-caption spasta-text opacity-70">
+                  {{ savingNote ? 'Saving...' : `Last saved: ${formatDate(selectedNote.updatedAt)}` }}
+                </div>
               </div>
             </div>
 
@@ -241,7 +266,7 @@
                 ['undo', 'redo'],
                 ['viewsource']
               ]"
-              @update:model-value="saveNote"
+              @update:model-value="debouncedSaveNote"
             />
           </div>
         </div>
@@ -260,6 +285,7 @@
                   label="Create New Note"
                   @click="createNewNote"
                   class="q-mt-md spasta-text"
+                  :loading="creatingNote"
                 />
               </div>
             </q-card-section>
@@ -272,12 +298,12 @@
     <q-dialog v-model="showCategoryDialog">
       <q-card class="spasta-card" style="min-width: 400px">
         <q-card-section>
-          <div class="text-h6 spasta-text">Add Category</div>
+          <div class="text-h6 spasta-text">{{ editingCategory ? 'Edit Category' : 'Add Category' }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <q-input
-            v-model="newCategory.name"
+            v-model="categoryForm.name"
             label="Category name"
             outlined
             dense
@@ -286,12 +312,13 @@
             color="white"
             label-color="white"
             dark
+            :rules="[val => !!val?.trim() || 'Category name is required']"
           />
           
           <div class="row q-gutter-md">
             <div class="col">
               <q-select
-                v-model="newCategory.icon"
+                v-model="categoryForm.icon"
                 label="Icon"
                 outlined
                 dense
@@ -304,11 +331,22 @@
                 color="white"
                 label-color="white"
                 dark
-              />
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps" class="spasta-card">
+                    <q-item-section avatar>
+                      <q-icon :name="scope.opt.value" color="white" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="spasta-text">{{ scope.opt.label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
             <div class="col">
               <q-select
-                v-model="newCategory.color"
+                v-model="categoryForm.color"
                 label="Color"
                 outlined
                 dense
@@ -321,8 +359,37 @@
                 color="white"
                 label-color="white"
                 dark
-              />
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps" class="spasta-card">
+                    <q-item-section avatar>
+                      <q-icon name="circle" :color="scope.opt.value" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="spasta-text">{{ scope.opt.label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
+          </div>
+
+          <!-- Category Preview -->
+          <div class="category-preview q-mt-md">
+            <div class="text-caption spasta-text q-mb-sm">Preview:</div>
+            <q-card flat class="spasta-card-light q-pa-md">
+              <div class="row items-center">
+                <q-icon :name="categoryForm.icon" :color="categoryForm.color" size="md" class="q-mr-sm" />
+                <div>
+                  <div class="text-body1 spasta-text text-weight-medium">
+                    {{ categoryForm.name || 'Category Name' }}
+                  </div>
+                  <div class="text-caption spasta-text opacity-70">
+                    0 notes
+                  </div>
+                </div>
+              </div>
+            </q-card>
           </div>
         </q-card-section>
 
@@ -330,11 +397,12 @@
           <q-btn flat label="Cancel" @click="closeCategoryDialog" class="spasta-text" />
           <q-btn 
             flat 
-            label="Add" 
+            :label="editingCategory ? 'Update' : 'Add'"
             color="white" 
             text-color="grey-8"
-            @click="addCategory"
-            :disable="!newCategory.name.trim()"
+            @click="saveCategory"
+            :disable="!categoryForm.name?.trim()"
+            :loading="savingCategory"
           />
         </q-card-actions>
       </q-card>
@@ -359,6 +427,7 @@
             label-color="white"
             dark
             @keyup.enter="addTag"
+            :rules="[val => !!val?.trim() || 'Tag name is required']"
           />
         </q-card-section>
 
@@ -370,7 +439,8 @@
             color="white" 
             text-color="grey-8"
             @click="addTag"
-            :disable="!newTag.trim()"
+            :disable="!newTag?.trim()"
+            :loading="addingTag"
           />
         </q-card-actions>
       </q-card>
@@ -407,7 +477,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useQuasar } from 'quasar'
 import { firestoreService } from '../services/firestoreService'
 import { useAuthStore } from '../stores/authStore'
@@ -420,6 +490,7 @@ interface Note {
   tags: string[]
   createdAt: string
   updatedAt: string
+  deleting?: boolean
 }
 
 interface Category {
@@ -428,26 +499,44 @@ interface Category {
   icon: string
   color: string
   createdAt: string
+  deleting?: boolean
 }
 
 const $q = useQuasar()
 const authStore = useAuthStore()
+
+// Data
 const notes = ref<Note[]>([])
 const categories = ref<Category[]>([])
 const selectedNote = ref<Note | null>(null)
 const selectedCategory = ref<string | null>(null)
 const searchQuery = ref('')
+
+// Loading states
+const categoriesLoading = ref(false)
+const notesLoading = ref(false)
+const savingNote = ref(false)
+const savingCategory = ref(false)
+const creatingNote = ref(false)
+const addingTag = ref(false)
+
+// Dialog states
 const showCategoryDialog = ref(false)
 const showTagDialog = ref(false)
 const categoryMenuVisible = ref(false)
+
+// Form data
+const editingCategory = ref<Category | null>(null)
 const selectedCategoryForMenu = ref<Category | null>(null)
 const newTag = ref('')
-
-const newCategory = ref({
+const categoryForm = ref({
   name: '',
   icon: 'folder',
   color: 'primary'
 })
+
+// Debounce timer
+let saveTimer: NodeJS.Timeout | null = null
 
 const iconOptions = [
   { label: 'Folder', value: 'folder' },
@@ -480,6 +569,7 @@ const colorOptions = [
   { label: 'Grey', value: 'grey' }
 ]
 
+// Computed properties
 const allNotes = computed(() => notes.value)
 
 const filteredNotes = computed(() => {
@@ -519,6 +609,7 @@ const categorySelectOptions = computed(() => {
   ]
 })
 
+// Helper functions
 const getCategoryNoteCount = (categoryId: string) => {
   return notes.value.filter(note => note.categoryId === categoryId).length
 }
@@ -530,15 +621,67 @@ const getPlainTextPreview = (htmlContent: string) => {
   return text.substring(0, 100) + (text.length > 100 ? '...' : '')
 }
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+  } else if (diffDays === 1) {
+    return 'Yesterday'
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`
+  } else {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+  }
+}
+
+// Data loading functions
 const loadData = async () => {
-  if (!authStore.user?.id) return
+  console.log('NotesView: Loading data...')
+  if (!authStore.user?.id) {
+    console.log('NotesView: No user authenticated')
+    return
+  }
 
   try {
+    await Promise.all([
+      loadCategories(),
+      loadNotes()
+    ])
+  } catch (error) {
+    console.error('NotesView: Error loading data:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error loading notes data',
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+}
+
+const loadCategories = async () => {
+  if (!authStore.user?.id) return
+
+  categoriesLoading.value = true
+  try {
+    console.log('NotesView: Loading categories for user:', authStore.user.id)
+    
     if (authStore.user.id === 'guest') {
       // Load from localStorage for guest users
       const storedCategories = localStorage.getItem('spasta_note_categories')
       if (storedCategories) {
         categories.value = JSON.parse(storedCategories)
+        console.log('NotesView: Loaded categories from localStorage:', categories.value.length)
       } else {
         // Add default categories
         categories.value = [
@@ -579,11 +722,33 @@ const loadData = async () => {
           }
         ]
         saveCategories()
+        console.log('NotesView: Created default categories')
       }
+    } else {
+      // Load from Firestore for authenticated users
+      categories.value = await firestoreService.getNoteCategories(authStore.user.id)
+      console.log('NotesView: Loaded categories from Firestore:', categories.value.length)
+    }
+  } catch (error) {
+    console.error('NotesView: Error loading categories:', error)
+    throw error
+  } finally {
+    categoriesLoading.value = false
+  }
+}
 
+const loadNotes = async () => {
+  if (!authStore.user?.id) return
+
+  notesLoading.value = true
+  try {
+    console.log('NotesView: Loading notes for user:', authStore.user.id)
+    
+    if (authStore.user.id === 'guest') {
       const storedNotes = localStorage.getItem('spasta_notes')
       if (storedNotes) {
         notes.value = JSON.parse(storedNotes)
+        console.log('NotesView: Loaded notes from localStorage:', notes.value.length)
       } else {
         // Add demo notes
         notes.value = [
@@ -616,43 +781,95 @@ const loadData = async () => {
           }
         ]
         saveNotes()
+        console.log('NotesView: Created demo notes')
       }
     } else {
       // Load from Firestore for authenticated users
-      categories.value = await firestoreService.getNoteCategories(authStore.user.id)
       notes.value = await firestoreService.getNotes(authStore.user.id)
+      console.log('NotesView: Loaded notes from Firestore:', notes.value.length)
     }
   } catch (error) {
-    console.error('Error loading data:', error)
+    console.error('NotesView: Error loading notes:', error)
+    throw error
+  } finally {
+    notesLoading.value = false
   }
 }
 
+// Save functions
 const saveNotes = () => {
   if (authStore.user?.id === 'guest') {
     localStorage.setItem('spasta_notes', JSON.stringify(notes.value))
+    console.log('NotesView: Saved notes to localStorage')
   }
 }
 
 const saveCategories = () => {
   if (authStore.user?.id === 'guest') {
     localStorage.setItem('spasta_note_categories', JSON.stringify(categories.value))
+    console.log('NotesView: Saved categories to localStorage')
   }
 }
 
+// Debounced save function
+const debouncedSaveNote = () => {
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+  }
+  
+  saveTimer = setTimeout(() => {
+    saveNote()
+  }, 1000) // Save after 1 second of inactivity
+}
+
+const saveNote = async () => {
+  if (!selectedNote.value || !authStore.user?.id) return
+
+  savingNote.value = true
+  selectedNote.value.updatedAt = new Date().toISOString()
+  
+  try {
+    console.log('NotesView: Saving note:', selectedNote.value.id)
+    
+    if (authStore.user.id === 'guest') {
+      saveNotes()
+    } else {
+      await firestoreService.updateNote(selectedNote.value.id, selectedNote.value)
+    }
+    
+    console.log('NotesView: Note saved successfully')
+  } catch (error) {
+    console.error('NotesView: Error saving note:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error saving note',
+      position: 'top-right',
+      timeout: 3000
+    })
+  } finally {
+    savingNote.value = false
+  }
+}
+
+// Note CRUD operations
 const createNewNote = async () => {
   if (!authStore.user?.id) return
 
-  const newNote: Note = {
-    id: Date.now().toString(),
-    title: '',
-    content: '<p>Start writing your note here...</p>',
-    categoryId: selectedCategory.value || undefined,
-    tags: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
+  creatingNote.value = true
   
   try {
+    console.log('NotesView: Creating new note')
+    
+    const newNote: Note = {
+      id: Date.now().toString(),
+      title: '',
+      content: '<p>Start writing your note here...</p>',
+      categoryId: selectedCategory.value || undefined,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    
     if (authStore.user.id === 'guest') {
       notes.value.unshift(newNote)
       saveNotes()
@@ -664,113 +881,184 @@ const createNewNote = async () => {
     }
     
     selectedNote.value = newNote
-  } catch (error) {
-    console.error('Error creating note:', error)
-  }
-}
-
-const selectNote = (note: Note) => {
-  selectedNote.value = note
-}
-
-const selectCategory = (categoryId: string | null) => {
-  selectedCategory.value = categoryId
-}
-
-const saveNote = async () => {
-  if (!selectedNote.value || !authStore.user?.id) return
-
-  selectedNote.value.updatedAt = new Date().toISOString()
-  
-  try {
-    if (authStore.user.id === 'guest') {
-      saveNotes()
-    } else {
-      await firestoreService.updateNote(selectedNote.value.id, selectedNote.value)
-    }
-  } catch (error) {
-    console.error('Error saving note:', error)
-  }
-}
-
-const deleteNote = async (noteId: string) => {
-  $q.dialog({
-    title: 'Delete Note',
-    message: 'Are you sure you want to delete this note?',
-    cancel: true,
-    persistent: true,
-    class: 'spasta-card'
-  }).onOk(async () => {
-    const index = notes.value.findIndex(note => note.id === noteId)
-    if (index !== -1) {
-      try {
-        if (authStore.user?.id === 'guest') {
-          if (selectedNote.value?.id === noteId) {
-            selectedNote.value = null
-          }
-          notes.value.splice(index, 1)
-          saveNotes()
-        } else {
-          const success = await firestoreService.deleteNote(noteId)
-          if (success) {
-            if (selectedNote.value?.id === noteId) {
-              selectedNote.value = null
-            }
-            notes.value.splice(index, 1)
-          }
-        }
-        
-        $q.notify({
-          type: 'positive',
-          message: 'Note deleted successfully',
-          position: 'top-right',
-          timeout: 2000
-        })
-      } catch (error) {
-        console.error('Error deleting note:', error)
-      }
-    }
-  })
-}
-
-const addCategory = async () => {
-  if (!newCategory.value.name.trim() || !authStore.user?.id) return
-
-  const category: Category = {
-    id: Date.now().toString(),
-    name: newCategory.value.name.trim(),
-    icon: newCategory.value.icon,
-    color: newCategory.value.color,
-    createdAt: new Date().toISOString()
-  }
-  
-  try {
-    if (authStore.user.id === 'guest') {
-      categories.value.push(category)
-      saveCategories()
-    } else {
-      const savedCategory = await firestoreService.addNoteCategory(authStore.user.id, category)
-      if (savedCategory) {
-        categories.value.push(savedCategory)
-      }
-    }
-    
-    closeCategoryDialog()
+    console.log('NotesView: New note created:', newNote.id)
     
     $q.notify({
       type: 'positive',
-      message: `Category "${category.name}" created successfully`,
+      message: 'New note created',
       position: 'top-right',
       timeout: 2000
     })
   } catch (error) {
-    console.error('Error adding category:', error)
+    console.error('NotesView: Error creating note:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error creating note',
+      position: 'top-right',
+      timeout: 3000
+    })
+  } finally {
+    creatingNote.value = false
+  }
+}
+
+const selectNote = (note: Note) => {
+  console.log('NotesView: Selecting note:', note.id)
+  selectedNote.value = note
+}
+
+const selectCategory = (categoryId: string | null) => {
+  console.log('NotesView: Selecting category:', categoryId)
+  selectedCategory.value = categoryId
+}
+
+const deleteNote = async (noteId: string) => {
+  const note = notes.value.find(n => n.id === noteId)
+  if (!note) return
+
+  $q.dialog({
+    title: 'Delete Note',
+    message: `Are you sure you want to delete "${note.title || 'Untitled Note'}"?`,
+    cancel: true,
+    persistent: true,
+    class: 'spasta-card'
+  }).onOk(async () => {
+    note.deleting = true
+    
+    try {
+      console.log('NotesView: Deleting note:', noteId)
+      
+      if (authStore.user?.id === 'guest') {
+        if (selectedNote.value?.id === noteId) {
+          selectedNote.value = null
+        }
+        const index = notes.value.findIndex(n => n.id === noteId)
+        if (index !== -1) {
+          notes.value.splice(index, 1)
+          saveNotes()
+        }
+      } else {
+        const success = await firestoreService.deleteNote(noteId)
+        if (success) {
+          if (selectedNote.value?.id === noteId) {
+            selectedNote.value = null
+          }
+          const index = notes.value.findIndex(n => n.id === noteId)
+          if (index !== -1) {
+            notes.value.splice(index, 1)
+          }
+        }
+      }
+      
+      console.log('NotesView: Note deleted successfully')
+      
+      $q.notify({
+        type: 'positive',
+        message: 'Note deleted successfully',
+        position: 'top-right',
+        timeout: 2000
+      })
+    } catch (error) {
+      console.error('NotesView: Error deleting note:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Error deleting note',
+        position: 'top-right',
+        timeout: 3000
+      })
+    } finally {
+      note.deleting = false
+    }
+  })
+}
+
+// Category CRUD operations
+const saveCategory = async () => {
+  if (!categoryForm.value.name?.trim() || !authStore.user?.id) return
+
+  savingCategory.value = true
+  
+  try {
+    console.log('NotesView: Saving category:', categoryForm.value.name)
+    
+    if (editingCategory.value) {
+      // Update existing category
+      const updatedCategory = {
+        ...editingCategory.value,
+        name: categoryForm.value.name.trim(),
+        icon: categoryForm.value.icon,
+        color: categoryForm.value.color
+      }
+      
+      if (authStore.user.id === 'guest') {
+        const index = categories.value.findIndex(c => c.id === editingCategory.value!.id)
+        if (index !== -1) {
+          categories.value[index] = updatedCategory
+          saveCategories()
+        }
+      } else {
+        const success = await firestoreService.updateNoteCategory(editingCategory.value.id, updatedCategory)
+        if (success) {
+          const index = categories.value.findIndex(c => c.id === editingCategory.value!.id)
+          if (index !== -1) {
+            categories.value[index] = updatedCategory
+          }
+        }
+      }
+      
+      $q.notify({
+        type: 'positive',
+        message: `Category "${updatedCategory.name}" updated successfully`,
+        position: 'top-right',
+        timeout: 2000
+      })
+    } else {
+      // Create new category
+      const category: Category = {
+        id: Date.now().toString(),
+        name: categoryForm.value.name.trim(),
+        icon: categoryForm.value.icon,
+        color: categoryForm.value.color,
+        createdAt: new Date().toISOString()
+      }
+      
+      if (authStore.user.id === 'guest') {
+        categories.value.push(category)
+        saveCategories()
+      } else {
+        const savedCategory = await firestoreService.addNoteCategory(authStore.user.id, category)
+        if (savedCategory) {
+          categories.value.push(savedCategory)
+        }
+      }
+      
+      $q.notify({
+        type: 'positive',
+        message: `Category "${category.name}" created successfully`,
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+    
+    closeCategoryDialog()
+    console.log('NotesView: Category saved successfully')
+  } catch (error) {
+    console.error('NotesView: Error saving category:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error saving category',
+      position: 'top-right',
+      timeout: 3000
+    })
+  } finally {
+    savingCategory.value = false
   }
 }
 
 const closeCategoryDialog = () => {
   showCategoryDialog.value = false
-  newCategory.value = {
+  editingCategory.value = null
+  categoryForm.value = {
     name: '',
     icon: 'folder',
     color: 'primary'
@@ -783,56 +1071,66 @@ const showCategoryMenu = (category: Category) => {
 }
 
 const editCategory = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Category editing coming soon',
-    position: 'top-right',
-    timeout: 2000
-  })
+  if (!selectedCategoryForMenu.value) return
+  
+  editingCategory.value = selectedCategoryForMenu.value
+  categoryForm.value = {
+    name: selectedCategoryForMenu.value.name,
+    icon: selectedCategoryForMenu.value.icon,
+    color: selectedCategoryForMenu.value.color
+  }
+  showCategoryDialog.value = true
 }
 
 const deleteCategory = async () => {
   if (!selectedCategoryForMenu.value || !authStore.user?.id) return
   
+  const category = selectedCategoryForMenu.value
+  const noteCount = getCategoryNoteCount(category.id)
+  
   $q.dialog({
     title: 'Delete Category',
-    message: 'Are you sure you want to delete this category? Notes in this category will become uncategorized.',
+    message: `Are you sure you want to delete "${category.name}"? ${noteCount > 0 ? `${noteCount} note${noteCount > 1 ? 's' : ''} will become uncategorized.` : ''}`,
     cancel: true,
     persistent: true,
     class: 'spasta-card'
   }).onOk(async () => {
-    const categoryId = selectedCategoryForMenu.value!.id
+    category.deleting = true
     
     try {
+      console.log('NotesView: Deleting category:', category.id)
+      
       // Remove category from notes
       notes.value.forEach(note => {
-        if (note.categoryId === categoryId) {
+        if (note.categoryId === category.id) {
           note.categoryId = undefined
         }
       })
       
       // Remove category
-      const index = categories.value.findIndex(c => c.id === categoryId)
+      const index = categories.value.findIndex(c => c.id === category.id)
       if (index !== -1) {
         if (authStore.user?.id === 'guest') {
           categories.value.splice(index, 1)
           saveCategories()
           saveNotes()
         } else {
-          const success = await firestoreService.deleteNoteCategory(categoryId)
+          const success = await firestoreService.deleteNoteCategory(category.id)
           if (success) {
             categories.value.splice(index, 1)
             // Update notes in Firestore
-            for (const note of notes.value.filter(n => n.categoryId === categoryId)) {
+            for (const note of notes.value.filter(n => n.categoryId === category.id)) {
               await firestoreService.updateNote(note.id, { categoryId: undefined })
             }
           }
         }
         
         // Clear selection if deleted category was selected
-        if (selectedCategory.value === categoryId) {
+        if (selectedCategory.value === category.id) {
           selectedCategory.value = null
         }
+        
+        console.log('NotesView: Category deleted successfully')
         
         $q.notify({
           type: 'positive',
@@ -842,59 +1140,91 @@ const deleteCategory = async () => {
         })
       }
     } catch (error) {
-      console.error('Error deleting category:', error)
+      console.error('NotesView: Error deleting category:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Error deleting category',
+        position: 'top-right',
+        timeout: 3000
+      })
+    } finally {
+      category.deleting = false
     }
   })
 }
 
-const addTag = () => {
-  if (newTag.value.trim() && selectedNote.value) {
+// Tag operations
+const addTag = async () => {
+  if (!newTag.value?.trim() || !selectedNote.value) return
+
+  addingTag.value = true
+  
+  try {
     const tag = newTag.value.trim().toLowerCase()
     if (!selectedNote.value.tags.includes(tag)) {
       selectedNote.value.tags.push(tag)
-      saveNote()
+      await saveNote()
+      
+      $q.notify({
+        type: 'positive',
+        message: `Tag "${tag}" added`,
+        position: 'top-right',
+        timeout: 2000
+      })
     }
+    
     newTag.value = ''
     showTagDialog.value = false
+  } catch (error) {
+    console.error('NotesView: Error adding tag:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error adding tag',
+      position: 'top-right',
+      timeout: 3000
+    })
+  } finally {
+    addingTag.value = false
   }
 }
 
-const removeTag = (tag: string) => {
-  if (selectedNote.value) {
+const removeTag = async (tag: string) => {
+  if (!selectedNote.value) return
+  
+  try {
     const index = selectedNote.value.tags.indexOf(tag)
     if (index !== -1) {
       selectedNote.value.tags.splice(index, 1)
-      saveNote()
+      await saveNote()
+      
+      $q.notify({
+        type: 'positive',
+        message: `Tag "${tag}" removed`,
+        position: 'top-right',
+        timeout: 2000
+      })
     }
-  }
-}
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  
-  if (diffDays === 0) {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    })
-  } else if (diffDays === 1) {
-    return 'Yesterday'
-  } else if (diffDays < 7) {
-    return `${diffDays} days ago`
-  } else {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+  } catch (error) {
+    console.error('NotesView: Error removing tag:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error removing tag',
+      position: 'top-right',
+      timeout: 3000
     })
   }
 }
 
+// Lifecycle
 onMounted(() => {
+  console.log('NotesView mounted')
   loadData()
+})
+
+onBeforeUnmount(() => {
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+  }
 })
 </script>
 
@@ -996,6 +1326,13 @@ onMounted(() => {
 .note-item.q-item--active {
   background: rgba(58, 107, 140, 0.25);
   border-left: 3px solid #EFE4D2;
+}
+
+.category-preview {
+  background: rgba(239, 228, 210, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.05);
 }
 
 /* Quasar Editor Styling */
