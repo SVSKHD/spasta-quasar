@@ -158,19 +158,19 @@
 
     <!-- Main Content -->
     <q-page-container>
-      <q-page class="spasta-bg main-content">
+      <q-page class="spasta-bg main-content q-pa-md">
         <!-- Loading State -->
         <div v-if="authStore.loading" class="flex flex-center" style="height: 100vh;">
           <q-spinner-dots size="50px" color="white" />
         </div>
         
         <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container">
+        <div v-else class="greeting-container q-pa-md">
           <SpastaGreetingCard />
         </div>
         
         <!-- Router View with Scrollable Content -->
-        <div v-if="!authStore.loading" class="page-content">
+        <div v-if="!authStore.loading" class="page-content q-pa-md">
           <router-view 
             @add-task="handleAddTask"
             @edit-task="handleEditTask"
