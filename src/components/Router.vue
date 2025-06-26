@@ -158,7 +158,7 @@
 
     <!-- Main Content -->
     <q-page-container>
-      <q-page class="spasta-bg main-content">
+      <q-page class="spasta-bg main-content q-pa-md">
         <!-- Loading State -->
         <div v-if="authStore.loading" class="flex flex-center" style="height: 100vh;">
           <q-spinner-dots size="50px" color="white" />
