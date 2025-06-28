@@ -3,15 +3,50 @@
     v-model="drawerVisible"
     side="right"
     overlay
-    :width="600"
+    :width="700"
     class="task-drawer spasta-card"
   >
     <q-scroll-area class="fit">
       <div class="q-pa-lg">
         <!-- Header -->
         <div class="row items-center justify-between q-mb-lg">
-          <div class="text-h6 spasta-text">{{ isEditing ? 'Edit Task' : 'Create New Task' }}</div>
+          <div class="text-h6 spasta-text">{{ isEditing ? 'Task Details' : 'Create New Task' }}</div>
           <q-btn flat round dense icon="close" @click="close" class="spasta-text" />
+        </div>
+
+        <!-- Task Preview (when editing) -->
+        <div v-if="isEditing && task" class="task-preview q-mb-lg">
+          <q-card flat class="spasta-card-light">
+            <q-card-section class="q-pa-lg">
+              <div class="text-h5 spasta-text q-mb-sm">{{ task.title }}</div>
+              <div class="text-body2 spasta-text opacity-80 q-mb-md">{{ task.description }}</div>
+              
+              <div class="row q-gutter-sm q-mb-md">
+                <q-chip :color="getPriorityColor(task.priority)" text-color="white" size="sm" :label="task.priority" class="text-capitalize" />
+                <q-chip outline :color="getStatusColor(task.status)" size="sm" :label="getStatusLabel(task.status)" class="text-capitalize" />
+                <q-chip outline color="white" text-color="grey-8" size="sm" :label="task.category" />
+              </div>
+              
+              <div v-if="task.dueDate" class="text-caption spasta-text opacity-70 q-mb-sm">
+                <q-icon name="schedule" size="xs" class="q-mr-xs" />
+                Due: {{ formatDate(task.dueDate) }}
+              </div>
+              
+              <div v-if="task.assignedTo" class="row items-center q-mb-sm">
+                <q-avatar size="24px" class="q-mr-sm">
+                  <img v-if="task.assignedTo.photoUrl" :src="task.assignedTo.photoUrl" :alt="task.assignedTo.name" />
+                  <div v-else class="bg-primary text-white text-weight-bold text-caption" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    {{ getInitials(task.assignedTo.name) }}
+                  </div>
+                </q-avatar>
+                <span class="text-caption spasta-text">Assigned to: {{ task.assignedTo.name }}</span>
+              </div>
+              
+              <div v-if="task.tags.length" class="row q-gutter-xs">
+                <q-chip v-for="tag in task.tags" :key="tag" size="xs" outline color="white" text-color="grey-8" :label="`#${tag}`" />
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
 
         <q-form @submit="submitForm" class="q-gutter-lg">
@@ -436,6 +471,48 @@ const tagOptions = computed(() => {
   return taskStore.allTags.filter(tag => !form.value.tags.includes(tag))
 })
 
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case 'high': return 'negative'
+    case 'medium': return 'warning'
+    case 'low': return 'positive'
+    default: return 'grey'
+  }
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'todo': return 'grey'
+    case 'in-progress': return 'primary'
+    case 'done': return 'positive'
+    default: return 'grey'
+  }
+}
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'in-progress': return 'In Progress'
+    default: return status
+  }
+}
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Tomorrow'
+  if (diffDays === -1) return 'Yesterday'
+  if (diffDays < 0) return `${Math.abs(diffDays)} days overdue`
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+  })
+}
+
 const getInitials = (name: string) => {
   return name
     .split(' ')
@@ -588,6 +665,12 @@ watch(() => props.task, () => {
 .task-drawer {
   background: linear-gradient(145deg, rgba(11, 29, 81, 0.95) 0%, rgba(11, 29, 81, 0.98) 100%);
   border-left: 2px solid rgba(255, 227, 169, 0.2);
+}
+
+.task-preview {
+  background: rgba(255, 227, 169, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 227, 169, 0.1);
 }
 
 .form-section {

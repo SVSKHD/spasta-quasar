@@ -28,6 +28,17 @@
                 class="spasta-text"
               >
                 <q-item-section avatar>
+                  <q-icon name="visibility" />
+                </q-item-section>
+                <q-item-section>View Details</q-item-section>
+              </q-item>
+              <q-item 
+                clickable 
+                v-close-popup
+                @click="$emit('edit', task)"
+                class="spasta-text"
+              >
+                <q-item-section avatar>
                   <q-icon name="edit" />
                 </q-item-section>
                 <q-item-section>Edit</q-item-section>

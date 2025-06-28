@@ -158,19 +158,19 @@
 
     <!-- Main Content -->
     <q-page-container>
-      <q-page class="spasta-bg main-content q-pa-md">
+      <q-page class="spasta-bg main-content">
         <!-- Loading State -->
         <div v-if="authStore.loading" class="flex flex-center" style="height: 100vh;">
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container q-pa-md">
+        <!-- Greeting Card - Show on all pages with proper scrolling -->
+        <div v-else class="greeting-container">
           <SpastaGreetingCard />
         </div>
         
         <!-- Router View with Scrollable Content -->
-        <div v-if="!authStore.loading" class="page-content q-pa-md">
+        <div v-if="!authStore.loading" class="page-content">
           <router-view 
             @add-task="handleAddTask"
             @edit-task="handleEditTask"
@@ -501,7 +501,12 @@ onMounted(async () => {
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0px 24px 0 24px; /* Further reduced top padding from 8px to 4px */
+  padding: 8px 24px 0 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .header-wrapper {
@@ -555,28 +560,36 @@ onMounted(async () => {
 
 /* Main Content Spacing */
 .main-content {
-  padding-top: 76px !important; /* Further reduced from 80px to 76px */
+  padding-top: 80px !important;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .greeting-container {
-  padding: 0 12px 4px 12px; /* Further reduced bottom padding from 8px to 4px */
+  padding: 12px 24px 8px 24px;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .page-content {
-  height: calc(100vh - 140px); /* Adjusted for further reduced header spacing */
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: 0 24px 24px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 76px; /* Further reduced from 80px to 76px */
+  margin-top: 80px;
 }
 
 .nav-item {
@@ -601,7 +614,7 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 2px 16px 0 16px; /* Further reduced top padding from 6px to 2px */
+    padding: 6px 16px 0 16px;
   }
   
   .spasta-header {
@@ -615,42 +628,42 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 60px !important; /* Further reduced from 64px to 60px */
+    padding-top: 64px !important;
   }
   
   .greeting-container {
-    padding: 0 16px 2px 16px; /* Further reduced bottom padding from 6px to 2px */
+    padding: 8px 16px 6px 16px;
   }
   
   .page-content {
-    height: calc(100vh - 110px); /* Adjusted for mobile */
+    padding: 0 16px 16px 16px;
   }
   
   .spasta-drawer {
-    margin-top: 60px; /* Further reduced from 64px to 60px */
+    margin-top: 64px;
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 3px 20px 0 20px; /* Further reduced top padding from 7px to 3px */
+    padding: 7px 20px 0 20px;
   }
   
   .greeting-container {
-    padding: 0 20px 3px 20px; /* Further reduced bottom padding from 7px to 3px */
+    padding: 10px 20px 7px 20px;
   }
   
   .main-content {
-    padding-top: 68px !important; /* Further reduced from 72px to 68px */
+    padding-top: 72px !important;
   }
   
   .page-content {
-    height: calc(100vh - 125px); /* Adjusted for tablet */
+    padding: 0 20px 20px 20px;
   }
   
   .spasta-drawer {
-    margin-top: 68px; /* Further reduced from 72px to 68px */
+    margin-top: 72px;
   }
 }
 
