@@ -169,21 +169,56 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Clean and Compact -->
-        <div v-else class="greeting-container">
-          <SpastaGreetingCard />
-        </div>
-        
-        <!-- Router View with Maximum Content Area -->
-        <div v-if="!authStore.loading" class="page-content">
-          <router-view 
-            @add-task="handleAddTask"
-            @edit-task="handleEditTask"
-            @delete-task="handleDeleteTask"
-            @move-task="handleMoveTask"
-            @toggle-subtask="handleToggleSubtask"
-            @edit-category="handleEditCategory"
-          />
+        <!-- Full Screen Layout -->
+        <div v-else class="full-screen-layout">
+          <!-- Top Bar with Greeting and Quick Actions -->
+          <div class="top-bar">
+            <div class="greeting-section">
+              <SpastaGreetingCard />
+            </div>
+            
+            <!-- Quick Stats/Overview for non-overview pages -->
+            <div v-if="$route.name !== 'Overview'" class="quick-overview">
+              <q-card class="spasta-card quick-stats-card">
+                <q-card-section class="q-pa-md">
+                  <div class="row items-center justify-between">
+                    <div class="quick-stats-content">
+                      <div class="text-body1 spasta-text text-weight-medium">
+                        Quick Stats
+                      </div>
+                      <div class="text-caption spasta-text opacity-70">
+                        {{ getQuickStatsText() }}
+                      </div>
+                    </div>
+                    <div class="quick-stats-actions">
+                      <q-btn
+                        flat
+                        round
+                        icon="widgets"
+                        @click="navigateTo('Overview')"
+                        class="spasta-text"
+                        size="sm"
+                      >
+                        <q-tooltip>Go to Overview</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+          
+          <!-- Main Content Area -->
+          <div class="content-area">
+            <router-view 
+              @add-task="handleAddTask"
+              @edit-task="handleEditTask"
+              @delete-task="handleDeleteTask"
+              @move-task="handleMoveTask"
+              @toggle-subtask="handleToggleSubtask"
+              @edit-category="handleEditCategory"
+            />
+          </div>
         </div>
       </q-page>
     </q-page-container>
@@ -308,6 +343,29 @@ const currentPageTitle = computed(() => {
 const isLoading = computed(() => {
   return taskStore.loading || categoryStore.loading || financeStore.loading
 })
+
+const getQuickStatsText = () => {
+  switch (route.name) {
+    case 'Dashboard':
+      return `${taskStore.taskStats.total} tasks • ${taskStore.taskStats.done} completed`
+    case 'Expenses':
+      return `$${financeStore.financeStats.monthlyExpenses.toLocaleString()} this month`
+    case 'Goals':
+      return `${financeStore.activeGoals.length} active goals`
+    case 'Notes':
+      return 'Quick notes & ideas'
+    case 'Calendar':
+      return 'Schedule & events'
+    case 'Trading':
+      return 'Market overview'
+    case 'Backup':
+      return 'Code repositories'
+    case 'Monitor':
+      return 'Project status'
+    default:
+      return 'Dashboard overview'
+  }
+}
 
 const getUserInitials = () => {
   if (!authStore.user?.name) return 'U'
@@ -502,11 +560,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Header Styling - Clean and Compact */
+/* Header Styling - Minimal and Clean */
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 8px 16px 4px 16px;
+  padding: 4px 8px 0 8px;
   position: fixed;
   top: 0;
   left: 0;
@@ -515,35 +573,35 @@ onMounted(async () => {
 }
 
 .header-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
 }
 
 .spasta-header {
   background: linear-gradient(135deg, rgba(58, 107, 140, 0.95) 0%, rgba(37, 77, 112, 0.95) 100%);
-  border-radius: 16px;
-  border: 2px solid rgba(239, 228, 210, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.2);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(58, 107, 140, 0.3);
+  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.3);
   transition: all 0.3s ease;
-  min-height: 48px;
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 12px;
 }
 
 .spasta-header:hover {
   border-color: rgba(239, 228, 210, 0.4);
-  box-shadow: 0 12px 40px rgba(58, 107, 140, 0.4);
+  box-shadow: 0 6px 20px rgba(58, 107, 140, 0.4);
 }
 
 /* Menu toggle button styling */
 .menu-toggle-btn {
   transition: all 0.3s ease;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   position: relative;
   overflow: hidden;
-  min-width: 36px !important;
-  min-height: 36px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .menu-toggle-btn:hover {
@@ -566,39 +624,70 @@ onMounted(async () => {
   font-size: 1rem;
 }
 
-/* Main Content Spacing - Clean Layout */
+/* Full Screen Layout */
 .main-content {
-  padding-top: 64px !important;
+  padding-top: 52px !important;
   height: 100vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.greeting-container {
-  padding: 8px 16px 8px 16px;
-  max-width: 1200px;
-  margin: 0 auto;
+.full-screen-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+  padding: 4px;
+  gap: 4px;
+}
+
+.top-bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  flex-shrink: 0;
+  height: auto;
+  min-height: 80px;
+}
+
+.greeting-section {
+  display: flex;
+  align-items: center;
+}
+
+.quick-overview {
+  display: flex;
+  align-items: center;
+}
+
+.quick-stats-card {
   width: 100%;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.quick-stats-content {
+  flex: 1;
+}
+
+.quick-stats-actions {
   flex-shrink: 0;
 }
 
-.page-content {
+.content-area {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 16px 16px 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
   min-height: 0;
+  padding: 0;
 }
 
 /* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 64px;
+  margin-top: 52px;
 }
 
 .nav-item {
@@ -623,13 +712,13 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 6px 12px 3px 12px;
+    padding: 3px 6px 0 6px;
   }
   
   .spasta-header {
-    border-radius: 12px;
-    padding: 0 12px;
-    min-height: 44px;
+    border-radius: 10px;
+    padding: 0 8px;
+    min-height: 40px;
   }
   
   .route-text {
@@ -637,50 +726,50 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 56px !important;
+    padding-top: 46px !important;
   }
   
-  .greeting-container {
-    padding: 6px 12px 6px 12px;
+  .full-screen-layout {
+    padding: 2px;
+    gap: 2px;
+    height: calc(100vh - 46px);
   }
   
-  .page-content {
-    padding: 0 12px 12px 12px;
+  .top-bar {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    min-height: 60px;
   }
   
   .spasta-drawer {
-    margin-top: 56px;
+    margin-top: 46px;
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 7px 14px 3px 14px;
-  }
-  
-  .greeting-container {
-    padding: 7px 14px 7px 14px;
+    padding: 3px 8px 0 8px;
   }
   
   .main-content {
-    padding-top: 60px !important;
+    padding-top: 50px !important;
   }
   
-  .page-content {
-    padding: 0 14px 14px 14px;
+  .full-screen-layout {
+    height: calc(100vh - 50px);
   }
   
   .spasta-drawer {
-    margin-top: 60px;
+    margin-top: 50px;
   }
 }
 
 /* Smooth transitions for all interactive elements */
 .spasta-header .q-btn {
   transition: all 0.2s ease;
-  min-width: 36px !important;
-  min-height: 36px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .spasta-header .q-btn:hover {
@@ -692,7 +781,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
@@ -705,24 +794,38 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(239, 228, 210, 0.3);
 }
 
-/* Scrollbar styling for page content */
-.page-content::-webkit-scrollbar {
-  width: 8px;
+/* Scrollbar styling for content area */
+.content-area::-webkit-scrollbar {
+  width: 6px;
 }
 
-.page-content::-webkit-scrollbar-track {
+.content-area::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
-.page-content::-webkit-scrollbar-thumb {
+.content-area::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
-  border-radius: 8px;
+  border-radius: 6px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
-.page-content::-webkit-scrollbar-thumb:hover {
+.content-area::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
+}
+
+/* Overview specific layout */
+.overview-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .overview-layout {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
