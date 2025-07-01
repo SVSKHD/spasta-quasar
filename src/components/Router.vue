@@ -171,46 +171,152 @@
         
         <!-- Full Screen Layout -->
         <div v-else class="full-screen-layout">
-          <!-- Top Bar with Greeting and Quick Actions -->
-          <div class="top-bar">
+          <!-- Accordion Section for Non-Overview Pages -->
+          <div v-if="$route.name !== 'Overview'" class="accordion-section">
+            <q-expansion-item
+              v-model="accordionExpanded"
+              :icon="accordionExpanded ? 'expand_less' : 'expand_more'"
+              :label="accordionExpanded ? 'Hide Info Panel' : 'Show Info Panel'"
+              header-class="accordion-header spasta-text"
+              class="accordion-container spasta-card"
+            >
+              <template v-slot:header>
+                <q-item-section avatar>
+                  <q-icon :name="accordionExpanded ? 'expand_less' : 'expand_more'" color="white" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="spasta-text text-weight-medium">
+                    {{ accordionExpanded ? 'Hide Info Panel' : 'Show Info Panel' }}
+                  </q-item-label>
+                  <q-item-label caption class="spasta-text opacity-70">
+                    {{ getAccordionSubtitle() }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-chip 
+                    size="sm" 
+                    color="white" 
+                    text-color="grey-8" 
+                    :label="getQuickStatsChip()" 
+                  />
+                </q-item-section>
+              </template>
+
+              <div class="accordion-content">
+                <div class="accordion-grid">
+                  <!-- Greeting Section -->
+                  <div class="greeting-section">
+                    <SpastaGreetingCard />
+                  </div>
+                  
+                  <!-- Quick Stats Section -->
+                  <div class="quick-stats-section">
+                    <q-card class="spasta-card quick-stats-card">
+                      <q-card-section class="q-pa-lg">
+                        <div class="text-h6 spasta-text q-mb-md">
+                          <q-icon :name="getStatsIcon()" class="q-mr-sm icon-lg" />
+                          {{ getStatsTitle() }}
+                        </div>
+                        
+                        <div class="stats-content">
+                          <!-- Dashboard Stats -->
+                          <div v-if="$route.name === 'Dashboard'" class="stats-grid">
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-positive">{{ taskStore.taskStats.total }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Total Tasks</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-warning">{{ taskStore.taskStats.inProgress }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">In Progress</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-info">{{ taskStore.taskStats.done }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Completed</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-negative">{{ taskStore.taskStats.overdue }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Overdue</div>
+                            </div>
+                          </div>
+
+                          <!-- Expenses Stats -->
+                          <div v-else-if="$route.name === 'Expenses'" class="stats-grid">
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-positive">${{ financeStore.financeStats.totalIncome.toLocaleString() }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Total Income</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-negative">${{ financeStore.financeStats.totalExpenses.toLocaleString() }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Total Expenses</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-info">${{ financeStore.financeStats.monthlyExpenses.toLocaleString() }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">This Month</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-purple">{{ financeStore.financeStats.savingsRate.toFixed(1) }}%</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Savings Rate</div>
+                            </div>
+                          </div>
+
+                          <!-- Goals Stats -->
+                          <div v-else-if="$route.name === 'Goals'" class="stats-grid">
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-primary">{{ financeStore.activeGoals.length }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Active Goals</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-positive">{{ financeStore.financeStats.goalsProgress.toFixed(1) }}%</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Avg Progress</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-info">${{ getTotalGoalAmount().toLocaleString() }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Total Target</div>
+                            </div>
+                            <div class="stat-item">
+                              <div class="stat-value text-h5 text-warning">${{ getTotalSavedAmount().toLocaleString() }}</div>
+                              <div class="stat-label text-caption spasta-text opacity-70">Total Saved</div>
+                            </div>
+                          </div>
+
+                          <!-- Other Pages Stats -->
+                          <div v-else class="stats-simple">
+                            <div class="simple-stat">
+                              <q-icon :name="getPageIcon()" size="xl" color="primary" class="q-mb-sm" />
+                              <div class="text-h6 spasta-text">{{ getPageDescription() }}</div>
+                              <div class="text-body2 spasta-text opacity-70">{{ getPageSubtitle() }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+              </div>
+            </q-expansion-item>
+          </div>
+          
+          <!-- Overview Layout (Side by Side) -->
+          <div v-else class="overview-layout">
             <div class="greeting-section">
               <SpastaGreetingCard />
             </div>
-            
-            <!-- Quick Stats/Overview for non-overview pages -->
-            <div v-if="$route.name !== 'Overview'" class="quick-overview">
-              <q-card class="spasta-card quick-stats-card">
-                <q-card-section class="q-pa-md">
-                  <div class="row items-center justify-between">
-                    <div class="quick-stats-content">
-                      <div class="text-body1 spasta-text text-weight-medium">
-                        Quick Stats
-                      </div>
-                      <div class="text-caption spasta-text opacity-70">
-                        {{ getQuickStatsText() }}
-                      </div>
-                    </div>
-                    <div class="quick-stats-actions">
-                      <q-btn
-                        flat
-                        round
-                        icon="widgets"
-                        @click="navigateTo('Overview')"
-                        class="spasta-text"
-                        size="sm"
-                      >
-                        <q-tooltip>Go to Overview</q-tooltip>
-                      </q-btn>
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-card>
+            <div class="overview-content">
+              <router-view 
+                @add-task="handleAddTask"
+                @edit-task="handleEditTask"
+                @delete-task="handleDeleteTask"
+                @move-task="handleMoveTask"
+                @toggle-subtask="handleToggleSubtask"
+                @edit-category="handleEditCategory"
+              />
             </div>
           </div>
           
           <!-- Main Content Area -->
           <div class="content-area">
             <router-view 
+              v-if="$route.name !== 'Overview'"
               @add-task="handleAddTask"
               @edit-task="handleEditTask"
               @delete-task="handleDeleteTask"
@@ -277,6 +383,7 @@ const editingTask = ref<Task | undefined>()
 const editingCategory = ref<Category | undefined>()
 const selectedCategory = ref<string | null>(null)
 const initialTaskStatus = ref<string>('')
+const accordionExpanded = ref(false)
 
 const navigationRoutes = [
   {
@@ -344,27 +451,72 @@ const isLoading = computed(() => {
   return taskStore.loading || categoryStore.loading || financeStore.loading
 })
 
-const getQuickStatsText = () => {
+const getAccordionSubtitle = () => {
+  return accordionExpanded.value ? 'Greeting & stats visible' : 'Greeting & stats hidden'
+}
+
+const getQuickStatsChip = () => {
   switch (route.name) {
     case 'Dashboard':
-      return `${taskStore.taskStats.total} tasks • ${taskStore.taskStats.done} completed`
+      return `${taskStore.taskStats.total} tasks`
     case 'Expenses':
-      return `$${financeStore.financeStats.monthlyExpenses.toLocaleString()} this month`
+      return `$${financeStore.financeStats.monthlyExpenses.toLocaleString()}`
     case 'Goals':
-      return `${financeStore.activeGoals.length} active goals`
-    case 'Notes':
-      return 'Quick notes & ideas'
-    case 'Calendar':
-      return 'Schedule & events'
-    case 'Trading':
-      return 'Market overview'
-    case 'Backup':
-      return 'Code repositories'
-    case 'Monitor':
-      return 'Project status'
+      return `${financeStore.activeGoals.length} goals`
     default:
-      return 'Dashboard overview'
+      return 'Quick info'
   }
+}
+
+const getStatsIcon = () => {
+  switch (route.name) {
+    case 'Dashboard': return 'analytics'
+    case 'Expenses': return 'account_balance_wallet'
+    case 'Goals': return 'flag'
+    case 'Notes': return 'note'
+    case 'Calendar': return 'event'
+    case 'Trading': return 'trending_up'
+    case 'Backup': return 'backup'
+    case 'Monitor': return 'monitor'
+    default: return 'info'
+  }
+}
+
+const getStatsTitle = () => {
+  switch (route.name) {
+    case 'Dashboard': return 'Task Statistics'
+    case 'Expenses': return 'Financial Overview'
+    case 'Goals': return 'Goals Progress'
+    case 'Notes': return 'Notes Overview'
+    case 'Calendar': return 'Calendar Overview'
+    case 'Trading': return 'Trading Overview'
+    case 'Backup': return 'Backup Overview'
+    case 'Monitor': return 'Monitor Overview'
+    default: return 'Quick Stats'
+  }
+}
+
+const getPageIcon = () => {
+  const currentRoute = navigationRoutes.find(r => r.name === route.name)
+  return currentRoute?.icon || 'info'
+}
+
+const getPageDescription = () => {
+  const currentRoute = navigationRoutes.find(r => r.name === route.name)
+  return currentRoute?.title || 'Page'
+}
+
+const getPageSubtitle = () => {
+  const currentRoute = navigationRoutes.find(r => r.name === route.name)
+  return currentRoute?.description || 'Page description'
+}
+
+const getTotalGoalAmount = () => {
+  return financeStore.goals.reduce((sum, goal) => sum + goal.targetAmount, 0)
+}
+
+const getTotalSavedAmount = () => {
+  return financeStore.goals.reduce((sum, goal) => sum + goal.currentAmount, 0)
 }
 
 const getUserInitials = () => {
@@ -544,6 +696,11 @@ watch(() => authStore.isAuthenticated, async (isAuth) => {
   }
 })
 
+// Reset accordion state when route changes
+watch(() => route.name, () => {
+  accordionExpanded.value = false
+})
+
 onMounted(async () => {
   console.log('Router component mounted')
   // Initialize Firebase auth listener
@@ -641,46 +798,117 @@ onMounted(async () => {
   gap: 4px;
 }
 
-.top-bar {
+/* Accordion Section */
+.accordion-section {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.accordion-container {
+  border-radius: 16px;
+  border: 2px solid rgba(239, 228, 210, 0.2);
+  overflow: hidden;
+}
+
+.accordion-header {
+  background: rgba(58, 107, 140, 0.2) !important;
+  backdrop-filter: blur(15px) !important;
+  border-bottom: 1px solid rgba(239, 228, 210, 0.1) !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease !important;
+}
+
+.accordion-header:hover {
+  background: rgba(58, 107, 140, 0.3) !important;
+}
+
+.accordion-content {
+  background: rgba(58, 107, 140, 0.05);
+  padding: 16px;
+}
+
+.accordion-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Overview Layout (Side by Side) */
+.overview-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
   gap: 8px;
-  flex-shrink: 0;
-  height: auto;
-  min-height: 80px;
+  height: 100%;
+  align-items: start;
 }
 
-.greeting-section {
-  display: flex;
-  align-items: center;
+.overview-content {
+  height: 100%;
+  overflow-y: auto;
 }
 
-.quick-overview {
-  display: flex;
-  align-items: center;
-}
-
-.quick-stats-card {
-  width: 100%;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-}
-
-.quick-stats-content {
-  flex: 1;
-}
-
-.quick-stats-actions {
-  flex-shrink: 0;
-}
-
+/* Content Area */
 .content-area {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
   padding: 0;
+}
+
+/* Quick Stats Card */
+.quick-stats-card {
+  height: 100%;
+  min-height: 200px;
+}
+
+.stats-content {
+  width: 100%;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 16px;
+  background: rgba(239, 228, 210, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.15);
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  background: rgba(239, 228, 210, 0.12);
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.stats-simple {
+  text-align: center;
+  padding: 32px;
+}
+
+.simple-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Drawer Styling */
@@ -735,10 +963,27 @@ onMounted(async () => {
     height: calc(100vh - 46px);
   }
   
-  .top-bar {
+  .accordion-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .overview-layout {
     grid-template-columns: 1fr;
     gap: 4px;
-    min-height: 60px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .stat-item {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
   }
   
   .spasta-drawer {
@@ -762,6 +1007,11 @@ onMounted(async () => {
   
   .spasta-drawer {
     margin-top: 50px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 }
 
@@ -795,37 +1045,47 @@ onMounted(async () => {
 }
 
 /* Scrollbar styling for content area */
-.content-area::-webkit-scrollbar {
+.content-area::-webkit-scrollbar,
+.overview-content::-webkit-scrollbar {
   width: 6px;
 }
 
-.content-area::-webkit-scrollbar-track {
+.content-area::-webkit-scrollbar-track,
+.overview-content::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
   border-radius: 6px;
 }
 
-.content-area::-webkit-scrollbar-thumb {
+.content-area::-webkit-scrollbar-thumb,
+.overview-content::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
   border-radius: 6px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
-.content-area::-webkit-scrollbar-thumb:hover {
+.content-area::-webkit-scrollbar-thumb:hover,
+.overview-content::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
 }
 
-/* Overview specific layout */
-.overview-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  height: 100%;
+/* Accordion expansion animation */
+.q-expansion-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 768px) {
-  .overview-layout {
-    grid-template-columns: 1fr;
+.q-expansion-item__content {
+  animation: expandContent 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes expandContent {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
