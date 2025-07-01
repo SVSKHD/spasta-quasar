@@ -169,7 +169,7 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Compact with all details -->
+        <!-- Greeting Card - Clean and Compact -->
         <div v-else class="greeting-container">
           <SpastaGreetingCard />
         </div>
@@ -288,7 +288,7 @@ const navigationRoutes = [
   },
   {
     name: 'Backup',
-    title: 'Code Backup',
+    title: 'Backup',
     description: 'GitHub repository backups',
     icon: 'backup'
   },
@@ -502,11 +502,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Header Styling - Ultra Compact */
+/* Header Styling - Clean and Compact */
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 2px 16px 0 16px;
+  padding: 8px 16px 4px 16px;
   position: fixed;
   top: 0;
   left: 0;
@@ -527,7 +527,7 @@ onMounted(async () => {
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(58, 107, 140, 0.3);
   transition: all 0.3s ease;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 16px;
 }
 
@@ -542,8 +542,8 @@ onMounted(async () => {
   border-radius: 12px !important;
   position: relative;
   overflow: hidden;
-  min-width: 32px !important;
-  min-height: 32px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
 }
 
 .menu-toggle-btn:hover {
@@ -563,11 +563,12 @@ onMounted(async () => {
   font-weight: 400;
   opacity: 0.9;
   color: #EFE4D2;
+  font-size: 1rem;
 }
 
-/* Main Content Spacing - Maximized */
+/* Main Content Spacing - Clean Layout */
 .main-content {
-  padding-top: 50px !important;
+  padding-top: 64px !important;
   height: 100vh;
   overflow: hidden;
   display: flex;
@@ -575,7 +576,7 @@ onMounted(async () => {
 }
 
 .greeting-container {
-  padding: 2px 16px 2px 16px;
+  padding: 8px 16px 8px 16px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -597,7 +598,7 @@ onMounted(async () => {
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 50px;
+  margin-top: 64px;
 }
 
 .nav-item {
@@ -622,13 +623,13 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 2px 12px 0 12px;
+    padding: 6px 12px 3px 12px;
   }
   
   .spasta-header {
     border-radius: 12px;
     padding: 0 12px;
-    min-height: 40px;
+    min-height: 44px;
   }
   
   .route-text {
@@ -636,11 +637,11 @@ onMounted(async () => {
   }
   
   .main-content {
-    padding-top: 46px !important;
+    padding-top: 56px !important;
   }
   
   .greeting-container {
-    padding: 2px 12px 2px 12px;
+    padding: 6px 12px 6px 12px;
   }
   
   .page-content {
@@ -648,22 +649,22 @@ onMounted(async () => {
   }
   
   .spasta-drawer {
-    margin-top: 46px;
+    margin-top: 56px;
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 2px 14px 0 14px;
+    padding: 7px 14px 3px 14px;
   }
   
   .greeting-container {
-    padding: 2px 14px 2px 14px;
+    padding: 7px 14px 7px 14px;
   }
   
   .main-content {
-    padding-top: 48px !important;
+    padding-top: 60px !important;
   }
   
   .page-content {
@@ -671,15 +672,15 @@ onMounted(async () => {
   }
   
   .spasta-drawer {
-    margin-top: 48px;
+    margin-top: 60px;
   }
 }
 
 /* Smooth transitions for all interactive elements */
 .spasta-header .q-btn {
   transition: all 0.2s ease;
-  min-width: 32px !important;
-  min-height: 32px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
 }
 
 .spasta-header .q-btn:hover {
@@ -691,6 +692,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  font-size: 1.25rem;
+  font-weight: 500;
 }
 
 /* User avatar hover effect */
@@ -704,17 +707,17 @@ onMounted(async () => {
 
 /* Scrollbar styling for page content */
 .page-content::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .page-content::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .page-content::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
-  border-radius: 6px;
+  border-radius: 8px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }

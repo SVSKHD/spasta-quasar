@@ -1,45 +1,58 @@
 <template>
   <q-card class="greeting-card spasta-card">
-    <q-card-section class="q-pa-sm">
-      <div class="row items-center justify-between">
-        <div class="greeting-content">
-          <div class="greeting-header row items-center q-mb-xs">
+    <q-card-section class="q-pa-md">
+      <div class="greeting-layout">
+        <!-- Main Greeting Section -->
+        <div class="greeting-main">
+          <div class="greeting-header">
             <q-icon 
               :name="timeIcon" 
               :color="timeIconColor" 
-              size="md" 
+              size="lg" 
               class="q-mr-sm time-icon"
             />
             <div class="greeting-text">
-              <div class="text-body1 text-weight-medium spasta-text greeting-message">
+              <div class="text-h6 text-weight-medium spasta-text greeting-message">
                 {{ greetingMessage }}
               </div>
-              <div class="text-caption spasta-text opacity-80 current-time">
+              <div class="text-body2 spasta-text opacity-80 current-time">
                 {{ currentDateTime }}
               </div>
             </div>
           </div>
-          
-          <!-- Weather Info with Location - Compact -->
-          <div v-if="weather" class="weather-info row items-center q-mt-xs">
-            <q-icon 
-              :name="weather.icon" 
-              :color="weather.color" 
-              size="sm" 
-              class="q-mr-xs weather-icon"
-            />
-            <div class="weather-details">
-              <div class="text-caption spasta-text weather-main">
-                {{ weather.temperature }}°{{ temperatureUnit }} • {{ weather.description }}
+        </div>
+
+        <!-- Weather Section -->
+        <div class="weather-section">
+          <div v-if="weather" class="weather-info">
+            <div class="weather-main-info">
+              <q-icon 
+                :name="weather.icon" 
+                :color="weather.color" 
+                size="md" 
+                class="q-mr-sm weather-icon"
+              />
+              <div class="weather-details">
+                <div class="text-body1 spasta-text weather-temp">
+                  {{ weather.temperature }}°{{ temperatureUnit }}
+                </div>
+                <div class="text-caption spasta-text opacity-80 weather-desc">
+                  {{ weather.description }}
+                </div>
               </div>
-              <div class="text-caption spasta-text opacity-70 weather-secondary">
+            </div>
+            
+            <div class="weather-secondary-info">
+              <div class="text-caption spasta-text opacity-70 location-info">
                 <q-icon name="location_on" size="xs" class="q-mr-xs" />
-                <span class="location-text">{{ weather.location }}</span>
-                <span v-if="weather.humidity" class="q-ml-sm humidity-text">
+                {{ weather.location }}
+              </div>
+              <div class="text-caption spasta-text opacity-70 weather-stats">
+                <span v-if="weather.humidity" class="humidity-stat">
                   <q-icon name="water_drop" size="xs" class="q-mr-xs" />
                   {{ weather.humidity }}%
                 </span>
-                <span v-if="weather.windSpeed" class="q-ml-sm wind-text">
+                <span v-if="weather.windSpeed" class="wind-stat q-ml-sm">
                   <q-icon name="air" size="xs" class="q-mr-xs" />
                   {{ weather.windSpeed }} km/h
                 </span>
@@ -47,23 +60,20 @@
             </div>
           </div>
 
-          <div v-if="!weather && weatherLoading" class="weather-loading q-mt-xs">
-            <div class="row items-center">
-              <q-spinner-dots size="xs" color="white" class="q-mr-xs" />
-              <span class="text-caption spasta-text opacity-70 loading-text">Getting weather...</span>
-            </div>
+          <div v-if="!weather && weatherLoading" class="weather-loading">
+            <q-spinner-dots size="sm" color="white" class="q-mr-sm" />
+            <span class="text-caption spasta-text opacity-70">Getting weather...</span>
           </div>
 
-          <div v-if="weatherError" class="weather-error q-mt-xs">
-            <div class="text-caption text-warning error-message">
-              <q-icon name="warning" size="xs" class="q-mr-xs" />
-              <span class="error-text">{{ weatherErrorMessage }}</span>
-            </div>
+          <div v-if="weatherError" class="weather-error">
+            <q-icon name="warning" size="sm" color="warning" class="q-mr-xs" />
+            <span class="text-caption text-warning">{{ weatherErrorMessage }}</span>
           </div>
         </div>
 
+        <!-- Action Buttons -->
         <div class="greeting-actions">
-          <div class="action-buttons row q-gutter-xs">
+          <div class="action-buttons">
             <q-btn
               flat
               round
@@ -71,7 +81,7 @@
               @click="getCurrentLocation"
               :loading="locationLoading"
               class="spasta-text action-btn"
-              size="xs"
+              size="sm"
               dense
             >
               <q-tooltip>Get location</q-tooltip>
@@ -83,7 +93,7 @@
               @click="refreshWeather"
               :loading="weatherLoading"
               class="spasta-text action-btn"
-              size="xs"
+              size="sm"
               dense
             >
               <q-tooltip>Refresh</q-tooltip>
@@ -94,7 +104,7 @@
               :icon="temperatureUnit === 'C' ? 'thermostat' : 'ac_unit'"
               @click="toggleTemperatureUnit"
               class="spasta-text action-btn"
-              size="xs"
+              size="sm"
               dense
             >
               <q-tooltip>{{ temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius' }}</q-tooltip>
@@ -514,52 +524,54 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .greeting-card {
-  border-radius: 12px;
-  border: 1px solid rgba(239, 228, 210, 0.2);
-  background: linear-gradient(135deg, rgba(58, 107, 140, 0.1) 0%, rgba(37, 77, 112, 0.1) 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(239, 228, 210, 0.2);
+  background: linear-gradient(135deg, rgba(58, 107, 140, 0.15) 0%, rgba(37, 77, 112, 0.15) 100%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 60px;
+  min-height: 80px;
   overflow: hidden;
 }
 
 .greeting-card:hover {
   border-color: rgba(239, 228, 210, 0.4);
-  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.2);
+  box-shadow: 0 6px 20px rgba(58, 107, 140, 0.3);
 }
 
-.greeting-content {
+.greeting-layout {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 20px;
+  align-items: center;
+  min-height: 48px;
+}
+
+.greeting-main {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
 .greeting-header {
-  align-items: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .greeting-text {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
-/* Text wrapping and overflow fixes */
 .greeting-message {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin-bottom: 4px;
   word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
-  line-height: 1.2;
-  font-size: 0.875rem;
 }
 
 .current-time {
+  font-size: 0.9rem;
+  line-height: 1.2;
   word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
-  line-height: 1.3;
-  font-size: 0.75rem;
 }
 
 .time-icon {
@@ -576,45 +588,59 @@ onBeforeUnmount(() => {
   }
 }
 
+.weather-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
 .weather-info {
-  background: rgba(239, 228, 210, 0.05);
-  border-radius: 8px;
-  padding: 6px 8px;
-  border: 1px solid rgba(239, 228, 210, 0.1);
-  overflow: hidden;
+  background: rgba(239, 228, 210, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.15);
+}
+
+.weather-main-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .weather-details {
   flex: 1;
-  min-width: 0;
-  overflow: hidden;
 }
 
-.weather-main {
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
+.weather-temp {
+  font-size: 1.1rem;
+  font-weight: 600;
   line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.weather-desc {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.weather-secondary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.location-info {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.weather-stats {
   font-size: 0.75rem;
-}
-
-.weather-secondary {
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
-  line-height: 1.3;
-  font-size: 0.7rem;
-}
-
-.location-text,
-.humidity-text,
-.wind-text {
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
+  line-height: 1.2;
+  display: flex;
+  gap: 8px;
 }
 
 .weather-icon {
@@ -627,164 +653,128 @@ onBeforeUnmount(() => {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 }
 
 .weather-loading,
 .weather-error {
-  background: rgba(239, 228, 210, 0.05);
-  border-radius: 8px;
-  padding: 4px 6px;
-  overflow: hidden;
-}
-
-.loading-text,
-.error-text {
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: break-word;
-  line-height: 1.3;
-  font-size: 0.7rem;
-}
-
-.error-message {
+  background: rgba(239, 228, 210, 0.08);
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
 }
 
 .greeting-actions {
-  flex-shrink: 0;
-  margin-left: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .action-buttons {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
 .action-btn {
-  min-width: 20px !important;
-  min-height: 20px !important;
-  border-radius: 8px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  border-radius: 10px !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  padding: 2px !important;
+  padding: 6px !important;
 }
 
 .action-btn:hover {
   background: rgba(239, 228, 210, 0.2) !important;
-  box-shadow: 0 2px 8px rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 3px 10px rgba(239, 228, 210, 0.2) !important;
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
   .greeting-card {
-    min-height: 50px;
-    border-radius: 10px;
+    min-height: 70px;
+    border-radius: 12px;
   }
   
-  .greeting-card :deep(.q-card-section) {
-    padding: 6px !important;
+  .greeting-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
   
-  .greeting-header {
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
+  .weather-section {
+    min-width: auto;
   }
   
-  .time-icon {
-    margin-bottom: 0;
-    margin-right: 4px;
-  }
-  
-  .weather-info {
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 6px;
-  }
-  
-  .greeting-actions {
-    margin-left: 4px;
-    margin-top: 0;
-  }
-  
-  .action-buttons {
-    gap: 2px;
-  }
-  
-  .action-btn {
-    min-width: 18px !important;
-    min-height: 18px !important;
-    padding: 1px !important;
-  }
-  
-  /* Enhanced mobile text wrapping */
   .greeting-message {
-    font-size: 0.8rem;
-    line-height: 1.1;
+    font-size: 1rem;
   }
   
   .current-time {
+    font-size: 0.85rem;
+  }
+  
+  .weather-temp {
+    font-size: 1rem;
+  }
+  
+  .weather-desc {
+    font-size: 0.8rem;
+  }
+  
+  .location-info {
+    font-size: 0.75rem;
+  }
+  
+  .weather-stats {
     font-size: 0.7rem;
-    line-height: 1.2;
   }
   
-  .weather-main {
-    font-size: 0.7rem;
-    line-height: 1.2;
-  }
-  
-  .weather-secondary {
-    font-size: 0.65rem;
-    line-height: 1.2;
-  }
-  
-  .loading-text,
-  .error-text {
-    font-size: 0.65rem;
-    line-height: 1.2;
+  .action-btn {
+    min-width: 28px !important;
+    min-height: 28px !important;
+    padding: 4px !important;
   }
 }
 
 /* Extra small screens */
 @media (max-width: 480px) {
+  .greeting-layout {
+    gap: 8px;
+  }
+  
   .greeting-message {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
   }
   
   .current-time {
+    font-size: 0.8rem;
+  }
+  
+  .weather-temp {
+    font-size: 0.95rem;
+  }
+  
+  .weather-desc {
+    font-size: 0.75rem;
+  }
+  
+  .location-info {
+    font-size: 0.7rem;
+  }
+  
+  .weather-stats {
     font-size: 0.65rem;
-  }
-  
-  .weather-main {
-    font-size: 0.65rem;
-  }
-  
-  .weather-secondary {
-    font-size: 0.6rem;
-  }
-  
-  .loading-text,
-  .error-text {
-    font-size: 0.6rem;
-  }
-  
-  .weather-secondary .q-ml-sm {
-    margin-left: 4px !important;
   }
 }
 
 /* Ensure consistent spacing on all screen sizes */
 .q-icon.q-mr-xs {
-  margin-right: 2px !important;
+  margin-right: 4px !important;
 }
 
 .q-icon.q-mr-sm {
-  margin-right: 4px !important;
+  margin-right: 8px !important;
 }
 
 /* Consistent button sizing across the app */
@@ -794,7 +784,7 @@ onBeforeUnmount(() => {
 }
 
 .action-btn .q-icon {
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 /* Ensure tooltips work properly on mobile */
