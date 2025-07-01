@@ -93,7 +93,7 @@
                       dense
                       icon="more_vert"
                       size="sm"
-                      @click.stop="showCategoryMenu(category, $event)"
+                      @click.stop="showCategoryMenu(category)"
                       class="spasta-text"
                       :loading="category.deleting"
                     />
@@ -393,7 +393,7 @@
           </div>
         </q-card-section>
 
-        <q-card-actions align="right">
+        <q-card-actions align="right" class="dialog-button-group">
           <q-btn flat label="Cancel" @click="closeCategoryDialog" class="spasta-text" />
           <q-btn 
             flat 
@@ -431,7 +431,7 @@
           />
         </q-card-section>
 
-        <q-card-actions align="right">
+        <q-card-actions align="right" class="dialog-button-group">
           <q-btn flat label="Cancel" @click="showTagDialog = false" class="spasta-text" />
           <q-btn 
             flat 
@@ -1070,7 +1070,7 @@ const closeCategoryDialog = () => {
   }
 }
 
-const showCategoryMenu = (category: Category, event: Event) => {
+const showCategoryMenu = (category: Category) => {
   selectedCategoryForMenu.value = category
   categoryMenuVisible.value = true
 }
