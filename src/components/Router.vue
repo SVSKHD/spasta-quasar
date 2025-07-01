@@ -15,10 +15,10 @@
             <q-tooltip>{{ drawerOpen ? 'Close menu' : 'Open menu' }}</q-tooltip>
           </q-btn>
           
-          <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
+          <q-toolbar-title class="text-h6 text-weight-medium spasta-text">
             <q-icon name="dashboard" class="q-mr-sm icon-md" />
             Spasta
-            <span class="text-h6 q-ml-md route-text">{{ currentPageTitle }}</span>
+            <span class="text-body1 q-ml-md route-text">{{ currentPageTitle }}</span>
           </q-toolbar-title>
           
           <q-btn
@@ -28,6 +28,7 @@
             icon="add"
             @click="showTaskDrawer = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add new task</q-tooltip>
           </q-btn>
@@ -39,6 +40,7 @@
             icon="category"
             @click="showCategoryDrawer = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add new board</q-tooltip>
           </q-btn>
@@ -50,6 +52,7 @@
             icon="add"
             @click="showExpenseDialog = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add expense</q-tooltip>
           </q-btn>
@@ -61,6 +64,7 @@
             icon="flag"
             @click="showGoalDialog = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add goal</q-tooltip>
           </q-btn>
@@ -72,6 +76,7 @@
             @click="refreshData"
             class="q-mr-sm spasta-text"
             :loading="isLoading"
+            size="sm"
           >
             <q-tooltip>Refresh</q-tooltip>
           </q-btn>
@@ -81,9 +86,10 @@
             flat
             round
             class="q-ml-sm spasta-text"
+            size="sm"
           >
             <template v-slot:label>
-              <q-avatar size="32px">
+              <q-avatar size="28px">
                 <img 
                   v-if="authStore.user?.picture" 
                   :src="authStore.user.picture" 
@@ -93,7 +99,7 @@
                 <div 
                   v-else 
                   class="bg-primary text-white text-weight-bold"
-                  style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+                  style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px;"
                 >
                   {{ getUserInitials() }}
                 </div>
@@ -120,8 +126,7 @@
     <q-drawer
       v-model="drawerOpen"
       side="left"
-      :overlay="$q.screen.lt.md"
-      :persistent="$q.screen.gt.sm"
+      overlay
       :width="280"
       bordered
       class="spasta-drawer"
@@ -158,27 +163,62 @@
 
     <!-- Main Content -->
     <q-page-container>
-      <q-page class="spasta-bg main-content q-pa-md">
+      <q-page class="spasta-bg main-content">
         <!-- Loading State -->
         <div v-if="authStore.loading" class="flex flex-center" style="height: 100vh;">
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Show on all pages -->
-        <div v-else class="greeting-container q-pa-md">
-          <SpastaGreetingCard />
-        </div>
-        
-        <!-- Router View with Scrollable Content -->
-        <div v-if="!authStore.loading" class="page-content q-pa-md">
-          <router-view 
-            @add-task="handleAddTask"
-            @edit-task="handleEditTask"
-            @delete-task="handleDeleteTask"
-            @move-task="handleMoveTask"
-            @toggle-subtask="handleToggleSubtask"
-            @edit-category="handleEditCategory"
-          />
+        <!-- Full Screen Layout -->
+        <div v-else class="full-screen-layout">
+          <!-- Top Bar with Greeting and Quick Actions -->
+          <div class="top-bar">
+            <div class="greeting-section">
+              <SpastaGreetingCard />
+            </div>
+            
+            <!-- Quick Stats/Overview for non-overview pages -->
+            <div v-if="$route.name !== 'Overview'" class="quick-overview">
+              <q-card class="spasta-card quick-stats-card">
+                <q-card-section class="q-pa-md">
+                  <div class="row items-center justify-between">
+                    <div class="quick-stats-content">
+                      <div class="text-body1 spasta-text text-weight-medium">
+                        Quick Stats
+                      </div>
+                      <div class="text-caption spasta-text opacity-70">
+                        {{ getQuickStatsText() }}
+                      </div>
+                    </div>
+                    <div class="quick-stats-actions">
+                      <q-btn
+                        flat
+                        round
+                        icon="widgets"
+                        @click="navigateTo('Overview')"
+                        class="spasta-text"
+                        size="sm"
+                      >
+                        <q-tooltip>Go to Overview</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+          
+          <!-- Main Content Area -->
+          <div class="content-area">
+            <router-view 
+              @add-task="handleAddTask"
+              @edit-task="handleEditTask"
+              @delete-task="handleDeleteTask"
+              @move-task="handleMoveTask"
+              @toggle-subtask="handleToggleSubtask"
+              @edit-category="handleEditCategory"
+            />
+          </div>
         </div>
       </q-page>
     </q-page-container>
@@ -227,7 +267,7 @@ const categoryStore = useCategoryStore()
 const authStore = useAuthStore()
 const financeStore = useFinanceStore()
 
-const drawerOpen = ref(true)
+const drawerOpen = ref(false)
 const showTaskDrawer = ref(false)
 const showCategoryDrawer = ref(false)
 const showAuthDialog = ref(false)
@@ -283,7 +323,7 @@ const navigationRoutes = [
   },
   {
     name: 'Backup',
-    title: 'Code Backup',
+    title: 'Backup',
     description: 'GitHub repository backups',
     icon: 'backup'
   },
@@ -303,6 +343,29 @@ const currentPageTitle = computed(() => {
 const isLoading = computed(() => {
   return taskStore.loading || categoryStore.loading || financeStore.loading
 })
+
+const getQuickStatsText = () => {
+  switch (route.name) {
+    case 'Dashboard':
+      return `${taskStore.taskStats.total} tasks • ${taskStore.taskStats.done} completed`
+    case 'Expenses':
+      return `$${financeStore.financeStats.monthlyExpenses.toLocaleString()} this month`
+    case 'Goals':
+      return `${financeStore.activeGoals.length} active goals`
+    case 'Notes':
+      return 'Quick notes & ideas'
+    case 'Calendar':
+      return 'Schedule & events'
+    case 'Trading':
+      return 'Market overview'
+    case 'Backup':
+      return 'Code repositories'
+    case 'Monitor':
+      return 'Project status'
+    default:
+      return 'Dashboard overview'
+  }
+}
 
 const getUserInitials = () => {
   if (!authStore.user?.name) return 'U'
@@ -497,41 +560,48 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Header Styling */
+/* Header Styling - Minimal and Clean */
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0px 24px 0 24px; /* Further reduced top padding from 8px to 4px */
+  padding: 4px 8px 0 8px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .header-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
 }
 
 .spasta-header {
   background: linear-gradient(135deg, rgba(58, 107, 140, 0.95) 0%, rgba(37, 77, 112, 0.95) 100%);
-  border-radius: 20px;
-  border: 2px solid rgba(239, 228, 210, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(239, 228, 210, 0.2);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(58, 107, 140, 0.3);
+  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.3);
   transition: all 0.3s ease;
-  min-height: 64px;
-  padding: 0 24px;
+  min-height: 44px;
+  padding: 0 12px;
 }
 
 .spasta-header:hover {
   border-color: rgba(239, 228, 210, 0.4);
-  box-shadow: 0 12px 40px rgba(58, 107, 140, 0.4);
+  box-shadow: 0 6px 20px rgba(58, 107, 140, 0.4);
 }
 
 /* Menu toggle button styling */
 .menu-toggle-btn {
   transition: all 0.3s ease;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   position: relative;
   overflow: hidden;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .menu-toggle-btn:hover {
@@ -548,35 +618,76 @@ onMounted(async () => {
 
 /* Route text styling */
 .route-text {
-  font-weight: 500;
+  font-weight: 400;
   opacity: 0.9;
   color: #EFE4D2;
+  font-size: 1rem;
 }
 
-/* Main Content Spacing */
+/* Full Screen Layout */
 .main-content {
-  padding-top: 76px !important; /* Further reduced from 80px to 76px */
+  padding-top: 52px !important;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.greeting-container {
-  padding: 0 12px 4px 12px; /* Further reduced bottom padding from 8px to 4px */
-  max-width: 1200px;
-  margin: 0 auto;
+.full-screen-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+  padding: 4px;
+  gap: 4px;
 }
 
-.page-content {
-  height: calc(100vh - 140px); /* Adjusted for further reduced header spacing */
+.top-bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  flex-shrink: 0;
+  height: auto;
+  min-height: 80px;
+}
+
+.greeting-section {
+  display: flex;
+  align-items: center;
+}
+
+.quick-overview {
+  display: flex;
+  align-items: center;
+}
+
+.quick-stats-card {
+  width: 100%;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.quick-stats-content {
+  flex: 1;
+}
+
+.quick-stats-actions {
+  flex-shrink: 0;
+}
+
+.content-area {
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  min-height: 0;
+  padding: 0;
 }
 
 /* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 76px; /* Further reduced from 80px to 76px */
+  margin-top: 52px;
 }
 
 .nav-item {
@@ -601,62 +712,64 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 2px 16px 0 16px; /* Further reduced top padding from 6px to 2px */
+    padding: 3px 6px 0 6px;
   }
   
   .spasta-header {
-    border-radius: 16px;
-    padding: 0 16px;
-    min-height: 56px;
+    border-radius: 10px;
+    padding: 0 8px;
+    min-height: 40px;
   }
   
   .route-text {
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
   
   .main-content {
-    padding-top: 60px !important; /* Further reduced from 64px to 60px */
+    padding-top: 46px !important;
   }
   
-  .greeting-container {
-    padding: 0 16px 2px 16px; /* Further reduced bottom padding from 6px to 2px */
+  .full-screen-layout {
+    padding: 2px;
+    gap: 2px;
+    height: calc(100vh - 46px);
   }
   
-  .page-content {
-    height: calc(100vh - 110px); /* Adjusted for mobile */
+  .top-bar {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    min-height: 60px;
   }
   
   .spasta-drawer {
-    margin-top: 60px; /* Further reduced from 64px to 60px */
+    margin-top: 46px;
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 3px 20px 0 20px; /* Further reduced top padding from 7px to 3px */
-  }
-  
-  .greeting-container {
-    padding: 0 20px 3px 20px; /* Further reduced bottom padding from 7px to 3px */
+    padding: 3px 8px 0 8px;
   }
   
   .main-content {
-    padding-top: 68px !important; /* Further reduced from 72px to 68px */
+    padding-top: 50px !important;
   }
   
-  .page-content {
-    height: calc(100vh - 125px); /* Adjusted for tablet */
+  .full-screen-layout {
+    height: calc(100vh - 50px);
   }
   
   .spasta-drawer {
-    margin-top: 68px; /* Further reduced from 72px to 68px */
+    margin-top: 50px;
   }
 }
 
 /* Smooth transitions for all interactive elements */
 .spasta-header .q-btn {
   transition: all 0.2s ease;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .spasta-header .q-btn:hover {
@@ -668,6 +781,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 /* User avatar hover effect */
@@ -679,24 +794,38 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(239, 228, 210, 0.3);
 }
 
-/* Scrollbar styling for page content */
-.page-content::-webkit-scrollbar {
-  width: 8px;
+/* Scrollbar styling for content area */
+.content-area::-webkit-scrollbar {
+  width: 6px;
 }
 
-.page-content::-webkit-scrollbar-track {
+.content-area::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
-.page-content::-webkit-scrollbar-thumb {
+.content-area::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
-  border-radius: 8px;
+  border-radius: 6px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
-.page-content::-webkit-scrollbar-thumb:hover {
+.content-area::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
+}
+
+/* Overview specific layout */
+.overview-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .overview-layout {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

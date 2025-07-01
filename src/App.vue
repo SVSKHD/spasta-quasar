@@ -280,16 +280,86 @@ h1, h2, h3, h4, h5, h6,
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* CONSISTENT BUTTON STYLING - All buttons follow the same design pattern */
+/* PERFECT BUTTON STYLING FOR DRAWERS AND DIALOGS */
 .q-btn {
   border-radius: 12px !important;
   backdrop-filter: blur(10px) !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   font-weight: 500 !important;
   text-transform: none !important;
-  min-height: 40px !important;
-  padding: 8px 16px !important;
+  min-height: 44px !important;
+  padding: 12px 24px !important;
   border: 1px solid rgba(239, 228, 210, 0.2) !important;
+  margin: 0 !important;
+}
+
+/* DRAWER AND DIALOG SPECIFIC BUTTON STYLING */
+.q-drawer .q-btn,
+.q-dialog .q-btn {
+  min-height: 48px !important;
+  padding: 14px 28px !important;
+  margin: 8px !important;
+  border-radius: 14px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* CARD ACTIONS PERFECT ALIGNMENT */
+.q-card-actions {
+  padding: 24px !important;
+  gap: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  border-top: 1px solid rgba(239, 228, 210, 0.1) !important;
+}
+
+.q-card-actions .q-btn {
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.q-card-actions .q-btn:not(:last-child) {
+  margin-right: 16px !important;
+}
+
+/* FORM ACTIONS PERFECT SPACING */
+.form-actions {
+  padding: 24px 0 !important;
+  border-top: 1px solid rgba(239, 228, 210, 0.1) !important;
+  margin-top: 24px !important;
+}
+
+.form-actions .row {
+  gap: 16px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.form-actions .q-btn {
+  min-width: 120px !important;
+  margin: 0 !important;
+}
+
+/* DRAWER SPECIFIC BUTTON CONTAINERS */
+.task-drawer .q-card-actions,
+.category-drawer .q-card-actions {
+  padding: 28px 24px !important;
+  gap: 20px !important;
+  background: rgba(58, 107, 140, 0.05) !important;
+  border-top: 2px solid rgba(239, 228, 210, 0.15) !important;
+  border-radius: 0 0 20px 20px !important;
+}
+
+.task-drawer .q-btn,
+.category-drawer .q-btn {
+  min-height: 52px !important;
+  padding: 16px 32px !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Primary Button Style - White background with dark text */
@@ -297,11 +367,13 @@ h1, h2, h3, h4, h5, h6,
   background: rgba(239, 228, 210, 0.9) !important;
   color: #254D70 !important;
   border: 1px solid rgba(239, 228, 210, 0.3) !important;
+  box-shadow: 0 6px 16px rgba(239, 228, 210, 0.2) !important;
 }
 
 .q-btn:not(.q-btn--flat):not(.q-btn--outline):not(.q-btn--unelevated):hover {
   background: rgba(239, 228, 210, 1) !important;
-  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.3) !important;
+  box-shadow: 0 8px 20px rgba(239, 228, 210, 0.4) !important;
+  transform: translateY(-2px) !important;
 }
 
 /* Flat Button Style - Transparent with light border */
@@ -309,11 +381,13 @@ h1, h2, h3, h4, h5, h6,
   background: rgba(239, 228, 210, 0.1) !important;
   color: #EFE4D2 !important;
   border: 1px solid rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .q-btn--flat:hover {
   background: rgba(239, 228, 210, 0.2) !important;
-  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 6px 16px rgba(239, 228, 210, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Outline Button Style */
@@ -321,11 +395,13 @@ h1, h2, h3, h4, h5, h6,
   background: transparent !important;
   color: #EFE4D2 !important;
   border: 2px solid rgba(239, 228, 210, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .q-btn--outline:hover {
   background: rgba(239, 228, 210, 0.1) !important;
-  box-shadow: 0 4px 16px rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 6px 16px rgba(239, 228, 210, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Unelevated Button Style */
@@ -333,67 +409,105 @@ h1, h2, h3, h4, h5, h6,
   background: rgba(58, 107, 140, 0.3) !important;
   color: #EFE4D2 !important;
   border: 1px solid rgba(239, 228, 210, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .q-btn--unelevated:hover {
   background: rgba(58, 107, 140, 0.4) !important;
-  box-shadow: 0 4px 16px rgba(58, 107, 140, 0.3) !important;
+  box-shadow: 0 6px 16px rgba(58, 107, 140, 0.3) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Round Button Style */
 .q-btn--round {
-  min-width: 40px !important;
-  min-height: 40px !important;
-  padding: 8px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 12px !important;
+  border-radius: 50% !important;
 }
 
 /* Dense Button Style */
 .q-btn--dense {
-  min-height: 32px !important;
-  padding: 4px 12px !important;
+  min-height: 40px !important;
+  padding: 10px 20px !important;
 }
 
 .q-btn--dense.q-btn--round {
-  min-width: 32px !important;
-  min-height: 32px !important;
-  padding: 6px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 10px !important;
 }
 
 /* Small Button Style */
 .q-btn--sm {
-  min-height: 36px !important;
-  padding: 6px 14px !important;
-  font-size: 0.875rem !important;
+  min-height: 42px !important;
+  padding: 12px 22px !important;
+  font-size: 0.9rem !important;
 }
 
 /* Large Button Style */
 .q-btn--lg {
-  min-height: 48px !important;
-  padding: 12px 24px !important;
-  font-size: 1.125rem !important;
+  min-height: 56px !important;
+  padding: 18px 36px !important;
+  font-size: 1.2rem !important;
 }
 
 /* Extra Large Button Style */
 .q-btn--xl {
-  min-height: 56px !important;
-  padding: 16px 32px !important;
-  font-size: 1.25rem !important;
+  min-height: 64px !important;
+  padding: 22px 44px !important;
+  font-size: 1.3rem !important;
 }
 
 /* Active/Pressed Button State */
 .q-btn:active {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(1px) !important;
 }
 
 /* Disabled Button State */
 .q-btn--disable {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
+  transform: none !important;
 }
 
 /* Loading Button State */
 .q-btn--loading {
   pointer-events: none !important;
+}
+
+/* PERFECT BUTTON GROUPS IN DIALOGS */
+.dialog-button-group {
+  display: flex !important;
+  gap: 16px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding: 24px 0 !important;
+  margin-top: 24px !important;
+  border-top: 1px solid rgba(239, 228, 210, 0.1) !important;
+}
+
+.dialog-button-group .q-btn {
+  min-width: 140px !important;
+  margin: 0 !important;
+}
+
+/* DRAWER BUTTON GROUPS */
+.drawer-button-group {
+  display: flex !important;
+  gap: 20px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding: 28px 24px !important;
+  background: rgba(58, 107, 140, 0.05) !important;
+  border-top: 2px solid rgba(239, 228, 210, 0.15) !important;
+  border-radius: 0 0 20px 20px !important;
+}
+
+.drawer-button-group .q-btn {
+  min-width: 160px !important;
+  margin: 0 !important;
 }
 
 /* Color Variants */
@@ -428,6 +542,7 @@ h1, h2, h3, h4, h5, h6,
 /* Button Group Styling */
 .q-btn-group .q-btn {
   border-radius: 0 !important;
+  margin: 0 !important;
 }
 
 .q-btn-group .q-btn:first-child {
@@ -446,6 +561,7 @@ h1, h2, h3, h4, h5, h6,
 .q-btn-toggle .q-btn {
   background: rgba(58, 107, 140, 0.1) !important;
   color: #EFE4D2 !important;
+  margin: 4px !important;
 }
 
 .q-btn-toggle .q-btn--active {
@@ -510,7 +626,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .q-btn .q-icon {
-  margin-right: 4px !important;
+  margin-right: 8px !important;
 }
 
 .q-chip .q-icon {
@@ -842,23 +958,51 @@ h1, h2, h3, h4, h5, h6,
   
   /* Mobile button adjustments */
   .q-btn {
-    min-height: 44px !important;
-    padding: 10px 16px !important;
+    min-height: 48px !important;
+    padding: 14px 20px !important;
   }
   
   .q-btn--dense {
-    min-height: 36px !important;
-    padding: 6px 12px !important;
+    min-height: 42px !important;
+    padding: 12px 16px !important;
   }
   
   .q-btn--round {
-    min-width: 44px !important;
-    min-height: 44px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
   }
   
   .q-btn--dense.q-btn--round {
-    min-width: 36px !important;
-    min-height: 36px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+  
+  /* Mobile drawer and dialog buttons */
+  .q-drawer .q-btn,
+  .q-dialog .q-btn {
+    min-height: 52px !important;
+    padding: 16px 24px !important;
+    margin: 6px !important;
+  }
+  
+  .q-card-actions {
+    padding: 20px !important;
+    gap: 12px !important;
+    flex-direction: column !important;
+  }
+  
+  .q-card-actions .q-btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .form-actions .row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .form-actions .q-btn {
+    width: 100% !important;
   }
 }
 
