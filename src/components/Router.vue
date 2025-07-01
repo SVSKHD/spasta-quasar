@@ -298,25 +298,14 @@
           
           <!-- Overview Layout (Side by Side) -->
           <div v-else class="overview-layout">
-            <div class="greeting-section">
+            <div class="greeting-container">
               <SpastaGreetingCard />
-            </div>
-            <div class="overview-content">
-              <router-view 
-                @add-task="handleAddTask"
-                @edit-task="handleEditTask"
-                @delete-task="handleDeleteTask"
-                @move-task="handleMoveTask"
-                @toggle-subtask="handleToggleSubtask"
-                @edit-category="handleEditCategory"
-              />
             </div>
           </div>
           
           <!-- Main Content Area -->
           <div class="content-area">
             <router-view 
-              v-if="$route.name !== 'Overview'"
               @add-task="handleAddTask"
               @edit-task="handleEditTask"
               @delete-task="handleDeleteTask"
@@ -836,16 +825,12 @@ onMounted(async () => {
 
 /* Overview Layout (Side by Side) */
 .overview-layout {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 8px;
-  height: 100%;
-  align-items: start;
+  padding: 0 8px;
+  margin-bottom: 8px;
 }
 
-.overview-content {
-  height: 100%;
-  overflow-y: auto;
+.greeting-container {
+  width: 100%;
 }
 
 /* Content Area */
@@ -969,8 +954,8 @@ onMounted(async () => {
   }
   
   .overview-layout {
-    grid-template-columns: 1fr;
-    gap: 4px;
+    padding: 0 4px;
+    margin-bottom: 4px;
   }
   
   .stats-grid {
@@ -1045,27 +1030,23 @@ onMounted(async () => {
 }
 
 /* Scrollbar styling for content area */
-.content-area::-webkit-scrollbar,
-.overview-content::-webkit-scrollbar {
+.content-area::-webkit-scrollbar {
   width: 6px;
 }
 
-.content-area::-webkit-scrollbar-track,
-.overview-content::-webkit-scrollbar-track {
+.content-area::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
   border-radius: 6px;
 }
 
-.content-area::-webkit-scrollbar-thumb,
-.overview-content::-webkit-scrollbar-thumb {
+.content-area::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
   border-radius: 6px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
-.content-area::-webkit-scrollbar-thumb:hover,
-.overview-content::-webkit-scrollbar-thumb:hover {
+.content-area::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
 }
 
