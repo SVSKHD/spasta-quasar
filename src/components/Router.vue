@@ -15,10 +15,10 @@
             <q-tooltip>{{ drawerOpen ? 'Close menu' : 'Open menu' }}</q-tooltip>
           </q-btn>
           
-          <q-toolbar-title class="text-h5 text-weight-medium spasta-text">
+          <q-toolbar-title class="text-h6 text-weight-medium spasta-text">
             <q-icon name="dashboard" class="q-mr-sm icon-md" />
             Spasta
-            <span class="text-h6 q-ml-md route-text">{{ currentPageTitle }}</span>
+            <span class="text-body1 q-ml-md route-text">{{ currentPageTitle }}</span>
           </q-toolbar-title>
           
           <q-btn
@@ -28,6 +28,7 @@
             icon="add"
             @click="showTaskDrawer = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add new task</q-tooltip>
           </q-btn>
@@ -39,6 +40,7 @@
             icon="category"
             @click="showCategoryDrawer = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add new board</q-tooltip>
           </q-btn>
@@ -50,6 +52,7 @@
             icon="add"
             @click="showExpenseDialog = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add expense</q-tooltip>
           </q-btn>
@@ -61,6 +64,7 @@
             icon="flag"
             @click="showGoalDialog = true"
             class="q-mr-sm spasta-text"
+            size="sm"
           >
             <q-tooltip>Add goal</q-tooltip>
           </q-btn>
@@ -72,6 +76,7 @@
             @click="refreshData"
             class="q-mr-sm spasta-text"
             :loading="isLoading"
+            size="sm"
           >
             <q-tooltip>Refresh</q-tooltip>
           </q-btn>
@@ -81,9 +86,10 @@
             flat
             round
             class="q-ml-sm spasta-text"
+            size="sm"
           >
             <template v-slot:label>
-              <q-avatar size="32px">
+              <q-avatar size="28px">
                 <img 
                   v-if="authStore.user?.picture" 
                   :src="authStore.user.picture" 
@@ -93,7 +99,7 @@
                 <div 
                   v-else 
                   class="bg-primary text-white text-weight-bold"
-                  style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+                  style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px;"
                 >
                   {{ getUserInitials() }}
                 </div>
@@ -120,8 +126,7 @@
     <q-drawer
       v-model="drawerOpen"
       side="left"
-      :overlay="$q.screen.lt.md"
-      :persistent="$q.screen.gt.sm"
+      overlay
       :width="280"
       bordered
       class="spasta-drawer"
@@ -164,12 +169,12 @@
           <q-spinner-dots size="50px" color="white" />
         </div>
         
-        <!-- Greeting Card - Show on all pages with proper scrolling -->
+        <!-- Greeting Card - Compact with all details -->
         <div v-else class="greeting-container">
           <SpastaGreetingCard />
         </div>
         
-        <!-- Router View with Scrollable Content -->
+        <!-- Router View with Maximum Content Area -->
         <div v-if="!authStore.loading" class="page-content">
           <router-view 
             @add-task="handleAddTask"
@@ -227,7 +232,7 @@ const categoryStore = useCategoryStore()
 const authStore = useAuthStore()
 const financeStore = useFinanceStore()
 
-const drawerOpen = ref(true)
+const drawerOpen = ref(false)
 const showTaskDrawer = ref(false)
 const showCategoryDrawer = ref(false)
 const showAuthDialog = ref(false)
@@ -497,11 +502,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Header Styling */
+/* Header Styling - Ultra Compact */
 .header-container {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 8px 24px 0 24px;
+  padding: 2px 16px 0 16px;
   position: fixed;
   top: 0;
   left: 0;
@@ -517,13 +522,13 @@ onMounted(async () => {
 
 .spasta-header {
   background: linear-gradient(135deg, rgba(58, 107, 140, 0.95) 0%, rgba(37, 77, 112, 0.95) 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   border: 2px solid rgba(239, 228, 210, 0.2);
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(58, 107, 140, 0.3);
   transition: all 0.3s ease;
-  min-height: 64px;
-  padding: 0 24px;
+  min-height: 44px;
+  padding: 0 16px;
 }
 
 .spasta-header:hover {
@@ -537,6 +542,8 @@ onMounted(async () => {
   border-radius: 12px !important;
   position: relative;
   overflow: hidden;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .menu-toggle-btn:hover {
@@ -553,14 +560,14 @@ onMounted(async () => {
 
 /* Route text styling */
 .route-text {
-  font-weight: 500;
+  font-weight: 400;
   opacity: 0.9;
   color: #EFE4D2;
 }
 
-/* Main Content Spacing */
+/* Main Content Spacing - Maximized */
 .main-content {
-  padding-top: 80px !important;
+  padding-top: 50px !important;
   height: 100vh;
   overflow: hidden;
   display: flex;
@@ -568,7 +575,7 @@ onMounted(async () => {
 }
 
 .greeting-container {
-  padding: 12px 24px 8px 24px;
+  padding: 2px 16px 2px 16px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -579,17 +586,18 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 24px 24px 24px;
+  padding: 0 16px 16px 16px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  min-height: 0;
 }
 
 /* Drawer Styling */
 .spasta-drawer {
   background: linear-gradient(145deg, rgba(37, 77, 112, 0.95) 0%, rgba(37, 77, 112, 0.98) 100%);
   border-right: 2px solid rgba(239, 228, 210, 0.1);
-  margin-top: 80px;
+  margin-top: 50px;
 }
 
 .nav-item {
@@ -614,62 +622,64 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .header-container {
-    padding: 6px 16px 0 16px;
+    padding: 2px 12px 0 12px;
   }
   
   .spasta-header {
-    border-radius: 16px;
-    padding: 0 16px;
-    min-height: 56px;
+    border-radius: 12px;
+    padding: 0 12px;
+    min-height: 40px;
   }
   
   .route-text {
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
   
   .main-content {
-    padding-top: 64px !important;
+    padding-top: 46px !important;
   }
   
   .greeting-container {
-    padding: 8px 16px 6px 16px;
+    padding: 2px 12px 2px 12px;
   }
   
   .page-content {
-    padding: 0 16px 16px 16px;
+    padding: 0 12px 12px 12px;
   }
   
   .spasta-drawer {
-    margin-top: 64px;
+    margin-top: 46px;
   }
 }
 
 /* Tablet Responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
   .header-container {
-    padding: 7px 20px 0 20px;
+    padding: 2px 14px 0 14px;
   }
   
   .greeting-container {
-    padding: 10px 20px 7px 20px;
+    padding: 2px 14px 2px 14px;
   }
   
   .main-content {
-    padding-top: 72px !important;
+    padding-top: 48px !important;
   }
   
   .page-content {
-    padding: 0 20px 20px 20px;
+    padding: 0 14px 14px 14px;
   }
   
   .spasta-drawer {
-    margin-top: 72px;
+    margin-top: 48px;
   }
 }
 
 /* Smooth transitions for all interactive elements */
 .spasta-header .q-btn {
   transition: all 0.2s ease;
+  min-width: 32px !important;
+  min-height: 32px !important;
 }
 
 .spasta-header .q-btn:hover {
@@ -694,17 +704,17 @@ onMounted(async () => {
 
 /* Scrollbar styling for page content */
 .page-content::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .page-content::-webkit-scrollbar-track {
   background: rgba(239, 228, 210, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .page-content::-webkit-scrollbar-thumb {
   background: rgba(58, 107, 140, 0.6);
-  border-radius: 8px;
+  border-radius: 6px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
