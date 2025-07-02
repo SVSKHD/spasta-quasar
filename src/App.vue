@@ -1,3 +1,14 @@
+<template>
+  <div id="app">
+    <SpastaRouter />
+  </div>
+</template>
+
+<script setup lang="ts">
+import SpastaRouter from './components/Router.vue'
+</script>
+
+<style>
 * {
   margin: 0;
   padding: 0;
@@ -1116,3 +1127,4 @@ h1, h2, h3, h4, h5, h6,
     transition-duration: 0.01ms !important;
   }
 }
+</style>
