@@ -1,14 +1,3 @@
-<template>
-  <div id="app">
-    <SpastaRouter />
-  </div>
-</template>
-
-<script setup lang="ts">
-// No imports needed - components are globally registered
-</script>
-
-<style>
 * {
   margin: 0;
   padding: 0;
@@ -423,7 +412,7 @@ h1, h2, h3, h4, h5, h6,
   min-width: 48px !important;
   min-height: 48px !important;
   padding: 12px !important;
-  border-radius: 50% !important;
+  border-radius: 12px !important;
 }
 
 /* Dense Button Style */
@@ -1127,4 +1116,3 @@ h1, h2, h3, h4, h5, h6,
     transition-duration: 0.01ms !important;
   }
 }
-</style>
