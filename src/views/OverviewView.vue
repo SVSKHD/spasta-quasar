@@ -249,22 +249,54 @@ onMounted(() => {
   height: 100%;
   width: 100%;
   padding: 8px;
+  overflow-y: auto;
 }
 
 .overview-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto auto;
-  gap: 12px;
-  height: 100%;
+  gap: 16px;
+  grid-template-areas:
+    "stats stats"
+    "activity actions"
+    "progress progress";
 }
 
 .stats-section {
-  grid-column: 1 / -1;
+  grid-area: stats;
 }
 
-.stats-card {
+.activity-section {
+  grid-area: activity;
+}
+
+.actions-section {
+  grid-area: actions;
+}
+
+.progress-section {
+  grid-area: progress;
+}
+
+.stats-card,
+.activity-card,
+.actions-card,
+.progress-card {
   height: 100%;
+  width: 100%;
+  border-radius: 16px;
+  border: 2px solid rgba(239, 228, 210, 0.2);
+  background: linear-gradient(135deg, rgba(58, 107, 140, 0.15) 0%, rgba(37, 77, 112, 0.15) 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stats-card:hover,
+.activity-card:hover,
+.actions-card:hover,
+.progress-card:hover {
+  border-color: rgba(239, 228, 210, 0.4);
+  box-shadow: 0 6px 20px rgba(58, 107, 140, 0.3);
 }
 
 .stats-grid {
@@ -279,22 +311,27 @@ onMounted(() => {
   background: rgba(239, 228, 210, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(239, 228, 210, 0.1);
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  background: rgba(239, 228, 210, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(239, 228, 210, 0.2);
 }
 
 .stat-value {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   margin-bottom: 4px;
+  font-size: 1.75rem;
+  line-height: 1.2;
 }
 
 .stat-label {
   font-weight: 500;
-}
-
-.activity-card,
-.actions-card,
-.progress-card {
-  height: 100%;
+  font-size: 0.85rem;
+  line-height: 1.3;
 }
 
 .activity-list {
@@ -308,34 +345,40 @@ onMounted(() => {
   border-radius: 8px;
   border: 1px solid rgba(239, 228, 210, 0.1);
   transition: all 0.2s ease;
+  margin-bottom: 8px;
 }
 
 .activity-item:hover {
   background: rgba(239, 228, 210, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(239, 228, 210, 0.2);
 }
 
 .activity-content {
   flex: 1;
+  min-width: 0;
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
 
 .action-btn {
-  height: 80px;
+  height: 100px;
   border: 1px solid rgba(239, 228, 210, 0.2);
   border-radius: 12px;
   background: rgba(239, 228, 210, 0.05);
   transition: all 0.2s ease;
+  padding: 0 !important;
 }
 
 .action-btn:hover {
   background: rgba(239, 228, 210, 0.15);
   border-color: rgba(239, 228, 210, 0.4);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(58, 107, 140, 0.3);
 }
 
 .action-content {
@@ -344,11 +387,24 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
+  padding: 16px;
+}
+
+.action-content .q-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.action-content .text-body2 {
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .progress-items {
-  max-height: 300px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .progress-item {
@@ -356,6 +412,33 @@ onMounted(() => {
   background: rgba(239, 228, 210, 0.05);
   border-radius: 8px;
   border: 1px solid rgba(239, 228, 210, 0.1);
+  transition: all 0.2s ease;
+}
+
+.progress-item:hover {
+  background: rgba(239, 228, 210, 0.1);
+  border-color: rgba(239, 228, 210, 0.2);
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .action-btn {
+    height: 80px;
+  }
+  
+  .action-content .q-icon {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+  }
+  
+  .action-content .text-body2 {
+    font-size: 0.9rem;
+  }
 }
 
 /* Mobile responsive */
@@ -366,7 +449,12 @@ onMounted(() => {
   
   .overview-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-areas:
+      "stats"
+      "activity"
+      "actions"
+      "progress";
+    gap: 12px;
   }
   
   .stats-grid {
@@ -382,6 +470,64 @@ onMounted(() => {
     font-size: 1.5rem;
   }
   
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .action-btn {
+    height: 70px;
+  }
+  
+  .action-content {
+    padding: 12px;
+  }
+  
+  .action-content .q-icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  
+  .action-content .text-body2 {
+    font-size: 0.85rem;
+  }
+  
+  .progress-item {
+    padding: 12px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .overview-view {
+    padding: 2px;
+  }
+  
+  .overview-grid {
+    gap: 8px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .stat-item {
+    padding: 10px;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
   .actions-grid {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -390,21 +536,39 @@ onMounted(() => {
   .action-btn {
     height: 60px;
   }
+  
+  .action-content .q-icon {
+    font-size: 1.25rem;
+    margin-bottom: 4px;
+  }
+  
+  .action-content .text-body2 {
+    font-size: 0.8rem;
+  }
 }
 
-/* Extra small screens */
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  
-  .stat-item {
-    padding: 8px;
-  }
-  
-  .stat-value {
-    font-size: 1.25rem;
-  }
+/* Scrollbar styling */
+.overview-view::-webkit-scrollbar,
+.activity-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overview-view::-webkit-scrollbar-track,
+.activity-list::-webkit-scrollbar-track {
+  background: rgba(239, 228, 210, 0.1);
+  border-radius: 6px;
+}
+
+.overview-view::-webkit-scrollbar-thumb,
+.activity-list::-webkit-scrollbar-thumb {
+  background: rgba(58, 107, 140, 0.6);
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.overview-view::-webkit-scrollbar-thumb:hover,
+.activity-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(58, 107, 140, 0.8);
 }
 </style>
