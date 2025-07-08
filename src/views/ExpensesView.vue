@@ -15,6 +15,12 @@
               </div>
             </div>
             <div class="header-actions row q-gutter-md">
+              <q-toggle
+                v-model="showInUSD"
+                color="positive"
+                :label="showInUSD ? 'USD' : 'INR'"
+                class="currency-toggle spasta-text"
+              />
               <q-btn
                 flat
                 icon="refresh"
@@ -48,7 +54,7 @@
                 <q-icon name="trending_up" size="xl" color="positive" class="stat-icon" />
               </div>
               <div class="text-h4 text-weight-bold text-positive q-mb-sm stat-value">
-                ${{ financeStore.financeStats.totalIncome.toLocaleString() }}
+                {{ formatCurrency(financeStore.financeStats.totalIncome) }}
               </div>
               <div class="text-body2 spasta-text opacity-70 stat-label">Total Income</div>
             </q-card-section>
@@ -62,7 +68,7 @@
                 <q-icon name="trending_down" size="xl" color="negative" class="stat-icon" />
               </div>
               <div class="text-h4 text-weight-bold text-negative q-mb-sm stat-value">
-                ${{ financeStore.financeStats.totalExpenses.toLocaleString() }}
+                {{ formatCurrency(financeStore.financeStats.totalExpenses) }}
               </div>
               <div class="text-body2 spasta-text opacity-70 stat-label">Total Expenses</div>
             </q-card-section>
@@ -84,7 +90,7 @@
                 class="text-h4 text-weight-bold q-mb-sm stat-value" 
                 :class="financeStore.financeStats.netIncome >= 0 ? 'text-positive' : 'text-negative'"
               >
-                ${{ financeStore.financeStats.netIncome.toLocaleString() }}
+                {{ formatCurrency(financeStore.financeStats.netIncome) }}
               </div>
               <div class="text-body2 spasta-text opacity-70 stat-label">Net Income</div>
             </q-card-section>
@@ -237,7 +243,7 @@
                     :rules="[val => val > 0 || 'Amount must be greater than 0']"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="attach_money" />
+                      <q-icon :name="showInUSD ? 'attach_money' : 'currency_rupee'" />
                     </template>
                   </q-input>
                 </div>
@@ -394,6 +400,8 @@ const editingExpense = ref<Expense | null>(null)
 const savingExpense = ref(false)
 const searchQuery = ref('')
 const filterCategory = ref('')
+const showInUSD = ref(false)
+const usdToInrRate = ref(83.5) // 1 USD = 83.5 INR (approximate)
 
 const expenseForm = ref({
   title: '',
@@ -472,7 +480,7 @@ const expenseColumns = [
     field: 'amount',
     align: 'right',
     type: 'currency',
-    currencySymbol: '$'
+    format: (val: number) => formatCurrency(val)
   },
   {
     name: 'type',
@@ -530,6 +538,16 @@ const expenseColumns = [
     ]
   }
 ]
+
+const formatCurrency = (amount: number) => {
+  if (showInUSD.value) {
+    return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+  } else {
+    // Convert to INR if the amount is stored in USD
+    const amountInInr = amount * usdToInrRate.value
+    return `₹${amountInInr.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+  }
+}
 
 const refreshData = async () => {
   await financeStore.loadFinanceData()
@@ -1029,5 +1047,13 @@ onMounted(() => {
 
 .dialog-content::-webkit-scrollbar-thumb:hover {
   background: rgba(58, 107, 140, 0.8);
+}
+
+.currency-toggle :deep(.q-toggle__label) {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #EFE4D2;
+  padding-left: 8px;
 }
 </style>
