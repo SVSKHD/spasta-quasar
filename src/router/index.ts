@@ -55,6 +55,12 @@ const routes = [
     name: 'Monitor',
     component: () => import('../views/MonitorView.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/redirect',
+    name: 'Redirect',
+    component: () => import('../views/RedirectView.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 
