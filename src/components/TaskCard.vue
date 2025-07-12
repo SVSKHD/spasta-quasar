@@ -2,13 +2,12 @@
   <q-card 
     class="task-card cursor-pointer spasta-card" 
     :class="cardClasses"
-    @click="$emit('edit', task)"
-  >
-    <q-card-section class="q-pb-xs q-pa-lg">
+    @click="$emit('edit', task)">
+    <q-card-section class="q-pa-md">
       <div class="row items-start justify-between q-mb-md">
         <div class="col">
-          <div class="text-h6 text-weight-medium q-mb-sm spasta-text">{{ task.title }}</div>
-          <div class="text-body2 spasta-text opacity-80 line-clamp-2 q-mb-sm">{{ task.description }}</div>
+          <div class="text-subtitle1 text-weight-medium q-mb-xs spasta-text">{{ task.title }}</div>
+          <div class="text-caption spasta-text opacity-80 line-clamp-2 q-mb-xs">{{ task.description }}</div>
         </div>
         <q-btn
           flat
@@ -62,13 +61,12 @@
       <!-- Task Photo -->
       <div v-if="task.photoUrl" class="task-photo q-mb-md">
         <q-img
-          :src="task.photoUrl"
-          :alt="task.title"
-          class="rounded-borders"
-          style="height: 120px; max-width: 100%"
-          fit="cover"
-          @error="handleImageError"
-        >
+          :src="task.photoUrl" 
+          :alt="task.title" 
+          class="rounded-borders" 
+          style="height: 80px; max-width: 100%" 
+          fit="cover" 
+          @error="handleImageError">
           <template v-slot:error>
             <div class="absolute-full flex flex-center bg-grey-3 text-grey-7">
               <q-icon name="broken_image" size="md" />
@@ -80,7 +78,7 @@
       <!-- Subtasks Section -->
       <div v-if="task.subtasks && task.subtasks.length > 0" class="subtasks-section q-mb-md">
         <div class="text-caption spasta-text opacity-70 q-mb-sm">
-          <q-icon name="checklist" size="xs" class="q-mr-xs" />
+          <q-icon name="checklist" size="xs" class="q-mr-xs" /> 
           Subtasks ({{ completedSubtasks }}/{{ task.subtasks.length }})
         </div>
         <q-linear-progress
@@ -120,28 +118,25 @@
       <div class="row items-center justify-between q-mb-md spacing-sm">
         <q-chip
           :color="priorityColor"
-          text-color="white"
-          size="sm"
-          :label="task.priority"
-          class="text-capitalize"
-        />
+          text-color="white" 
+          size="xs" 
+          :label="task.priority" 
+          class="text-capitalize" />
         <q-chip
           outline
-          :color="statusColor"
-          size="sm"
-          :label="statusLabel"
-          class="text-capitalize"
-        />
+          :color="statusColor" 
+          size="xs" 
+          :label="statusLabel" 
+          class="text-capitalize" />
       </div>
 
       <div class="row items-center justify-between q-mb-md">
         <q-chip
           outline
-          color="white"
-          text-color="grey-8"
-          size="sm"
-          :label="task.category"
-        />
+          color="white" 
+          text-color="grey-8" 
+          size="xs" 
+          :label="task.category" />
         <div v-if="task.dueDate" class="text-caption spasta-text" :class="dueDateClass">
           <q-icon name="schedule" size="xs" class="q-mr-xs" />
           {{ formatDate(task.dueDate) }}
@@ -309,15 +304,15 @@ const formatDate = (dateString: string) => {
 .task-card {
   transition: all 0.3s ease;
   border-radius: 16px;
-  border: 1px solid rgba(255, 227, 169, 0.15);
-  margin: 2px;
-  font-size: 0.95rem;
+  border: 1px solid rgba(255, 227, 169, 0.12);
+  margin: 1px;
+  font-size: 0.9rem;
 }
 
 .task-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   border-color: #FFE3A9;
-  box-shadow: 0 8px 24px rgba(114, 92, 173, 0.4);
+  box-shadow: 0 6px 16px rgba(114, 92, 173, 0.3);
 }
 
 .line-clamp-2 {
@@ -329,25 +324,25 @@ const formatDate = (dateString: string) => {
 
 /* Enhanced spacing for card content */
 .q-card-section {
-  padding: 16px !important;
+  padding: 12px !important;
 }
 
 /* Better chip spacing */
 .q-chip {
-  margin: 2px;
+  margin: 1px;
 }
 
 /* Task photo styling */
 .task-photo {
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
 /* Subtasks styling */
 .subtasks-section {
   background: rgba(255, 227, 169, 0.05);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 8px;
   border: 1px solid rgba(255, 227, 169, 0.1);
 }
 

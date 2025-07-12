@@ -837,7 +837,7 @@ onMounted(async () => {
 .content-area {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   min-height: 0;
   padding: 0;
 }
