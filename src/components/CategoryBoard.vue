@@ -424,13 +424,17 @@ onMounted(async () => {
 .flow-container {
   display: flex;
   gap: 24px;
-  min-width: fit-content;
+  width: 100%;
+  overflow-x: auto;
   padding: 0 16px;
 }
 
 .flow-column {
   flex: 0 0 380px;
   min-width: 380px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Action Button Styling */

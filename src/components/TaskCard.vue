@@ -309,14 +309,15 @@ const formatDate = (dateString: string) => {
 .task-card {
   transition: all 0.3s ease;
   border-radius: 16px;
-  border: 1px solid rgba(255, 227, 169, 0.2);
-  margin: 4px;
+  border: 1px solid rgba(255, 227, 169, 0.15);
+  margin: 2px;
+  font-size: 0.95rem;
 }
 
 .task-card:hover {
   transform: translateY(-4px);
   border-color: #FFE3A9;
-  box-shadow: 0 12px 32px rgba(114, 92, 173, 0.4);
+  box-shadow: 0 8px 24px rgba(114, 92, 173, 0.4);
 }
 
 .line-clamp-2 {
@@ -328,7 +329,7 @@ const formatDate = (dateString: string) => {
 
 /* Enhanced spacing for card content */
 .q-card-section {
-  padding: 20px !important;
+  padding: 16px !important;
 }
 
 /* Better chip spacing */
