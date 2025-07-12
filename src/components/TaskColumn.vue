@@ -165,29 +165,29 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
 .task-column {
   border-radius: 20px;
   height: 100%;
-  width: 100%;
-  max-width: 400px;
+  width: 320px;
   border: 2px solid rgba(239, 228, 210, 0.2);
-  margin: 0 12px;
+  margin: 0 8px;
   display: flex;
   flex-direction: column;
 }
 
 .column-header {
-  border-bottom: 1px solid rgba(239, 228, 210, 0.2);
+  border-bottom: 1px solid rgba(239, 228, 210, 0.15);
   border-radius: 20px 20px 0 0;
   flex-shrink: 0;
+  padding: 12px !important;
 }
 
 .column-content {
   flex: 1;
   overflow-y: auto;
-  min-height: 0;
+  padding: 8px !important;
 }
 
 .task-list {
-  min-height: 100px;
-  padding: 8px;
+  min-height: 50px;
+  padding: 4px;
 }
 
 .drag-area-empty {
@@ -207,7 +207,7 @@ const handleToggleSubtask = (taskId: string, subtaskId: string) => {
 .task-item {
   transition: all 0.3s ease;
   padding: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* Drag and drop styling */

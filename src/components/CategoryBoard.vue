@@ -424,7 +424,7 @@ onMounted(async () => {
 .flow-container {
   display: flex;
   gap: 24px;
-  width: 100%;
+  min-width: 100%;
   overflow-x: auto;
   padding: 0 16px;
 }
@@ -432,7 +432,7 @@ onMounted(async () => {
 .flow-column {
   flex: 0 0 380px;
   min-width: 380px;
-  max-height: 75vh;
+  height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
 }
@@ -458,11 +458,11 @@ onMounted(async () => {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .category-boards {
-    padding: 20px;
+    padding: 12px;
   }
   
   .category-flow {
-    padding: 20px;
+    padding: 12px;
   }
   
   .boards-grid {
