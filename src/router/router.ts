@@ -9,16 +9,16 @@ const routes: Array<RouteRecordRaw> = [
     component: Layout,
     children: [
       {
-        path: "",
+        path: "/",
         name: "Home",
         component: Home,
-        meta: { transition: "slide-x" } // or remove meta to use default
+        // or remove meta to use default
       },
       {
-        path: "tasks",
+        path: "/tasks",
         name: "Tasks",
         component: Tasks,
-        meta: { transition: "slide-x" }
+        
       }
     ],
   },
