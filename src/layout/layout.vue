@@ -3,16 +3,13 @@
     <Header :tabs="tabs" />
 
     <q-page-container>
-      <q-page class="q-pa-md flex flex-center column items-center">
+      <q-page class="flex flex-center column items-center">
         <div
           class="q-mx-auto q-pa-lg bg-primary text-white rounded-borders"
           style="max-width: 800px; width: 100%"
         >
-     <router-view v-slot="{ Component, route }">
-  <transition :name="route.meta?.transition ?? transitionName" mode="out-in">
-    <component :is="Component" :key="route.fullPath" />
-  </transition>
-</router-view>
+     <router-view/>
+
         </div>
       </q-page>
     </q-page-container>
