@@ -1,9 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="bg-primary">
     <Header :tabs="tabs" />
-
     <q-page-container>
-      <q-page class="flex flex-center column items-center">
+      <q-page class="flex column items-center">
         <div
           class="q-pt-sm bg-primary text-white rounded-borders"
           style="max-width: 800px; width: 100%"
