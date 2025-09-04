@@ -9,6 +9,7 @@ import Home from "../views/home.vue";
 import Tasks from "../views/tasks.vue";
 import Settings from "../views/settings.vue";
 import Trade from "../views/trade.vue";
+import Notes from "../views/notes.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "/trade",
         name: "Trade",
         component: Trade,
+      },
+      {
+        path: "/notes",
+        name: "Notes",
+        component: Notes,
       },
       {
         path: "/settings",

@@ -100,15 +100,13 @@ interface Action {
 }
 
 const props = defineProps<{
-  modelValue: boolean; // v-model
-  type?: DialogType; // 'prompt' or anything else
+  modelValue: boolean; 
+  type?: DialogType; 
   title?: string;
-  message?: string; // used in prompt
-  confirmLabel?: string; // default 'Confirm'
-  cancelLabel?: string; // default 'Cancel'
-  actions?: Action[]; // used when type !== 'prompt'
-
-  // QDialog/QCard options
+  message?: string; 
+  confirmLabel?: string; 
+  cancelLabel?: string; 
+  actions?: Action[]; 
   persistent?: boolean;
   seamless?: boolean;
   maximized?: boolean;

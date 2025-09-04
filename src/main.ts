@@ -9,9 +9,12 @@ import "./style.css";
 import router from "./router/router";
 import { Quasar, Dialog, Notify, QSlideTransition } from "quasar";
 import { registerGlobalComponents } from "./components/components";
+import { createPinia } from "pinia";
 
+const pinia = createPinia();
 const spasta = createApp(App);
 registerGlobalComponents(spasta);
+
 spasta
   .use(Quasar, {
     plugins: {
@@ -20,5 +23,6 @@ spasta
       QSlideTransition,
     },
   })
+  .use(pinia)
   .use(router)
   .mount("#app");
