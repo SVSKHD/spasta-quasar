@@ -1,7 +1,14 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 import Layout from "../layout/layout.vue";
+
 import Home from "../views/home.vue";
 import Tasks from "../views/tasks.vue";
+import Settings from "../views/settings.vue";
+import Trade from "../views/trade.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -18,8 +25,17 @@ const routes: Array<RouteRecordRaw> = [
         path: "/tasks",
         name: "Tasks",
         component: Tasks,
-        
-      }
+      },
+      {
+        path: "/trade",
+        name: "Trade",
+        component: Trade,
+      },
+      {
+        path: "/settings",
+        name: "settings",
+        component: Settings,
+      },
     ],
   },
   // optional: catch-all -> Home

@@ -1,17 +1,7 @@
 <template>
-  <div>
-    <h1>Trade View</h1>
-  </div>
+  <tradeView />
 </template>
 
-<script>
-export default {
-  name: 'TradeView'
-}
+<script setup lang="ts">
+import tradeView from "../pageComponents/tradeView.vue";
 </script>
-
-<style scoped>
-h1 {
-  color: green;
-}
-</style>

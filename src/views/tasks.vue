@@ -1,7 +1,7 @@
 <template>
-<tasksView/>
+  <tasksView />
 </template>
 
 <script setup lang="ts">
-import tasksView from '../pageComponents/tasksView.vue';
+import tasksView from "../pageComponents/tasksView.vue";
 </script>

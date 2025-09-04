@@ -1,8 +1,7 @@
 <template>
-  <HomeView/>
+  <HomeView />
 </template>
 
 <script setup lang="ts">
-import HomeView from '../pageComponents/homeView.vue';
+import HomeView from "../pageComponents/homeView.vue";
 </script>
-

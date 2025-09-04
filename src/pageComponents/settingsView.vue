@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="text-white">Home View</h4>
+    <h4 class="text-white">settings View</h4>
     <spasta-card title="hello" />
   </div>
 </template>

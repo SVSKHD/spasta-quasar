@@ -2,19 +2,12 @@
   <div class="q-pa-lg">
     <q-toolbar class="layout-header text-white rounded-borders">
       <!-- Left: Home -->
-      <q-btn
-        flat
-        icon="eva-home-outline"
-        :to="homeTo"
-        class="q-pr-md"
-      >
+      <q-btn flat icon="eva-home-outline" :to="homeTo" class="q-pr-md">
         <q-tooltip>Go to {{ homeToLabel }}</q-tooltip>
       </q-btn>
 
       <!-- Center text -->
-      <div class="text-h6 text-bold text-white q-mx-md">
-        Spasta.online
-      </div>
+      <div class="text-h6 text-bold text-white q-mx-md">Spasta.online</div>
 
       <q-space />
 
@@ -55,8 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 
 type RouteLike = string | Record<string, any>;
 
@@ -74,29 +67,29 @@ const props = defineProps<{
 }>();
 
 const route = useRoute();
-const current = ref<string>('');
+const current = ref<string>("");
 
-const homeTo = computed(() => props.homeTo ?? '/');
-const homeToLabel = computed(() => props.homeToLabel ?? '/');
+const homeTo = computed(() => props.homeTo ?? "/");
+const homeToLabel = computed(() => props.homeToLabel ?? "/");
 
 const normalizedTabs = computed<TabItem[]>(() => props.tabs ?? []);
 
 function tooltipText(r: RouteLike) {
-  if (typeof r === 'string') return `Route: ${r}`;
+  if (typeof r === "string") return `Route: ${r}`;
   const parts: string[] = [];
   if (r.name) parts.push(`name=${r.name}`);
   if (r.path) parts.push(`path=${r.path}`);
   if (r.params) parts.push(`params=${JSON.stringify(r.params)}`);
   if (r.query) parts.push(`query=${JSON.stringify(r.query)}`);
-  return parts.length ? `Route: ${parts.join(' · ')}` : 'Navigate';
+  return parts.length ? `Route: ${parts.join(" · ")}` : "Navigate";
 }
 
 watch(
   () => route.fullPath,
   () => {
-    const match = normalizedTabs.value.find(t => {
+    const match = normalizedTabs.value.find((t) => {
       const r = t.route as any;
-      if (typeof r === 'string') {
+      if (typeof r === "string") {
         return route.path === r;
       } else if (r && r.name) {
         return route.name === r.name;
@@ -107,6 +100,6 @@ watch(
     });
     if (match) current.value = match.name;
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>

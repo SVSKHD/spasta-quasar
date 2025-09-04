@@ -5,11 +5,10 @@
     <q-page-container>
       <q-page class="flex flex-center column items-center">
         <div
-          class="q-mx-auto q-pa-lg bg-primary text-white rounded-borders"
+          class="q-pt-sm bg-primary text-white rounded-borders"
           style="max-width: 800px; width: 100%"
         >
-     <router-view/>
-
+          <router-view />
         </div>
       </q-page>
     </q-page-container>
@@ -17,13 +16,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import Header from "../layout/header.vue";
 
 const tabs = [
   { name: "Tasks", route: "/tasks", icon: "eva-layers-outline" },
-  { name: "Trading", route: "/trading", icon: "eva-bar-chart-outline" },
+  { name: "Trading", route: "/trade", icon: "eva-bar-chart-outline" },
   { name: "Notes", route: "/notes", icon: "eva-file-text-outline" },
   { name: "Settings", route: "/settings", icon: "eva-options-outline" },
 ];
@@ -35,17 +34,17 @@ const route = useRoute();
  * - Forward (history.position increases)  -> slide-left
  * - Back    (history.position decreases)  -> slide-right
  */
-const transitionName = ref<'slide-left' | 'slide-right'>('slide-left');
+const transitionName = ref<"slide-left" | "slide-right">("slide-left");
 let lastPos = (window.history.state && window.history.state.position) ?? 0;
 
 watch(
   () => route.fullPath,
   () => {
     const pos = (window.history.state && window.history.state.position) ?? 0;
-    transitionName.value = pos > lastPos ? 'slide-left' : 'slide-right';
+    transitionName.value = pos > lastPos ? "slide-left" : "slide-right";
     lastPos = pos;
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
