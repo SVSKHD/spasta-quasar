@@ -14,20 +14,38 @@
         <q-space />
         <q-btn
           v-if="closable"
-          dense
-          flat
-          round
-          icon="eva-close-outline"
+          dense flat round icon="eva-close-outline"
           @click="close('cancel')"
         />
+      </q-card-section>
+
+      <!-- Error banner (right below title) -->
+      <q-card-section v-if="showErrorBlock" class="q-pt-sm q-pb-none">
+        <!-- custom error slot wins -->
+        <slot name="error">
+          <q-banner
+            rounded
+            dense
+            inline-actions
+            class="bg-negative text-white"
+          >
+            <div v-if="errors?.length">
+              <div class="q-mb-xs text-weight-medium">{{ errorHeading }}</div>
+              <ul class="q-pl-md q-mt-none q-mb-none">
+                <li v-for="(e, i) in errors" :key="i">{{ e }}</li>
+              </ul>
+            </div>
+            <div v-else>
+              {{ errorMessage || 'Something went wrong. Please try again.' }}
+            </div>
+          </q-banner>
+        </slot>
       </q-card-section>
 
       <!-- Body -->
       <q-card-section class="q-pt-md">
         <template v-if="type === 'prompt'">
-          <div class="text-body1 q-mb-md">
-            {{ message }}
-          </div>
+          <div class="text-body1 q-mb-md">{{ message }}</div>
         </template>
         <template v-else>
           <slot />
@@ -36,25 +54,11 @@
 
       <!-- Footer / Actions -->
       <q-card-actions align="right" class="q-gutter-sm">
-        <!-- Prompt mode: fixed two buttons -->
         <template v-if="type === 'prompt'">
-          <q-btn
-            :label="cancelLabel"
-            color="negative"
-            flat
-            dense
-            @click="onCancel"
-          />
-          <q-btn
-            :label="confirmLabel"
-            color="dark"
-            unelevated
-            dense
-            @click="onConfirm"
-          />
+          <q-btn :label="cancelLabel" color="negative" flat dense @click="onCancel" />
+          <q-btn :label="confirmLabel" color="dark" unelevated dense @click="onConfirm" />
         </template>
 
-        <!-- Default mode: custom actions or slot -->
         <template v-else>
           <slot name="actions">
             <q-btn
@@ -100,19 +104,25 @@ interface Action {
 }
 
 const props = defineProps<{
-  modelValue: boolean; 
-  type?: DialogType; 
+  modelValue: boolean;
+  type?: DialogType;
   title?: string;
-  message?: string; 
-  confirmLabel?: string; 
-  cancelLabel?: string; 
-  actions?: Action[]; 
+  message?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  actions?: Action[];
   persistent?: boolean;
   seamless?: boolean;
   maximized?: boolean;
   position?: Position;
-  width?: number | string; // e.g., 480 or '520px'
-  closable?: boolean; // show top-right close btn
+  width?: number | string;
+  closable?: boolean;
+
+  /** --- Error props --- */
+  error?: boolean;             // toggles error block
+  errorMessage?: string;       // single message
+  errors?: string[];           // multiple messages (array)
+  errorHeading?: string;       // optional heading above list
 }>();
 
 const emit = defineEmits<{
@@ -126,26 +136,21 @@ const confirmLabel = computed(() => props.confirmLabel ?? "Confirm");
 const cancelLabel = computed(() => props.cancelLabel ?? "Cancel");
 
 const cardStyle = computed(() => ({
-  width:
-    typeof props.width === "number"
-      ? `${props.width}px`
-      : props.width || "520px",
+  width: typeof props.width === "number" ? `${props.width}px` : props.width || "520px",
 }));
+
+/** Show error block if: error=true OR errors has items OR errorMessage provided */
+const showErrorBlock = computed(
+  () => !!(props.error || (props.errors && props.errors.length) || props.errorMessage)
+);
 
 function close(kind: "confirm" | "cancel") {
   emit("update:modelValue", false);
   if (kind === "confirm") emit("confirm");
   if (kind === "cancel") emit("cancel");
 }
-
-function onConfirm() {
-  close("confirm");
-}
-
-function onCancel() {
-  close("cancel");
-}
-
+function onConfirm() { close("confirm"); }
+function onCancel() { close("cancel"); }
 function onAction(a: Action) {
   emit("action", a);
   if (typeof a.onClick === "function") a.onClick();
