@@ -10,7 +10,7 @@ import './style.css';
 
 import { registerGlobalComponents } from './components/components';
 import { createPinia } from 'pinia';
-import { waitForAuthReady, auth } from './firebase/firebase';
+import { waitForAuthReady } from './firebase/firebase';
 import { useAuthStore } from './store/auth';
 
 (async () => {
@@ -25,9 +25,9 @@ import { useAuthStore } from './store/auth';
   app.use(router);
   registerGlobalComponents(app);
 
-  // Seed the auth store before first render so components have the user
+  
   const authStore = useAuthStore(pinia);
-  authStore.hydrateFromBootstrap(user); // we'll add this method below
+  authStore.hydrateFromBootstrap(user); 
 
   app.mount('#app');
 })();
